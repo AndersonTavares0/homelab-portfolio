@@ -85,9 +85,13 @@ Added a "Copy link" control in the Observatory header that writes the canonical 
 
 Added a 1200×630 share card generated from the design tokens by `scripts/share-card.mjs`, Open Graph and Twitter metadata on every route, `og:type=article` on case pages, and a test that resolves the image on four routes. Also fixed a real focus bug found by a flaky keyboard test: when the scene switched between topology and 3D, the focused component control was replaced and focus fell to the body; the component now restores focus to the same component after the swap. Six consecutive full-suite runs passed afterwards (26 E2E tests).
 
-### Next cycle — reading performance on long pages
+### Cycle 12 — reading measure (done)
 
-Measure the case-page render with the scene absent and check typographic measure and rhythm on a narrow tablet width where the reading column competes with padding.
+Measured the case pages at 1440, 1024, 768 and 390 px: the prose column was 685 px, about 86 characters per line, above the 65–75 target. Capped it at 36em, which yields 72 characters at desktop and tablet and 44 on mobile, with no horizontal overflow and the section index still aligned. The Observatory at 900 px was inspected too (stage 547 px, detail 272 px) and kept as is: the scene stays usable and the strip wraps cleanly.
+
+### Next cycle — home narrative tightening
+
+The home page carries hero, intro, project index, lessons and closing. Review whether any of those repeats the same idea and cut what does not earn its place.
 
 
 ### Delivered baseline (before this document)
