@@ -1,44 +1,39 @@
 # Homelab Portfolio — operating goal
 
-Persistent execution document. It records the mission, the operating loop, the current verified state, the prioritised backlog and the evidence of each cycle. Update it at the end of every cycle; never treat an intermediate delivery as the end of the objective.
+Persistent execution document for the approved MVP plan and explicitly authorized follow-up work. Record current verified state and evidence. The MVP is complete; continue only with user-authorized, evidence-backed improvements, stopping when remaining issues are marginal or require scope changes.
 
 ## Mission
 
-Deliver the approved plan in full and keep improving the portfolio autonomously to a professional standard: English content backed by evidence, an editorial Atlas and an interactive Observatory, accessible and responsive, with a private repository and passing CI.
+Deliver the approved plan: an evidence-based English portfolio with the Atlas editorial identity, interactive Observatory, five case studies, documented timeline, 3D topology with complete mobile/WebGL fallback, and printable professional summary. Keep the repository private and do not publish or deploy the site.
 
-## Operating loop
+## Completion workflow
 
-1. Pick the highest-impact justified improvement from the backlog.
-2. Implement the smallest complete change (Ponytail full); consult Impeccable, frontend-design, daisyUI and no-ai-slop where relevant.
-3. Run the focused checks, then inspect the real result in a browser at 1440×900 and 390×844.
-4. Fix what the inspection shows; re-check the affected paths.
-5. Record the cycle outcome, evidence and next action here, then start the next cycle.
+1. Compare the implementation with the plan's concrete MVP criteria.
+2. Run the plan's content, unit, dependency, build, public-content, E2E and secret-history checks.
+3. Inspect the built site in a real browser at desktop and mobile sizes; verify the exercised journey and runtime.
+4. Continue with scoped, evidence-backed improvements authorized by the current user request; stop when remaining work is marginal or would expand scope.
+5. Record evidence and real limitations here. Merge completed work to `main` through a pull request after private CI passes. Never deploy, publish, or change repository visibility.
 
 ## Constraints
 
-- Repository stays **private**; no merge, deployment, Pages, visibility change or publication.
-- Work happens on a branch and is pushed to the private remote; `main` already holds the delivered MVP and is not modified by these cycles.
+- Repository stays **private**; merges to `main` are authorized through pull requests after private CI passes. Deployment, Pages, public publication and visibility changes remain prohibited.
+- Earlier PRs #5 and #6 were merged under prior authorization. The current instruction authorizes ongoing merges; preserve history and do not rewrite or revert existing work.
 - No credentials, addresses, internal usernames, inventory or operational detail from the homelab.
 - Documented past observations are not live-state claims. No invented metrics, roles or history.
 - Original code MIT; original text and diagrams CC BY 4.0.
 
 ## Current state
 
-- Repository: `AndersonTavares0/homelab-portfolio` (private), `main` at `5be5393`.
-- Evolution branch: `feat/evolution`.
+- Repository: `AndersonTavares0/homelab-portfolio` (private); `feat/mobile-nav-targets` carries the three verified mobile hit-area fixes and targets `main` through a PR after CI.
 - Stack: Astro static, Svelte island, Three.js, Tailwind 4, daisyUI 5, self-hosted Public Sans.
-- Routes: `/`, `/cases/<id>/` (5), `/profile/`. Observatory deep links use `?phase=&component=#observatory`.
-- Evolution HEAD: `feat/evolution`, 46 improvement cycles logged below.
-- Checks: 27 unit tests, 45 Chromium E2E tests (five axe audits, no-JavaScript, print, document structure, structured data, touch, 320 px and 200% zoom), content validation, static build, `audit:public`, Gitleaks over all refs, private CI on every pushed commit.
-- Browser matrix exercised: 1440×900, 1280, 1024, 900, 844×390, 768, 720 (200% zoom), 390×844, 375 and 320 px.
+- Routes: `/`, `/cases/<id>/` (5), `/profile/`; Observatory deep links use `?phase=&component=#observatory`.
+- All 50 logged evolution cycles are present on `main`; original MVP and requested follow-up work are integrated.
+- Current local verification: 27 unit tests, 48 Chromium E2E tests, a 9-route build, `audit:public`, `git diff --check`, and Gitleaks 8.30.1 (71 commits, no findings). Private CI passed for the latest code and merge-policy commit `533e803` in run `41873078648`; this status update will receive its own CI before PR creation.
+- Browser verification: navigation targets measure 30 px at 390 and 1440 and 28 px at 320; case-index links measure 24 px at 390; the standalone summary link measures 32 px at 390. Case and profile navigation work, with no horizontal overflow or application errors.
 
 ## Backlog
 
-All six original items shipped (accessibility automation, `/cases/` index, Observatory keyboard model, performance budget, cross-linking, robustness), plus the later cycles below. Remaining ideas, none urgent:
-
-- Split the Three.js chunk if a future scene grows; today it is lazy and does not block reading.
-- Revisit phase filtering only if the catalogue grows past roughly eight studies (declined on evidence in cycle 26).
-- Any future publication requires the fresh review described in Constraints.
+All six original MVP items shipped (accessibility automation, `/cases/` index, Observatory keyboard model, measured performance budget, cross-linking and robustness). No MVP deliverable remains open. Non-MVP ideas are not authorization for additional work; publication or deployment remains explicitly unauthorized.
 
 ## Cycle log
 
@@ -246,11 +241,22 @@ Added a Chromium context with `hasTouch` and a 390×844 viewport: tapping a phas
 
 Every page now ships JSON-LD: `Person` with the confirmed GitHub profile on editorial routes, and `Article` with headline, description, author and `articleSection` (the study's phase) on case pages. A structure test parses the payload and asserts both variants. Suite is 45 E2E tests.
 
-### Next cycle
+### MVP completion status
 
-No urgent item remains. The backlog above lists the only open ideas, each waiting on a trigger rather than a fix: a larger Three.js scene, a catalogue past eight studies, or an authorized publication. Any next cycle should start from a new observation in the browser rather than reopening these decisions.
+The MVP acceptance criteria are met. `npm audit --omit=dev --audit-level=moderate` passes with three low-severity `deepmerge` advisories inherited through the Svelte/Vite adapter; the scanner's suggested `--force` remediation would downgrade `@astrojs/svelte` to a breaking version, so it was not applied. The current explicit user request authorizes further evidence-backed refinements; publication, deployment, merge and scope expansion remain prohibited.
 
 
 ### Delivered baseline (before this document)
 
 MVP integrated: five evidence-based cases, printable summary, Observatory with 3D scene, DOM topology, deep links, mobile and WebGL fallback, metadata, favicon, responsive breakpoints and documented design tokens. Verified with 25 unit tests, 9 E2E tests, build, public audit, Gitleaks and browser inspection at 1440/1280/1024/768/390/375 px.
+
+### Cycle 51 — mobile navigation tap targets (done)
+
+At 390 px the three main-navigation links had 22 px-high targets, below the intended 24 px hit height; a new Playwright assertion reproduced the gap before the fix. Added 8 px of vertical padding via Tailwind `py-1`; browser measurements are now 30 px at 390 and 1440, and 28 px at 320, with no horizontal overflow. The case-studies link works at desktop and the browser reported no application errors. Local verification: 27 unit tests, 46 E2E tests, a 9-route build, public-content audit and clean diff check. Gitleaks 8.30.1 found no leaks in the history and authored/generated paths. Private CI passed for commit `ddd8b96` in run `41870276812`.
+
+### Cycle 52 — case section-index hit targets (done)
+
+On the 390 px case page, the five “In this study” links measured 16 px high inside a flex-wrapped index. A new mobile E2E assertion reproduced the short hit area; each link now receives Tailwind `py-1`, measuring 24 px. The selected section remains visible after following its link. Local verification: 27 unit tests, 47 E2E tests, a 9-route build, public-content audit, clean diff check, and Gitleaks 8.30.1 with no findings in 69 commits or the scanned current source, tests, GOAL and `dist`. Private CI passed for commit `545081c` in run `41871555684`.
+### Cycle 53 — professional-summary link hit area (done)
+
+The standalone “Read the professional summary” link in the home skills panel measured 19 px high at 390 px. A new E2E assertion reproduced the short target; `inline-block py-1` now gives it a 32 px target. Browser navigation reaches `/profile/` without overflow or application errors. Local verification: 27 unit tests, 48 E2E tests, a 9-route build, `audit:public` and `git diff --check`; Gitleaks 8.30.1 found no leaks in the scanned source, tests, GOAL and generated site, and no leaks across 70 history commits. Private CI passed for commit `681a3fd` in run `41872479723`.

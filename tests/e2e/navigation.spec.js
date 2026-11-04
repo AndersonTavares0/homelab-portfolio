@@ -48,6 +48,30 @@ test('the index keeps its order and metadata on mobile', async ({ page }) => {
   await expect(page.locator('.case-list a')).toHaveCount(5);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 });
+test('main navigation links have at least 24px of hit height on narrow screens', async ({ page }) => {
+  for (const width of [390, 320]) {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto('/');
+
+    const links = page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link');
+    const heights = await links.evaluateAll(elements =>
+      elements.map(link => link.getBoundingClientRect().height)
+    );
+
+    expect(heights).toHaveLength(3);
+    expect(heights.every(height => height >= 24), `navigation link height at ${width}px`).toBe(true);
+  }
+});
+
+test('the standalone summary link has a comfortable mobile hit area', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+
+  const link = page.getByRole('link', { name: 'Read the professional summary' });
+  const height = await link.evaluate(element => element.getBoundingClientRect().height);
+
+  expect(height).toBeGreaterThanOrEqual(24);
+});
 
 test('the navigation marks the current section', async ({ page }) => {
   await page.goto('/cases/gpu-lab/');
