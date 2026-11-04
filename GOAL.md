@@ -28,8 +28,8 @@ Deliver the approved plan in full and keep improving the portfolio autonomously 
 - Evolution branch: `feat/evolution`.
 - Stack: Astro static, Svelte island, Three.js, Tailwind 4, daisyUI 5, self-hosted Public Sans.
 - Routes: `/`, `/cases/<id>/` (5), `/profile/`. Observatory deep links use `?phase=&component=#observatory`.
-- Evolution HEAD: `feat/evolution`, 34 improvement cycles logged below.
-- Checks: 27 unit tests, 32 Chromium E2E tests (including three axe audits, no-JavaScript, 320 px and 200% zoom), content validation, static build, `audit:public`, Gitleaks, private CI on every pushed commit.
+- Evolution HEAD: `feat/evolution`, 41 improvement cycles logged below.
+- Checks: 27 unit tests, 32 Chromium E2E tests (including three axe audits, no-JavaScript, 320 px and 200% zoom), content validation, static build, `audit:public`, Gitleaks over all 55 commits, private CI on every pushed commit.
 - Browser matrix exercised: 1440×900, 1280, 1024, 900, 844×390, 768, 720 (200% zoom), 390×844, 375 and 320 px.
 
 ## Backlog
@@ -210,9 +210,13 @@ All twelve direct dependencies are used by the build, a route or a test. One rea
 
 Read as a newcomer and found two real gaps: the command list implied `npm run test:e2e` works on a fresh clone, although it serves `dist`, and there was no route map. The README now states that a build must precede the browser tests, lists the four public routes, and describes the not-found page as the handling for unknown paths (rather than a `/404` URL that the static server does not serve). Regenerated from the shared content; licences and phase summary were already accurate.
 
-### Next cycle — final consolidation
+### Cycle 42 — consolidation (done)
 
-Run the whole battery once more at the head commit, confirm the repository state, and leave the status block with the final numbers so the branch is ready for review.
+Full battery at the head commit: content check, 27 unit tests, 32 E2E tests, build, `audit:public`, and Gitleaks across 55 commits without findings. Repository remains private, `main` untouched at `5be5393`, one working branch, no pull requests. The status block now carries the final cycle count, test numbers and scan scope, so the branch is ready for review as it stands.
+
+### Next cycle
+
+No urgent item remains. The backlog above lists the only open ideas, each waiting on a trigger rather than a fix: a larger Three.js scene, a catalogue past eight studies, or an authorized publication. Any next cycle should start from a new observation in the browser rather than reopening these decisions.
 
 
 ### Delivered baseline (before this document)
