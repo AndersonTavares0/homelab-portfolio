@@ -1,91 +1,120 @@
-# Anderson Tavares
+<div align="center">
 
-Infrastructure projects documented through hands-on work with Linux, virtualization, container operations, observability and shared GPU computing. Each case records a problem, a technical decision and the evidence available.
+<h1>Anderson Tavares</h1>
 
-[GitHub profile](https://github.com/AndersonTavares0)
+<p><strong>Infrastructure, understood by building.</strong></p>
 
-![Illustrative infrastructure topology showing virtualization, services, alerting, automation, observation and GPU computing](public/topology.svg)
+<p>Infrastructure projects documented through hands-on work with Linux, virtualization, container operations, observability and shared GPU computing. Each case records a problem, a technical decision and the evidence available.</p>
+
+<p><a href="#case-studies">Case studies</a> · <a href="#development-themes">Development themes</a> · <a href="#the-observatory">The Observatory</a> · <a href="#professional-summary">Professional summary</a> · <a href="#run-locally">Run locally</a> · <a href="#contact">Contact</a></p>
+
+</div>
 
 ## Skills
 
 Linux · Proxmox · Podman · systemd · Ansible · Semaphore · Grafana · Loki · Python
 
-## Projects
+## Case studies
 
-- **[Safer alert delivery](content/cases/alert-relay.md)** — A local relay keeps alert credentials out of a plugin's error messages.
-- **[Automation with a review boundary](content/cases/automation.md)** — Ansible and Semaphore separate read-only discovery, simulation and guarded changes.
-- **[Sharing a GPU safely](content/cases/gpu-lab.md)** — A single lifecycle controller coordinates an interactive lab and production inference.
-- **[Making telemetry failures visible](content/cases/observability.md)** — Freshness and delivery status matter as much as collected metrics.
-- **[Decoupling an RSS relay from inference](content/cases/rss-relay.md)** — Removing an unnecessary GPU dependency while retaining reliable feed delivery.
+Each study records its context, decision, observed result, learning and documented state. Results remain tied to the evidence and date of their source.
 
-## Areas of development
+| Study | Focus | Technologies |
+|---|---|---|
+| [Automation with a review boundary](content/cases/automation.md) | Ansible and Semaphore separate read-only discovery, simulation and guarded changes. | Ansible, Semaphore, Proxmox, Linux |
+| [Decoupling an RSS relay from inference](content/cases/rss-relay.md) | Removing an unnecessary GPU dependency while retaining reliable feed delivery. | Python, Miniflux, Discord, HMAC |
+| [Making telemetry failures visible](content/cases/observability.md) | Freshness and delivery status matter as much as collected metrics. | Python, systemd, Uptime Kuma, Grafana, Loki |
+| [Safer alert delivery](content/cases/alert-relay.md) | A local relay keeps alert credentials out of a plugin's error messages. | CrowdSec, Telegram, Python, systemd |
+| [Sharing a GPU safely](content/cases/gpu-lab.md) | A single lifecycle controller coordinates an interactive lab and production inference. | Linux, systemd, Podman, GPU, Python |
 
-These phases are an editorial grouping, not a measured chronology.
+## Development themes
 
-### Foundation
+Each phase pairs a challenge with a lesson. They group related work as editorial themes, not a measured chronology.
 
-Virtualization and Linux establish the environment.
+| Theme | Challenge and learning | Related studies |
+|---|---|---|
+| Foundation | Keep management and workload boundaries clear.<br>Treat documented configuration and live state as distinct. | Automation with a review boundary |
+| Services | Keep service delivery independent of scarce compute.<br>Remove unnecessary dependencies from a critical path. | Decoupling an RSS relay from inference |
+| Automation & observability | Distinguish missing, old and failed observations.<br>Keep safe inspection separate from changes. | Automation with a review boundary, Safer alert delivery, Making telemetry failures visible |
+| Accelerated computing | Prevent stale sessions from claiming a shared resource.<br>Prove ownership and cleanup together. | Sharing a GPU safely |
 
-Documented state: Virtualization is documented.
+## The Observatory
 
-Next: Continue checking assumptions against evidence.
+![Conceptual map connecting virtualization, services, alert delivery, automation, observability and GPU computing](public/topology.svg)
 
-### Services
+The Observatory connects a selected component to its documented projects, skills and phase. The accessible DOM topology is the source of truth; Three.js renders the same nodes and relationships as an optional desktop view.
 
-Container services and a feed relay extend the environment.
+On desktop, the 3D scene loads when the Observatory approaches the viewport. Narrow layouts and unavailable WebGL keep the DOM topology usable. Keyboard and touch controls, browser history, reduced-motion preferences and shareable URLs preserve access to the same information.
 
-Documented state: The relay change is documented as a historical operation.
+## Professional summary
 
-Next: Translation was left as a separate possible change.
+The `/profile/` route presents a concise, project-based summary that readers can print.
 
-### Automation & observability
+## Site routes
 
-Inspection, simulations and telemetry support operations.
+| Route | Purpose |
+|---|---|
+| `/` | Atlas home, skills, project index, lessons and Observatory |
+| `/cases/` | Catalogue of all five studies |
+| `/cases/<id>/` | Full study with context, decisions and documented state |
+| `/profile/` | Printable, project-based professional summary |
+| Unknown path | Editorial 404 page |
 
-Documented state: Historical tests and simulations are documented.
+## Architecture
 
-Next: Validate a change before applying it.
+| Layer | Technology | Role |
+|---|---|---|
+| Static pages | Astro | Builds the home page, case catalogue, five studies, profile and not-found page |
+| Interaction | Svelte | Manages Observatory selection and URL state |
+| 3D visualization | Three.js | Renders the optional desktop scene after the section approaches the viewport |
+| Styling | Tailwind CSS 4, daisyUI 5 | Responsive presentation and semantic controls |
+| Content | Markdown and shared model | Drives the site and the generated README |
 
-### Accelerated computing
-
-A shared GPU has an explicit lifecycle and isolation boundary.
-
-Documented state: A historical cutover and recovery checks are documented.
-
-Next: Retest the ordinary user journey after lifecycle changes.
-
-Each case separates the documented state from the next step; see the studies above for sources and limits.
-
-## Development
+## Run locally
 
 Requires Node.js 22.23.4 or newer.
 
 ```sh
 npm ci
-npm run dev        # local development
-npm run build      # static build into dist/
-npm run preview    # serve the built site on 127.0.0.1:4321
-npm test           # model and content unit tests
-npm run test:e2e   # Chromium end-to-end tests against the built site
-npm run content:check
-npm run content:build  # regenerate this README
-npm run audit:public   # heuristic scan of authored and built files
+npm run dev
 ```
 
-Run `npm run build` before `npm run test:e2e`: the browser tests serve `dist` through `scripts/serve-dist.mjs`, which avoids the single-instance lock of `astro preview`.
+Open the local address printed by Astro, normally `http://localhost:4321`.
 
-## Routes
+To inspect the static build, run these commands after stopping the development server:
 
-- `/` — editorial home, project index, lessons and the Observatory
-- `/cases/` — catalogue in thematic order
-- `/cases/<id>/` — the five studies, each with its documented state
-- `/profile/` — printable professional summary
-- unknown paths — the not-found page built from `src/pages/404.astro`
+```sh
+npm run build
+npm run preview -- --host 127.0.0.1 --port 4321
+```
 
-The Observatory state is deep-linkable, for example `/?phase=accelerated&component=gpu#observatory`.
+## Verify changes
 
-Share metadata uses relative URLs by default. Set `PUBLIC_SITE_URL` to an absolute origin at build time when the site has one, so Open Graph and Twitter previews resolve.
+Run the content, unit, dependency, build, public-content and browser checks:
 
-## Licensing
+```sh
+npm run content:check
+npm run content:build
+npm test
+npm audit --omit=dev --audit-level=moderate
+npm run build
+npm run audit:public
+npm run test:e2e
+```
 
-Original code is [MIT licensed](LICENSE). Original text and diagrams are [CC BY 4.0](CONTENT-LICENSE.md). Third-party dependencies and fonts keep their own licenses.
+Install Chromium once before the browser suite with `npx playwright install chromium`. Build before `npm run test:e2e`; Playwright serves the generated `dist/` site on `127.0.0.1:4327`.
+
+The private GitHub Actions workflow validates content, tests the model, audits runtime dependencies, builds the site, scans public artifacts and runs Chromium tests. It runs on pushes and pull requests with read-only contents access. No deployment job is configured.
+
+`npm run audit:public` checks configured patterns in authored and generated files. It is a heuristic, not proof that every possible exposure has been removed.
+
+## Privacy and publication
+
+The repository is private and has no published site URL. Case studies distinguish historical records from current live state, and the topology is illustrative rather than a physical inventory. Set `PUBLIC_SITE_URL` only when a published origin exists; the build uses it for absolute share metadata.
+
+## Contact
+
+[GitHub profile](https://github.com/AndersonTavares0)
+
+## License
+
+Original code is [MIT licensed](LICENSE). Original writing and diagrams are [CC BY 4.0](CONTENT-LICENSE.md). Third-party dependencies and fonts retain their own licenses.
