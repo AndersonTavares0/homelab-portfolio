@@ -190,9 +190,13 @@ Full local battery at the head commit: content check, 27 unit tests, 32 E2E test
 
 Case pages already carried `og:type=article`, a per-study description and the shared card, but `og:image` and the page URL were relative, which no preview crawler resolves. The layout now emits `og:url` and can make both values absolute from an optional `PUBLIC_SITE_URL` set at build time, falling back to relative paths locally. Verified by building with and without the variable (`/cases/gpu-lab/` and `/og.png` versus `https://example.invalid/...`), and the metadata test now checks `og:url` on four routes. README documents the variable.
 
-### Next cycle — catalogue card at 320 px
+### Cycle 37 — catalogue at 320 px (done)
 
-The catalogue metadata line now carries technologies, phase and reading time. Check the row at 320 px for wrapping that pushes the title or hides the reading time.
+At 320 px each catalogue row carried a decorative index column inside a 2.2 rem gutter, squeezing the title into two lines and the metadata into three. Below 380 px the numbering is now hidden and the row becomes a single column, so rows shrink from about 261 px to 226 px, the title gains width and the reading-time line stays intact. The 320 px test still passes with no horizontal scrolling.
+
+### Next cycle — case page pager at 320 px
+
+The previous/next pager holds two equal columns; check whether long study titles collide at 320 px and adjust the pattern if the capture shows it.
 
 
 ### Delivered baseline (before this document)

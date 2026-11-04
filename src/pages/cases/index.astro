@@ -50,4 +50,10 @@ const items = orderedCases(cases).map(item => ({
   @media (max-width: 700px) {
     .case-list a { grid-template-columns: 2.2rem 1fr; gap: 1rem; }
   }
+  @media (max-width: 380px) {
+    .case-list a { grid-template-columns: 1fr; }
+    .case-list__index { display: none; }
+    .case-list__body strong { font-size: 1.18rem; }
+    .case-list__body { gap: .35rem; }
+  }
 </style>
