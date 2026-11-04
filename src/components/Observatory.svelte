@@ -1,7 +1,12 @@
-<script>
+<script lang="ts">
   import { onMount, tick } from 'svelte';
+  import { gsap } from 'gsap';
+  import { Button } from 'bits-ui';
+  import { resolve } from '$app/paths';
   import { components, observatoryLayout, overview, overviewPhase, phases, selectView, views } from '../model.js';
-  import { sitePath } from '../site-path.js';
+  const resolvedBase = resolve('');
+  const base = /^\.\/?$/.test(resolvedBase) ? '' : resolvedBase.replace(/\/+$/, '');
+  const sitePath = (path: string) => `${base}${path.startsWith('/') ? path : `/${path}`}`;
 
   let { cases = [] } = $props();
   let phaseId = $state(views[0]?.id ?? '');
@@ -167,6 +172,9 @@
     phaseId = initial.phaseId;
     selectedId = initial.selectedId;
     syncUrl();
+    const stage = host?.querySelector('.observatory__stage');
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (stage && media.matches && !reduced) gsap.fromTo(stage, { opacity: 1, y: 16 }, { opacity: 1, y: 0, duration: .7, ease: 'power3.out', clearProps: 'all' });
 
     function restoreFromHistory() {
       const next = stateFromUrl(window.location.search);
@@ -239,6 +247,7 @@
       media.removeEventListener('change', updateMode);
       window.removeEventListener('popstate', restoreFromHistory);
       canvas?.removeEventListener('webglcontextlost', contextLost);
+      gsap.killTweensOf(stage);
       scene?.destroy();
       scene = null;
     };
@@ -252,12 +261,12 @@
       <p class="observatory__intro">Explore how systems connect, why decisions were made and where each case study goes deeper.</p>
     </div>
     <div class="observatory__actions">
-      <button type="button" class="btn btn-sm observatory__overview" onclick={clearSelection} aria-pressed={phaseId === defaultPhaseId && !selectedId}>
+      <Button.Root type="button" class="btn btn-sm observatory__overview" onclick={clearSelection} aria-pressed={phaseId === defaultPhaseId && !selectedId}>
         Overview
-      </button>
-      <button type="button" class="btn btn-sm observatory__overview" onclick={copyViewLink} data-copy-view>
+      </Button.Root>
+      <Button.Root type="button" class="btn btn-sm observatory__overview" onclick={copyViewLink} data-copy-view>
         Copy link
-      </button>
+      </Button.Root>
       <p class="observatory__copy-status" role="status" aria-live="polite">{copyStatus}</p>
     </div>
   </header>
@@ -272,6 +281,7 @@
     <div class="observatory__stage">
       <div class="observatory__stage-title">
         <span class="observatory__stage-mark" aria-hidden="true"></span>
+        <span class="observatory__stage-code" aria-hidden="true">REL / 06</span>
         <span>{activePhase?.name ?? 'Infrastructure map'}</span>
         <span class="observatory__stage-hint" role={sceneLoading ? 'status' : undefined}>
           {sceneLoading && sceneMode !== '3d' ? 'Preparing the interactive view…' : sceneMode === '3d' ? 'Drag to orbit · scroll to zoom' : 'Select a station to explore'}
@@ -330,6 +340,12 @@
           <h4>Technologies</h4>
           <ul class="detail__tags">{#each selectedComponent.technologies as technology}<li>{technology}</li>{/each}</ul>
         </div>
+        {#if selectedCase?.technologyContext}
+          <div class="detail__section detail__technology">
+            <h4>Technology in practice</h4>
+            <p class="detail__description">{selectedCase.technologyContext}</p>
+          </div>
+        {/if}
         <div class="detail__section">
           <h4>Connected systems</h4>
           {#if relatedComponents.length}
@@ -507,8 +523,8 @@
   }
   @media (max-width: 520px) {
     .observatory { padding: 1rem; border-radius: .8rem; }
-    .observatory__header { align-items: flex-start; margin-bottom: 1.3rem; }
-    .observatory__overview { flex: 0 0 auto; padding-inline: .6rem; }
+    .observatory__header { flex-direction: column; }
+    .observatory__actions { width: 100%; justify-content: flex-start; }
     .observatory__stage-title { height: auto; min-height: 3.4rem; padding-inline: .75rem; font-size: .76rem; }
     .observatory__stage-hint { max-width: 48%; font-size: .66rem; text-align: right; line-height: 1.3; }
     .observatory__visual { min-height: 25rem; }
@@ -530,5 +546,59 @@
   }
   @media (prefers-reduced-motion: reduce) {
     .observatory *, .observatory *::before, .observatory *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
+  }
+  .observatory {
+    position: relative;
+    border-radius: .85rem;
+    border-color: #3b505e;
+    background-color: #0f1922;
+    background-image: linear-gradient(rgba(130, 185, 210, .035) 1px, transparent 1px), linear-gradient(90deg, rgba(130, 185, 210, .035) 1px, transparent 1px);
+    background-size: 2.1rem 2.1rem;
+    isolation: isolate;
+  }
+  .observatory::before {
+    position: absolute;
+    inset: 1rem;
+    z-index: -1;
+    border: 1px solid rgba(130, 185, 210, .12);
+    border-radius: .45rem;
+    content: '';
+    pointer-events: none;
+  }
+  .observatory__header { align-items: flex-start; padding-bottom: 1.15rem; border-bottom: 1px solid rgba(130, 185, 210, .2); }
+  .observatory__header h2 { max-width: 9ch; }
+  .observatory__intro { max-width: 32rem; }
+  .observatory__stage, .observatory__detail, .phase-panel, .phase-work { border-radius: .35rem; border-color: #3b505e; background: #14212b; box-shadow: 0 18px 34px rgba(3, 9, 14, .22); }
+  .observatory__stage-title { display: grid; grid-template-columns: auto auto minmax(0, 1fr) auto; letter-spacing: .03em; background: #111d26; }
+  .observatory__stage-code { color: #ffffff !important; font: 600 .62rem/1 ui-monospace, SFMono-Regular, Consolas, monospace; letter-spacing: .08em; }
+  .observatory__stage-hint { color: #ffffff !important; }
+  .observatory__stage-title > span { color: #ffffff; }
+  .observatory__visual { background-color: #101b25; background-image: radial-gradient(circle at 50% 50%, rgba(63, 115, 142, .2), transparent 45%), linear-gradient(rgba(130, 185, 210, .045) 1px, transparent 1px), linear-gradient(90deg, rgba(130, 185, 210, .045) 1px, transparent 1px); background-size: auto, 2.1rem 2.1rem, 2.1rem 2.1rem; }
+  .observatory__wires line { stroke: #68899b; stroke-width: .7; stroke-dasharray: 1.5 3; }
+  .observatory__wires .wire-active { stroke: #b1e0f0; stroke-width: 1.35; }
+  .topology-node { border-radius: .18rem; border-color: #5b7482; background: #192a35; box-shadow: 0 14px 24px rgba(3, 9, 14, .32); }
+  .topology-node__name { color: #f0f7f9; }
+  .topology-node::before { width: .35rem; height: .35rem; align-self: flex-start; border-top: 1px solid var(--obs-blue); border-left: 1px solid var(--obs-blue); content: ''; }
+  .topology-node.is-dimmed { opacity: 1; }
+  .topology-node.is-selected { border-color: #b1e0f0; background: #254252; box-shadow: 0 0 0 2px rgba(155, 207, 228, .18), 0 16px 28px rgba(3, 9, 14, .38); }
+  .topology-node__icon { display: none; }
+  .observatory__map-caption { left: 50%; right: auto; width: max-content; max-width: calc(100% - 2rem); transform: translateX(-50%); padding: .25rem .55rem; border: 1px solid rgba(130, 185, 210, .22); background: rgba(15, 25, 34, .82); font: .62rem/1.35 ui-monospace, SFMono-Regular, Consolas, monospace; letter-spacing: .025em; }
+  .observatory__detail { background: #13212b; }
+  .detail__topline, .detail__id, .phase-panel__count { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; letter-spacing: .04em; }
+  .detail__technology { background: rgba(132, 191, 186, .055); padding: .8rem; border: 1px solid rgba(132, 191, 186, .2); }
+  .detail__technology h4 { color: var(--obs-teal); }
+  .detail__tags li, .phase-work__skills span { border-radius: .15rem; background: #182a35; }
+  .phase-panel, .phase-work { background: #12202a; }
+  .phase-list { gap: 0; border-top: 1px solid var(--obs-line); }
+  .phase-option { border-width: 0 0 1px; border-radius: 0; border-color: var(--obs-line); background: transparent; }
+  .phase-option:hover, .phase-option--active { border-color: #9bcfe4; background: rgba(130, 185, 210, .1); }
+  .phase-option--active strong { color: #f0f7f9; }
+  @media (max-width: 520px) {
+    .observatory__header { padding-bottom: .9rem; }
+    .observatory__header h2 { max-width: 100%; }
+    .observatory__stage-title { grid-template-columns: auto auto 1fr; }
+    .observatory__stage-hint { grid-column: 1 / -1; margin: .2rem 0 0; max-width: none; text-align: left; }
+    .observatory__stage-code { font-size: .56rem; }
+    .observatory::before { inset: .6rem; }
   }
 </style>

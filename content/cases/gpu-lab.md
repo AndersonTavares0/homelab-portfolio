@@ -3,6 +3,7 @@ id: gpu-lab
 title: Sharing a GPU safely
 summary: A single lifecycle controller coordinates an interactive lab and production inference.
 technologies: [Linux, systemd, Podman, GPU, Python]
+technologyContext: "A root-owned controller and transient systemd service bind the rootless Podman container inside the verified cgroup before sharing the GPU."
 ---
 
 ## Context

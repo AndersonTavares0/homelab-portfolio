@@ -3,6 +3,7 @@ id: alert-relay
 title: Safer alert delivery
 summary: A local relay keeps alert credentials out of a plugin's error messages.
 technologies: [CrowdSec, Telegram, Python, systemd]
+technologyContext: "CrowdSec sends to a loopback-only Python relay; systemd hardens the process, which alone reads the Telegram destination and credential."
 ---
 
 ## Context

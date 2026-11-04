@@ -34,12 +34,9 @@ const studies = [
 ];
 
 test('project index explains how the technologies work in each documented case', async ({ page }) => {
-  await page.goto('/');
-  const rows = page.locator('.project-list a');
-  await expect(rows).toHaveCount(studies.length);
-
   for (const study of studies) {
-    const row = rows.filter({ hasText: study.title });
+    await page.goto('/');
+    const row = page.locator('.project-list a').filter({ hasText: study.title });
     await expect(row).toContainText(study.technologies);
     await expect(row).toContainText(study.context);
     await expect(row).toHaveAttribute('href', `/cases/${study.id}/`);

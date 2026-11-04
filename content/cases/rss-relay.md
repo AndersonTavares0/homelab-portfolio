@@ -3,6 +3,7 @@ id: rss-relay
 title: Decoupling an RSS relay from inference
 summary: Removing an unnecessary GPU dependency while retaining reliable feed delivery.
 technologies: [Python, Miniflux, Discord, HMAC]
+technologyContext: "Python receives Miniflux webhooks, deduplicates and queues entries, then signs Discord delivery with HMAC; the delivery path no longer depends on GPU inference."
 ---
 
 ## Context

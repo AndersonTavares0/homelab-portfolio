@@ -1,7 +1,12 @@
 import { expect, test } from '@playwright/test';
 
 test('theme follows system preference until a keyboard-usable choice is saved', async ({ page }) => {
-  await page.addInitScript(() => localStorage.removeItem('homelab-portfolio-theme'));
+  await page.addInitScript(() => {
+    if (!sessionStorage.getItem('theme-test-reset')) {
+      localStorage.removeItem('homelab-portfolio-theme');
+      sessionStorage.setItem('theme-test-reset', '1');
+    }
+  });
   await page.emulateMedia({ colorScheme: 'dark' });
   await page.goto('/');
 

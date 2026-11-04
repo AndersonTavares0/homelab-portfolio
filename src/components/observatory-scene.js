@@ -119,6 +119,15 @@ export function createObservatory(canvas, onSelect, edges, components) {
   orbit.rotation.x = -Math.PI / 2;
   orbit.position.y = -0.704;
   scene.add(orbit);
+  for (const [radius, opacity] of [[3.4, .26], [5.1, .5], [6.3, .16]]) {
+    const ring = new THREE.Mesh(
+      new THREE.RingGeometry(radius, radius + .012, 96),
+      new THREE.MeshBasicMaterial({ color: 0x6f9caf, transparent: true, opacity, side: THREE.DoubleSide })
+    );
+    ring.rotation.x = -Math.PI / 2;
+    ring.position.y = -0.702;
+    scene.add(ring);
+  }
 
   const nodes = new Map();
   const labels = new Map();
