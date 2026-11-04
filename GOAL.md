@@ -81,9 +81,13 @@ Read all five studies and the profile against no-ai-slop: no banned filler, no b
 
 Added a "Copy link" control in the Observatory header that writes the canonical URL with phase, component and fragment, with a polite live status for success and failure. Covered in `tests/e2e/robustness.spec.js`; suite is 25 E2E tests. Buttons were verified at 390 px without overflow.
 
-### Next cycle — share metadata
+### Cycle 11 — share metadata (done)
 
-Add article metadata and a share image for case pages, ready but unused until publication is authorized.
+Added a 1200×630 share card generated from the design tokens by `scripts/share-card.mjs`, Open Graph and Twitter metadata on every route, `og:type=article` on case pages, and a test that resolves the image on four routes. Also fixed a real focus bug found by a flaky keyboard test: when the scene switched between topology and 3D, the focused component control was replaced and focus fell to the body; the component now restores focus to the same component after the swap. Six consecutive full-suite runs passed afterwards (26 E2E tests).
+
+### Next cycle — reading performance on long pages
+
+Measure the case-page render with the scene absent and check typographic measure and rhythm on a narrow tablet width where the reading column competes with padding.
 
 
 ### Delivered baseline (before this document)

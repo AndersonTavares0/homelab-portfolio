@@ -1,5 +1,5 @@
 <script>
-  import { onMount } from 'svelte';
+  import { onMount, tick } from 'svelte';
   import { components, overview, phases, selectPhase } from '../model.js';
 
   let { cases = [] } = $props();
@@ -181,8 +181,13 @@
         scene = createObservatory(canvas, chooseComponent, edges);
         scene.setPhase(activePhase?.components ?? []);
         scene.setSelected(selectedId);
+        const focusedComponent = document.activeElement?.dataset?.componentId;
         sceneMode = '3d';
         sceneError = false;
+        if (focusedComponent) {
+          await tick();
+          document.querySelector(`[data-component-id="${focusedComponent}"]`)?.focus();
+        }
       } catch {
         sceneError = true;
         sceneMode = 'topology';
@@ -192,9 +197,13 @@
     }
     function updateMode() {
       if (!media.matches) {
+        const focusedComponent = document.activeElement?.dataset?.componentId;
         scene?.destroy();
         scene = null;
         sceneMode = 'topology';
+        if (focusedComponent) {
+          tick().then(() => document.querySelector(`[data-component-id="${focusedComponent}"]`)?.focus());
+        }
       } else if (host && 'IntersectionObserver' in window) {
         observer?.disconnect();
         observer = new IntersectionObserver((entries) => {
