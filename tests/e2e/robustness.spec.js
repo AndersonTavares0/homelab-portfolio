@@ -82,3 +82,13 @@ test.describe('without JavaScript', () => {
     expect(await page.evaluate(() => document.querySelectorAll('.observatory__wires line').length)).toBeGreaterThanOrEqual(0);
   });
 });
+
+test('the layout holds at 320 px without horizontal scrolling', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 700 });
+  for (const route of ['/', '/cases/', '/cases/gpu-lab/', '/profile/']) {
+    await page.goto(route);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), route).toBe(true);
+    const header = await page.locator('.site-header').boundingBox();
+    expect(header.height, route).toBeLessThan(140);
+  }
+});

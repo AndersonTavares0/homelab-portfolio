@@ -173,9 +173,13 @@ The walkthrough exposed a design-floor violation in the same screen: the active 
 
 Read as a hiring reader: the page states scope, technical areas and one-line evidence per study, then points to printing. The per-study lines are an index, not duplicated prose, so they stayed. Two real inconsistencies were fixed: the list followed file order instead of the catalogue order (now shared `orderedCases`, with the phase shown per study), and the GitHub link sat flush against the paragraph above it (now spaced). A navigation test locks the order and the phase label. Suite is 30 E2E tests.
 
-### Next cycle — navigation labels under 360 px
+### Cycle 33 — narrowest viewport (done)
 
-Check the header and footer at 320–360 px, where four links plus the wordmark are tightest, and fix wrapping or overlap that the capture shows.
+At 320 px nothing overflowed or overlapped, but the header consumed 151 px because the nav wrapped with default spacing. A ≤380 px rule tightens header/footer padding, nav gap and type, bringing the header to 119 px with the same three links. Footer keeps its two rows. A robustness test asserts no horizontal scrolling and a header below 140 px on four routes at 320 px. Suite is 31 E2E tests.
+
+### Next cycle — case page on a 200% zoom
+
+Emulate a 720 px viewport with 200% zoom (effectively 360 CSS px) on a case page and check that the reading column, index and pager stay coherent, since zoom is the accessibility path most often ignored.
 
 
 ### Delivered baseline (before this document)
