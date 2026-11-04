@@ -1,44 +1,39 @@
 # Homelab Portfolio — operating goal
 
-Persistent execution document. It records the mission, the operating loop, the current verified state, the prioritised backlog and the evidence of each cycle. Update it at the end of every cycle; never treat an intermediate delivery as the end of the objective.
+Persistent execution document for the approved MVP plan. Record the current verified state, decisions and evidence. Stop when every MVP criterion has direct evidence; do not create post-MVP improvement cycles without a new user request.
 
 ## Mission
 
-Deliver the approved plan in full and keep improving the portfolio autonomously to a professional standard: English content backed by evidence, an editorial Atlas and an interactive Observatory, accessible and responsive, with a private repository and passing CI.
+Deliver the approved plan: an evidence-based English portfolio with the Atlas editorial identity, interactive Observatory, five case studies, documented timeline, 3D topology with complete mobile/WebGL fallback, and printable professional summary. Keep the repository private and do not publish or deploy the site.
 
-## Operating loop
+## Completion workflow
 
-1. Pick the highest-impact justified improvement from the backlog.
-2. Implement the smallest complete change (Ponytail full); consult Impeccable, frontend-design, daisyUI and no-ai-slop where relevant.
-3. Run the focused checks, then inspect the real result in a browser at 1440×900 and 390×844.
-4. Fix what the inspection shows; re-check the affected paths.
-5. Record the cycle outcome, evidence and next action here, then start the next cycle.
+1. Compare the implementation with the plan's concrete MVP criteria.
+2. Run the plan's content, unit, dependency, build, public-content, E2E and secret-history checks.
+3. Inspect the built site in a real browser at desktop and mobile sizes; verify the exercised journey and runtime.
+4. Fix only demonstrated MVP gaps. Do not add features or continue polish cycles after acceptance criteria pass.
+5. Record final evidence and actual limitations in this file. Do not merge, deploy, publish, or change repository visibility.
 
 ## Constraints
 
-- Repository stays **private**; no merge, deployment, Pages, visibility change or publication.
-- Work happens on a branch and is pushed to the private remote; `main` already holds the delivered MVP and is not modified by these cycles.
+- Repository stays **private**; no further merge, deployment, Pages, visibility change or publication.
+- Pull requests #5 and #6 were merged earlier in the conversation after a prior user instruction. The current instruction prohibits any further merge; do not rewrite or revert that history.
 - No credentials, addresses, internal usernames, inventory or operational detail from the homelab.
 - Documented past observations are not live-state claims. No invented metrics, roles or history.
 - Original code MIT; original text and diagrams CC BY 4.0.
 
 ## Current state
 
-- Repository: `AndersonTavares0/homelab-portfolio` (private), `main` at `5be5393`.
-- Evolution branch: `feat/evolution`.
+- Repository: `AndersonTavares0/homelab-portfolio` (private), `main` at `f5612c1`; local final-audit branch `docs/mvp-final-audit`.
 - Stack: Astro static, Svelte island, Three.js, Tailwind 4, daisyUI 5, self-hosted Public Sans.
-- Routes: `/`, `/cases/<id>/` (5), `/profile/`. Observatory deep links use `?phase=&component=#observatory`.
-- Evolution HEAD: `feat/evolution`, 46 improvement cycles logged below.
-- Checks: 27 unit tests, 45 Chromium E2E tests (five axe audits, no-JavaScript, print, document structure, structured data, touch, 320 px and 200% zoom), content validation, static build, `audit:public`, Gitleaks over all refs, private CI on every pushed commit.
-- Browser matrix exercised: 1440×900, 1280, 1024, 900, 844×390, 768, 720 (200% zoom), 390×844, 375 and 320 px.
+- Routes: `/`, `/cases/<id>/` (5), `/profile/`; Observatory deep links use `?phase=&component=#observatory`.
+- All 50 logged evolution cycles are present on `main`; original MVP and requested follow-up work are integrated.
+- Checks on this audit: 27 unit tests and 45 Chromium E2E tests, including five axe audits, touch interaction, no-JavaScript, print, document structure, structured data, 320 px and 200% zoom; content validation, static build, `audit:public`, Gitleaks on all 65 commits and authored/generated files, and private CI for `main` commit `f5612c1`.
+- Browser checks on this audit: 1440×900 and 390×844, home and GPU Lab case; no horizontal overflow or application runtime errors. Earlier project checks cover 3D, mobile, keyboard, reduced motion, WebGL fallback, and navigation.
 
 ## Backlog
 
-All six original items shipped (accessibility automation, `/cases/` index, Observatory keyboard model, performance budget, cross-linking, robustness), plus the later cycles below. Remaining ideas, none urgent:
-
-- Split the Three.js chunk if a future scene grows; today it is lazy and does not block reading.
-- Revisit phase filtering only if the catalogue grows past roughly eight studies (declined on evidence in cycle 26).
-- Any future publication requires the fresh review described in Constraints.
+All six original MVP items shipped (accessibility automation, `/cases/` index, Observatory keyboard model, measured performance budget, cross-linking and robustness). No MVP deliverable remains open. Non-MVP ideas are not authorization for additional work; publication or deployment remains explicitly unauthorized.
 
 ## Cycle log
 
@@ -246,9 +241,9 @@ Added a Chromium context with `hasTouch` and a 390×844 viewport: tapping a phas
 
 Every page now ships JSON-LD: `Person` with the confirmed GitHub profile on editorial routes, and `Article` with headline, description, author and `articleSection` (the study's phase) on case pages. A structure test parses the payload and asserts both variants. Suite is 45 E2E tests.
 
-### Next cycle
+### MVP completion status
 
-No urgent item remains. The backlog above lists the only open ideas, each waiting on a trigger rather than a fix: a larger Three.js scene, a catalogue past eight studies, or an authorized publication. Any next cycle should start from a new observation in the browser rather than reopening these decisions.
+The MVP acceptance criteria are met. `npm audit --omit=dev --audit-level=moderate` passes with three low-severity `deepmerge` advisories inherited through the Svelte/Vite adapter; the scanner's suggested `--force` remediation would downgrade `@astrojs/svelte` to a breaking version, so it was not applied. No further development cycle is planned under this goal; continue only after a new user request.
 
 
 ### Delivered baseline (before this document)
