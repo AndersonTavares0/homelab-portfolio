@@ -155,9 +155,13 @@ Catalogue order is now computed once in `scripts/content.mjs` and shared by the 
 
 With JavaScript disabled, all four routes keep their text and the hero still renders; the Observatory shows the Foundation phase with its host node, the phase briefing and the legends, but its phase and component controls are inert. A `<noscript>` notice now says exactly that and links to the catalogue. A Playwright context with `javaScriptEnabled: false` asserts the case text, the notice and its link. Suite is 29 E2E tests. Also removed the last uppercase label in the detail panel ("Selected system" now reads in sentence case).
 
-### Next cycle — Observatory loading state
+### Cycle 29 — Observatory loading state (done)
 
-The "Preparing the interactive view…" badge is more prominent than the content it describes. Review the first seconds of the section on a cold load and make the transition quieter.
+On a cold load the section showed a floating "Preparing the interactive view…" box over the empty stage. The message now lives in the stage title row as a polite status, replacing the hint until the scene arrives, and the box is gone. Captured with the scene chunk delayed by 2.5 s: the topology, phase briefing and strip are readable immediately and the status reads "Preparing the interactive view…" inline. Suite stays at 29 E2E tests.
+
+### Next cycle — first-load perception
+
+Measure what a cold visitor sees in the first second at 1440×900 (hero, nav, illustration, fonts) and fix any flash of unstyled text or layout shift that the capture shows.
 
 
 ### Delivered baseline (before this document)

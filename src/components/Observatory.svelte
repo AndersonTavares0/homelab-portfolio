@@ -274,7 +274,9 @@
       <div class="observatory__stage-title">
         <span class="observatory__live-dot" aria-hidden="true"></span>
         <span>{activePhase?.name ?? 'Infrastructure map'}</span>
-        <span class="observatory__stage-hint">{sceneMode === '3d' ? 'Click a model or use the component list' : 'Select a node to explore'}</span>
+        <span class="observatory__stage-hint" role={sceneLoading ? 'status' : undefined}>
+          {sceneLoading && sceneMode !== '3d' ? 'Preparing the interactive view…' : sceneMode === '3d' ? 'Click a model or use the component list' : 'Select a node to explore'}
+        </span>
       </div>
       {#snippet nodeButton(component)}
         <button type="button" class="topology-node topology-node--{component.id}" class:is-selected={selectedId === component.id} data-component-id={component.id} aria-label={`Select ${component.name}`} aria-pressed={selectedId === component.id} onclick={() => chooseComponent(component.id)} onkeydown={(event) => moveComponentFocus(event, component.id)}>
@@ -284,9 +286,6 @@
       {/snippet}
       <div class="observatory__visual" class:observatory__visual--3d={sceneMode === '3d'}>
         <canvas bind:this={canvas} class="observatory__canvas" aria-hidden="true"></canvas>
-        {#if sceneLoading && sceneMode !== '3d'}
-          <p class="observatory__scene-status" role="status">Preparing the interactive view…</p>
-        {/if}
         {#if sceneError}
           <p class="observatory__fallback-note" data-webgl-fallback role="status">Interactive 3D is unavailable. The complete topology remains available below.</p>
         {/if}
@@ -441,8 +440,7 @@
   .topology-node--automation { left: 35%; bottom: 10%; }
   .topology-node--gpu { left: 3%; bottom: 10%; }
   .observatory__map-caption { position: absolute; bottom: .7rem; left: 1rem; right: 1rem; margin: 0; color: #9cabb5; font-size: .68rem; text-align: center; }
-  .observatory__fallback-note, .observatory__scene-status { position: absolute; z-index: 2; top: .75rem; left: 1rem; max-width: calc(100% - 2rem); margin: 0; padding: .45rem .7rem; border: 1px solid #566b78; border-radius: .35rem; color: var(--obs-text); background: #17232dee; font-size: .73rem; }
-  .observatory__scene-status { left: auto; right: .75rem; }
+  .observatory__fallback-note { position: absolute; z-index: 2; top: .75rem; left: 1rem; max-width: calc(100% - 2rem); margin: 0; padding: .45rem .7rem; border: 1px solid #566b78; border-radius: .35rem; color: var(--obs-text); background: #17232dee; font-size: .73rem; }
   .observatory__legend { display: flex; flex-wrap: wrap; gap: 1.25rem; padding: .75rem 1rem; border-top: 1px solid var(--obs-line); color: var(--obs-muted); font-size: .7rem; }
   .observatory__legend span { display: flex; align-items: center; gap: .45rem; }
   .legend-mark { width: .52rem; height: .52rem; border-radius: 2px; background: #8197a5; }
