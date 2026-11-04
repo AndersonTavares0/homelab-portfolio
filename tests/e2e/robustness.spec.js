@@ -92,3 +92,13 @@ test('the layout holds at 320 px without horizontal scrolling', async ({ page })
     expect(header.height, route).toBeLessThan(140);
   }
 });
+
+test('a case page stays readable at 200% zoom', async ({ page }) => {
+  await page.setViewportSize({ width: 720, height: 900 });
+  await page.goto('/cases/gpu-lab/');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  const width = await page.locator('.prose').first().evaluate(el => el.getBoundingClientRect().width);
+  expect(width).toBeLessThanOrEqual(600);
+  await expect(page.getByRole('navigation', { name: 'In this study' })).toBeVisible();
+  await expect(page.getByRole('navigation', { name: 'Case studies' })).toBeVisible();
+});

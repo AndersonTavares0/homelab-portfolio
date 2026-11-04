@@ -177,9 +177,13 @@ Read as a hiring reader: the page states scope, technical areas and one-line evi
 
 At 320 px nothing overflowed or overlapped, but the header consumed 151 px because the nav wrapped with default spacing. A ≤380 px rule tightens header/footer padding, nav gap and type, bringing the header to 119 px with the same three links. Footer keeps its two rows. A robustness test asserts no horizontal scrolling and a header below 140 px on four routes at 320 px. Suite is 31 E2E tests.
 
-### Next cycle — case page on a 200% zoom
+### Cycle 34 — 200% zoom (verified, test added)
 
-Emulate a 720 px viewport with 200% zoom (effectively 360 CSS px) on a case page and check that the reading column, index and pager stay coherent, since zoom is the accessibility path most often ignored.
+At a 720 px viewport (200% zoom on a 1440 window) a case page keeps a 576 px reading column, the section index wraps to two rows and the pager stays in two columns, with no horizontal scrolling. At 360 px the prose drops to 331 px and still holds. No layout change was needed; a robustness test now locks the zoom case (no overflow, reading column ≤600 px, index and pager visible). Suite is 32 E2E tests.
+
+### Next cycle — final audit and hand-off note
+
+Re-run the complete battery at the head commit, confirm the repository state (private, no deployment, branches), and update the status block in this file with the cycle count and the current evidence so the project can be handed over without reading this log.
 
 
 ### Delivered baseline (before this document)
