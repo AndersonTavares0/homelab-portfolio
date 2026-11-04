@@ -1,6 +1,6 @@
 # Homelab Portfolio — operating goal
 
-Persistent execution document for the approved MVP plan. Record the current verified state, decisions and evidence. Stop when every MVP criterion has direct evidence; do not create post-MVP improvement cycles without a new user request.
+Persistent execution document for the approved MVP plan and explicitly authorized follow-up work. Record current verified state and evidence. The MVP is complete; continue only with user-authorized, evidence-backed improvements, stopping when remaining issues are marginal or require scope changes.
 
 ## Mission
 
@@ -24,12 +24,12 @@ Deliver the approved plan: an evidence-based English portfolio with the Atlas ed
 
 ## Current state
 
-- Repository: `AndersonTavares0/homelab-portfolio` (private), `main` at `f5612c1`; local final-audit branch `docs/mvp-final-audit`.
+- Repository: `AndersonTavares0/homelab-portfolio` (private), `main` at `f5612c1`; active work branch `feat/mobile-nav-targets`, based on `docs/mvp-final-audit`.
 - Stack: Astro static, Svelte island, Three.js, Tailwind 4, daisyUI 5, self-hosted Public Sans.
 - Routes: `/`, `/cases/<id>/` (5), `/profile/`; Observatory deep links use `?phase=&component=#observatory`.
 - All 50 logged evolution cycles are present on `main`; original MVP and requested follow-up work are integrated.
-- Checks on this audit: 27 unit tests and 45 Chromium E2E tests, including five axe audits, touch interaction, no-JavaScript, print, document structure, structured data, 320 px and 200% zoom; content validation, static build, `audit:public`, Gitleaks over all refs and authored/generated files, and passing private CI on `main` and the final audit branch.
-- Browser checks on this audit: 1440×900 and 390×844, home and GPU Lab case; no horizontal overflow or application runtime errors. Earlier project checks cover 3D, mobile, keyboard, reduced motion, WebGL fallback, and navigation.
+- Current local verification: 27 unit tests, 46 Chromium E2E tests, build (9 routes), `audit:public`, and `git diff --check`; prior private CI passed on `main` and `docs/mvp-final-audit`, with this feature branch awaiting CI.
+- Current browser verification: navigation link targets measure 30 px at 390 and 1440, 28 px at 320; no horizontal overflow, case-index navigation works and the browser reported no page errors. Prior checks cover the full site and Observatory states.
 
 ## Backlog
 
@@ -243,9 +243,13 @@ Every page now ships JSON-LD: `Person` with the confirmed GitHub profile on edit
 
 ### MVP completion status
 
-The MVP acceptance criteria are met. `npm audit --omit=dev --audit-level=moderate` passes with three low-severity `deepmerge` advisories inherited through the Svelte/Vite adapter; the scanner's suggested `--force` remediation would downgrade `@astrojs/svelte` to a breaking version, so it was not applied. No further development cycle is planned under this goal; continue only after a new user request.
+The MVP acceptance criteria are met. `npm audit --omit=dev --audit-level=moderate` passes with three low-severity `deepmerge` advisories inherited through the Svelte/Vite adapter; the scanner's suggested `--force` remediation would downgrade `@astrojs/svelte` to a breaking version, so it was not applied. The current explicit user request authorizes further evidence-backed refinements; publication, deployment, merge and scope expansion remain prohibited.
 
 
 ### Delivered baseline (before this document)
 
 MVP integrated: five evidence-based cases, printable summary, Observatory with 3D scene, DOM topology, deep links, mobile and WebGL fallback, metadata, favicon, responsive breakpoints and documented design tokens. Verified with 25 unit tests, 9 E2E tests, build, public audit, Gitleaks and browser inspection at 1440/1280/1024/768/390/375 px.
+
+### Cycle 51 — mobile navigation tap targets (in progress)
+
+At 390 px the three main-navigation links had 22 px-high targets, below the intended 24 px hit height; a new Playwright assertion reproduced the gap before the fix. Added 8 px of vertical padding via Tailwind `py-1`; browser measurements are now 30 px at 390 and 1440, and 28 px at 320, with no horizontal overflow. The case-studies link works at desktop and the browser reports no page errors. Local verification: 27 unit tests, 46 E2E tests, a 9-route build, public-content audit and clean diff check. Gitleaks 8.30.1 found no leaks in 67 history commits or the scanned authored/generated paths. Private CI remains pending.
