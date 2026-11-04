@@ -24,11 +24,11 @@ Deliver the approved plan: an evidence-based English portfolio with the Atlas ed
 
 ## Current state
 
-- Repository: `AndersonTavares0/homelab-portfolio` (private); `feat/mobile-nav-targets` carries the three verified mobile hit-area fixes and targets `main` through a PR after CI.
+- Repository: `AndersonTavares0/homelab-portfolio` (private); PR #7 was merged to `main` as `2f85b4c`, with all three verified mobile hit-area fixes. Merges remain authorized only through PRs after private CI passes.
 - Stack: Astro static, Svelte island, Three.js, Tailwind 4, daisyUI 5, self-hosted Public Sans.
 - Routes: `/`, `/cases/<id>/` (5), `/profile/`; Observatory deep links use `?phase=&component=#observatory`.
 - All 50 logged evolution cycles are present on `main`; original MVP and requested follow-up work are integrated.
-- Current local verification: 27 unit tests, 48 Chromium E2E tests, a 9-route build, `audit:public`, `git diff --check`, and Gitleaks 8.30.1 (71 commits, no findings). Private CI passed for the latest code and merge-policy commit `533e803` in run `41873078648`; this status update will receive its own CI before PR creation.
+- Post-merge local verification on `main` at `2f85b4c`: 27 unit tests, 48 Chromium E2E tests, a 9-route build, `audit:public`, and `git diff --check` passed. Gitleaks 8.30.1 found no findings across 72 commits. Private PR CI passed in run `41874635643`.
 - Browser verification: navigation targets measure 30 px at 390 and 1440 and 28 px at 320; case-index links measure 24 px at 390; the standalone summary link measures 32 px at 390. Case and profile navigation work, with no horizontal overflow or application errors.
 
 ## Backlog
@@ -243,7 +243,7 @@ Every page now ships JSON-LD: `Person` with the confirmed GitHub profile on edit
 
 ### MVP completion status
 
-The MVP acceptance criteria are met. `npm audit --omit=dev --audit-level=moderate` passes with three low-severity `deepmerge` advisories inherited through the Svelte/Vite adapter; the scanner's suggested `--force` remediation would downgrade `@astrojs/svelte` to a breaking version, so it was not applied. The current explicit user request authorizes further evidence-backed refinements; publication, deployment, merge and scope expansion remain prohibited.
+The MVP acceptance criteria are met. `npm audit --omit=dev --audit-level=moderate` passes with three low-severity `deepmerge` advisories inherited through the Svelte/Vite adapter; the scanner's suggested `--force` remediation would downgrade `@astrojs/svelte` to a breaking version, so it was not applied. The current explicit user request authorizes further evidence-backed refinements and merges through private PRs after CI passes. Public deployment, publication and visibility changes remain prohibited. GitHub repository homepage metadata is unset, Pages is disabled, and no published portfolio URL is confirmed; do not guess a URL or deploy.
 
 
 ### Delivered baseline (before this document)
@@ -260,3 +260,6 @@ On the 390 px case page, the five “In this study” links measured 16 px high 
 ### Cycle 53 — professional-summary link hit area (done)
 
 The standalone “Read the professional summary” link in the home skills panel measured 19 px high at 390 px. A new E2E assertion reproduced the short target; `inline-block py-1` now gives it a 32 px target. Browser navigation reaches `/profile/` without overflow or application errors. Local verification: 27 unit tests, 48 E2E tests, a 9-route build, `audit:public` and `git diff --check`; Gitleaks 8.30.1 found no leaks in the scanned source, tests, GOAL and generated site, and no leaks across 70 history commits. Private CI passed for commit `681a3fd` in run `41872479723`.
+### Cycle 54 — merge verification and website metadata (done; URL pending)
+
+PR #7, `fix(mobile): enlarge navigation hit areas`, merged to `main` at `2f85b4c` on 2026-11-04 after private CI passed (run `41874635643`). Verified the merged commit locally: build produced 9 routes; 27 unit and 48 Chromium E2E tests passed; `audit:public` and `git diff --check` passed. Repository metadata confirms it remains private and its existing description is accurate. The GitHub homepage field is unset and Pages is disabled; no confirmed site URL was available in repository or account metadata. Vercel CLI is not installed. No placeholder URL or deployment was created; adding the website field remains pending a confirmed existing URL, with public deployment still disallowed.
