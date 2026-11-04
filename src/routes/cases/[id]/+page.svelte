@@ -2,7 +2,8 @@
   import { onMount } from 'svelte';
   import { resolve } from '$app/paths';
   let { data } = $props();
-  const base = resolve('').replace(/\/+$/, '');
+  const resolvedBase = resolve('/');
+  const base = resolvedBase === '.' || resolvedBase === './' ? '' : resolvedBase.replace(/\/+$/, '');
   const initialObservatoryHref = $derived(`${base}/${data.observatoryQuery ? `?${data.observatoryQuery}` : ''}#observatory`);
   let observatoryHref = $state('');
   onMount(() => {

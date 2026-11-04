@@ -5,11 +5,12 @@
   import '../styles/global.css';
 
   let { data, children } = $props();
-  let mounted = $state(false);
-  let theme = $state<'light' | 'dark'>('light');
+
   const themeKey = 'homelab-portfolio-theme';
-  const resolvedBase = resolve('');
-  const base = /^\.\/?$/.test(resolvedBase) ? '' : resolvedBase.replace(/\/+$/, '');
+  let theme = $state('light');
+  let mounted = $state(false);
+  const resolvedBase = resolve('/');
+  const base = resolvedBase === '.' || resolvedBase === './' ? '' : resolvedBase.replace(/\/+$/, '');
 
   function applyTheme(next: 'light' | 'dark') {
     theme = next;

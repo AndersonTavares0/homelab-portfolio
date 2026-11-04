@@ -1,16 +1,16 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte';
   import { gsap } from 'gsap';
-  import { Button } from 'bits-ui';
   import { resolve } from '$app/paths';
   import { components, observatoryLayout, overview, overviewPhase, phases, selectView, views } from '../model.js';
-  const resolvedBase = resolve('');
-  const base = /^\.\/?$/.test(resolvedBase) ? '' : resolvedBase.replace(/\/+$/, '');
+  const resolvedBase = resolve('/');
+  const base = resolvedBase === '.' || resolvedBase === './' ? '' : resolvedBase.replace(/\/+$/, '');
   const sitePath = (path: string) => `${base}${path.startsWith('/') ? path : `/${path}`}`;
 
   let { cases = [] } = $props();
   let phaseId = $state(views[0]?.id ?? '');
   let selectedId = $state(null);
+  let hoveredId = $state(null);
   let canvas;
   let scene = null;
   let sceneMode = $state('topology');
@@ -35,6 +35,7 @@
     .filter(([from, to]) => activePhase?.components.includes(from) && activePhase.components.includes(to))
     .map(([from, to]) => ({ fromId: from, toId: to, from: observatoryLayout[from].topology, to: observatoryLayout[to].topology })));
   const selectedComponent = $derived(components.find((component) => component.id === selectedId) ?? null);
+  const hoveredComponent = $derived(components.find((component) => component.id === hoveredId) ?? null);
   const selectedCase = $derived(cases.find((item) => item.id === selectedComponent?.caseId) ?? null);
   const activeCases = $derived((activePhase?.cases ?? []).map((id) => cases.find((item) => item.id === id)).filter(Boolean));
   const relatedComponents = $derived(selectedComponent ? edges
@@ -83,6 +84,7 @@
     const state = selectView({ phaseId, selectedId }, id);
     phaseId = state.phaseId;
     selectedId = state.selectedId;
+    hoveredId = null;
     scene?.setPhase(views.find((view) => view.id === id)?.components ?? []);
     scene?.setSelected(selectedId);
     syncUrl();
@@ -91,6 +93,7 @@
   function chooseComponent(id) {
     if (!activePhase?.components.includes(id)) return;
     selectedId = selectedId === id ? null : id;
+    hoveredId = null;
     scene?.setSelected(selectedId);
     syncUrl();
     revealDetail(selectedId !== null);
@@ -144,6 +147,14 @@
     syncUrl();
   }
 
+  function setHoveredComponent(id) {
+    hoveredId = id;
+  }
+
+  function resetView() {
+    scene?.resetCamera();
+  }
+
   async function copyViewLink() {
     try {
       await navigator.clipboard.writeText(window.location.href);
@@ -158,6 +169,7 @@
     const state = overview(selectView({ phaseId, selectedId }, defaultPhaseId));
     phaseId = state.phaseId;
     selectedId = state.selectedId;
+    hoveredId = null;
     scene?.setPhase(overviewPhase.components);
     scene?.setSelected(null);
     syncUrl();
@@ -193,7 +205,7 @@
         if (!support) throw new Error('WebGL is unavailable');
         const { createObservatory } = await import('./observatory-scene.js');
         if (destroyed || !media.matches) return;
-        scene = createObservatory(canvas, chooseComponent, edges, components);
+        scene = createObservatory(canvas, chooseComponent, setHoveredComponent, edges, components);
         scene.setPhase(activePhase?.components ?? []);
         scene.setSelected(selectedId);
         const focusedComponent = document.activeElement?.dataset?.componentId;
@@ -261,12 +273,15 @@
       <p class="observatory__intro">Explore how systems connect, why decisions were made and where each case study goes deeper.</p>
     </div>
     <div class="observatory__actions">
-      <Button.Root type="button" class="btn btn-sm observatory__overview" onclick={clearSelection} aria-pressed={phaseId === defaultPhaseId && !selectedId}>
+      <button type="button" class="btn btn-sm observatory__overview" onclick={clearSelection} aria-pressed={phaseId === defaultPhaseId && !selectedId}>
         Overview
-      </Button.Root>
-      <Button.Root type="button" class="btn btn-sm observatory__overview" onclick={copyViewLink} data-copy-view>
+      </button>
+      <button type="button" class="btn btn-sm observatory__overview" onclick={resetView} data-reset-view>
+        Reset 3D view
+      </button>
+      <button type="button" class="btn btn-sm observatory__overview" onclick={copyViewLink} data-copy-view>
         Copy link
-      </Button.Root>
+      </button>
       <p class="observatory__copy-status" role="status" aria-live="polite">{copyStatus}</p>
     </div>
   </header>
@@ -286,6 +301,7 @@
         <span class="observatory__stage-hint" role={sceneLoading ? 'status' : undefined}>
           {sceneLoading && sceneMode !== '3d' ? 'Preparing the interactive view…' : sceneMode === '3d' ? 'Drag to orbit · scroll to zoom' : 'Select a station to explore'}
         </span>
+        <span class="observatory__stage-readout" data-scene-readout>{sceneMode === '3d' ? `${activeComponents.length} stations · ${topologyLinks.length} links` : `DOM topology · ${activeComponents.length} stations`}</span>
       </div>
       {#snippet nodeButton(component)}
         <button type="button" class="topology-node topology-node--{component.id}" class:is-selected={selectedId === component.id} class:is-related={selectedId === component.id || relatedComponents.some((relation) => relation.id === component.id)} class:is-dimmed={selectedId && selectedId !== component.id && !relatedComponents.some((relation) => relation.id === component.id)} data-component-id={component.id} style={`left: ${observatoryLayout[component.id].topology[0]}%; top: ${observatoryLayout[component.id].topology[1]}%;`} aria-label={`Select ${component.name}`} aria-pressed={selectedId === component.id} onclick={() => chooseComponent(component.id)} onkeydown={(event) => moveComponentFocus(event, component.id)}>
@@ -305,6 +321,10 @@
       {/snippet}
       <div class="observatory__visual" class:observatory__visual--3d={sceneMode === '3d'}>
         <canvas bind:this={canvas} class="observatory__canvas" aria-hidden="true"></canvas>
+        <div class="observatory__scene-hud" data-scene-hud aria-live="polite">
+          <span class="scene-hud__mode">{sceneMode === '3d' ? '3D / ORBIT' : '2D / DOM MAP'}</span>
+          <span>{selectedComponent ? `Focus · ${selectedComponent.name}` : hoveredComponent ? `Inspecting · ${hoveredComponent.name}` : `${activeComponents.length} stations · ${topologyLinks.length} documented links`}</span>
+        </div>
         {#if sceneError}
           <p class="observatory__fallback-note" data-webgl-fallback role="status">Interactive 3D is unavailable. The complete topology remains available below.</p>
         {/if}
@@ -569,10 +589,13 @@
   .observatory__header h2 { max-width: 9ch; }
   .observatory__intro { max-width: 32rem; }
   .observatory__stage, .observatory__detail, .phase-panel, .phase-work { border-radius: .35rem; border-color: #3b505e; background: #14212b; box-shadow: 0 18px 34px rgba(3, 9, 14, .22); }
-  .observatory__stage-title { display: grid; grid-template-columns: auto auto minmax(0, 1fr) auto; letter-spacing: .03em; background: #111d26; }
+  .observatory__stage-title { display: grid; grid-template-columns: auto auto minmax(0, 1fr) auto auto; letter-spacing: .03em; background: #111d26; }
   .observatory__stage-code { color: #ffffff !important; font: 600 .62rem/1 ui-monospace, SFMono-Regular, Consolas, monospace; letter-spacing: .08em; }
   .observatory__stage-hint { color: #ffffff !important; }
   .observatory__stage-title > span { color: #ffffff; }
+  .observatory__stage-readout { color: #9db5c0 !important; font: 600 .59rem/1 ui-monospace, SFMono-Regular, Consolas, monospace; letter-spacing: .04em; white-space: nowrap; }
+  .observatory__scene-hud { position: absolute; z-index: 2; left: 1rem; top: 1rem; display: flex; align-items: center; gap: .65rem; max-width: calc(100% - 2rem); padding: .42rem .58rem; border: 1px solid rgba(158, 202, 220, .24); background: rgba(12, 24, 33, .78); color: #dcecf1; font: .62rem/1.2 ui-monospace, SFMono-Regular, Consolas, monospace; letter-spacing: .035em; pointer-events: none; }
+  .scene-hud__mode { color: #a9d7e7; font-weight: 700; }
   .observatory__visual { background-color: #101b25; background-image: radial-gradient(circle at 50% 50%, rgba(63, 115, 142, .2), transparent 45%), linear-gradient(rgba(130, 185, 210, .045) 1px, transparent 1px), linear-gradient(90deg, rgba(130, 185, 210, .045) 1px, transparent 1px); background-size: auto, 2.1rem 2.1rem, 2.1rem 2.1rem; }
   .observatory__wires line { stroke: #68899b; stroke-width: .7; stroke-dasharray: 1.5 3; }
   .observatory__wires .wire-active { stroke: #b1e0f0; stroke-width: 1.35; }
@@ -598,6 +621,8 @@
     .observatory__header h2 { max-width: 100%; }
     .observatory__stage-title { grid-template-columns: auto auto 1fr; }
     .observatory__stage-hint { grid-column: 1 / -1; margin: .2rem 0 0; max-width: none; text-align: left; }
+    .observatory__stage-readout { grid-column: 1 / -1; margin-top: .15rem; white-space: normal; }
+    .observatory__scene-hud { left: .7rem; top: .7rem; right: .7rem; max-width: none; flex-wrap: wrap; gap: .35rem .55rem; }
     .observatory__stage-code { font-size: .56rem; }
     .observatory::before { inset: .6rem; }
   }

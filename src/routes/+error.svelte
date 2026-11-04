@@ -1,7 +1,8 @@
 <script lang="ts">
   import { page } from '$app/state';
   import { resolve } from '$app/paths';
-  const base = resolve('').replace(/\/+$/, '');
+  const resolvedBase = resolve('/');
+  const base = resolvedBase === '.' || resolvedBase === './' ? '' : resolvedBase.replace(/\/+$/, '');
 </script>
 
 <svelte:head><title>Page not found | Infrastructure in practice</title><meta name="description" content="This page does not exist. Browse the case studies or return home." /></svelte:head>

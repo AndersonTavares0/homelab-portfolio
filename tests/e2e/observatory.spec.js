@@ -13,6 +13,11 @@ function watchForExternalRequests(page) {
   });
   return () => expect(external, 'page must not contact any non-local origin').toEqual([]);
 }
+function watchForPageErrors(page) {
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  return () => expect(errors, 'Observatory interaction must not throw page errors').toEqual([]);
+}
 
 async function enterObservatory(page) {
   await page.goto('/');
@@ -192,4 +197,22 @@ test('unavailable WebGL leaves the accessible topology usable', async ({ page })
   await expect(host).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('#observatory')).toHaveAttribute('data-scene-mode', 'topology');
   assertNoExternalRequests();
+});
+
+test('3D stage exposes a survey HUD and a non-destructive reset view control', async ({ page }) => {
+  const assertNoExternalRequests = watchForExternalRequests(page);
+  const assertNoPageErrors = watchForPageErrors(page);
+  await enterObservatory(page);
+  await expect(page.locator('[data-scene-hud]')).toBeVisible();
+  await expect(page.locator('[data-scene-readout]')).toContainText(/stations|topology/);
+
+  await page.getByRole('button', phaseButton('Accelerated computing')).click();
+  const gpu = page.getByRole('button', componentButton('GPU lab'));
+  await gpu.click();
+  await expect(gpu).toHaveAttribute('aria-pressed', 'true');
+  await page.getByRole('button', { name: 'Reset 3D view' }).click();
+  await expect(gpu).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('[data-scene-hud]')).toContainText('GPU lab');
+  assertNoExternalRequests();
+  assertNoPageErrors();
 });
