@@ -162,4 +162,10 @@ const relatedStudies = [...relatedIds]
   .case-related a:hover strong { text-decoration: underline; text-decoration-color: #2459b7; text-underline-offset: .22em; }
   .case-related strong { font-size: 1.05rem; }
   .case-related span { color: #344850; line-height: 1.55; max-width: 62ch; }
+  @media print {
+    .case-toc, .case-related, .case-return { display: none; }
+    .reading { max-width: none; padding-top: 0; }
+    .prose { max-width: none; margin-top: 1rem; }
+    .case-state { break-inside: avoid; }
+  }
 </style>

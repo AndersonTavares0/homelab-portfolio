@@ -101,9 +101,17 @@ Removed the three uppercase eyebrows ("Infrastructure, in context", "Themes from
 
 Documented the reading measure (36em, ~72 characters) and the "no labels above headings" rule in `DESIGN.md`, regenerated the README from the shared content, and rebuilt the share card from the current wording. Full local battery: content check, 25 unit tests, static build, 26 E2E tests including three axe audits, and the public-content audit all pass.
 
+### Cycle 16 — content integrity (done)
+
+`content:check` now fails when a study loses any of its five sections, naming the file and the missing heading; two unit tests cover the accepting and rejecting paths. This closes a silent-regression gap: before, only decision and learning were required. Unit tests: 27.
+
+### Cycle 17 — printable studies (done)
+
+Printing a study produced a page with the section index flattened into the lead, related links and the Observatory button. Print CSS now hides the index, related studies and the return control, removes the reading max-width and keeps the documented state from splitting across pages. Verified by exporting a two-page A4 PDF with only content, learning and documented state.
+
 ### Next cycle — study depth
 
-Review whether any of the five studies still states a decision without the constraint that forced it. Add the missing constraint where the source supports it, not a new claim.
+Review whether any of the five studies states a decision without the constraint that forced it, and add the missing constraint only where the source supports it.
 
 
 ### Delivered baseline (before this document)
