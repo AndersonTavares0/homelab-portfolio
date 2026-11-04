@@ -11,25 +11,25 @@ Deliver the approved plan: an evidence-based English portfolio with the Atlas ed
 1. Compare the implementation with the plan's concrete MVP criteria.
 2. Run the plan's content, unit, dependency, build, public-content, E2E and secret-history checks.
 3. Inspect the built site in a real browser at desktop and mobile sizes; verify the exercised journey and runtime.
-4. Fix only demonstrated MVP gaps. Do not add features or continue polish cycles after acceptance criteria pass.
-5. Record final evidence and actual limitations in this file. Do not merge, deploy, publish, or change repository visibility.
+4. Continue with scoped, evidence-backed improvements authorized by the current user request; stop when remaining work is marginal or would expand scope.
+5. Record evidence and real limitations here. Merge completed work to `main` through a pull request after private CI passes. Never deploy, publish, or change repository visibility.
 
 ## Constraints
 
-- Repository stays **private**; no further merge, deployment, Pages, visibility change or publication.
-- Pull requests #5 and #6 were merged earlier in the conversation after a prior user instruction. The current instruction prohibits any further merge; do not rewrite or revert that history.
+- Repository stays **private**; merges to `main` are authorized through pull requests after private CI passes. Deployment, Pages, public publication and visibility changes remain prohibited.
+- Earlier PRs #5 and #6 were merged under prior authorization. The current instruction authorizes ongoing merges; preserve history and do not rewrite or revert existing work.
 - No credentials, addresses, internal usernames, inventory or operational detail from the homelab.
 - Documented past observations are not live-state claims. No invented metrics, roles or history.
 - Original code MIT; original text and diagrams CC BY 4.0.
 
 ## Current state
 
-- Repository: `AndersonTavares0/homelab-portfolio` (private), `main` at `f5612c1`; active work branch `feat/mobile-nav-targets`, based on `docs/mvp-final-audit`.
+- Repository: `AndersonTavares0/homelab-portfolio` (private), `main` at `f5612c1`; active branch `feat/mobile-nav-targets`, based on `docs/mvp-final-audit`, awaiting PR to `main`.
 - Stack: Astro static, Svelte island, Three.js, Tailwind 4, daisyUI 5, self-hosted Public Sans.
 - Routes: `/`, `/cases/<id>/` (5), `/profile/`; Observatory deep links use `?phase=&component=#observatory`.
 - All 50 logged evolution cycles are present on `main`; original MVP and requested follow-up work are integrated.
-- Current local verification: 27 unit tests, 48 Chromium E2E tests, a 9-route build, `audit:public` and `git diff --check`. Private CI passed for navigation and case-index commits; the latest summary-link refinement awaits CI.
-- Current browser verification: navigation targets measure 30 px at 390 and 1440 and 28 px at 320; case index links measure 24 px at 390; the standalone summary link measures 32 px at 390. No horizontal overflow or application errors; case and profile navigation work.
+- Current local verification: 27 unit tests, 48 Chromium E2E tests, a 9-route build, `audit:public`, `git diff --check`, and Gitleaks 8.30.1 (70 commits, no findings). Private CI passed for the feature branch's latest code commit `681a3fd` in run `41872479723`; the updated merge-policy documentation still needs CI.
+- Browser verification: navigation targets measure 30 px at 390 and 1440 and 28 px at 320; case-index links measure 24 px at 390; the standalone summary link measures 32 px at 390. Case and profile navigation work, with no horizontal overflow or application errors.
 
 ## Backlog
 
@@ -257,6 +257,6 @@ At 390 px the three main-navigation links had 22 px-high targets, below the inte
 ### Cycle 52 — case section-index hit targets (done)
 
 On the 390 px case page, the five “In this study” links measured 16 px high inside a flex-wrapped index. A new mobile E2E assertion reproduced the short hit area; each link now receives Tailwind `py-1`, measuring 24 px. The selected section remains visible after following its link. Local verification: 27 unit tests, 47 E2E tests, a 9-route build, public-content audit, clean diff check, and Gitleaks 8.30.1 with no findings in 69 commits or the scanned current source, tests, GOAL and `dist`. Private CI passed for commit `545081c` in run `41871555684`.
-### Cycle 53 — professional-summary link hit area (in progress)
+### Cycle 53 — professional-summary link hit area (done)
 
-The standalone “Read the professional summary” link in the home skills panel measured 19 px high at 390 px. A new E2E assertion reproduced the short target; `inline-block py-1` now gives it a 32 px target. Browser navigation reaches `/profile/` without overflow or application errors. Local verification: 27 unit tests, 48 E2E tests, a 9-route build, `audit:public` and `git diff --check`; Gitleaks 8.30.1 found no leaks in the scanned source, tests, GOAL and generated site. Full-history scan and private CI remain.
+The standalone “Read the professional summary” link in the home skills panel measured 19 px high at 390 px. A new E2E assertion reproduced the short target; `inline-block py-1` now gives it a 32 px target. Browser navigation reaches `/profile/` without overflow or application errors. Local verification: 27 unit tests, 48 E2E tests, a 9-route build, `audit:public` and `git diff --check`; Gitleaks 8.30.1 found no leaks in the scanned source, tests, GOAL and generated site, and no leaks across 70 history commits. Private CI passed for commit `681a3fd` in run `41872479723`.
