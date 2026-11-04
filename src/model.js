@@ -6,6 +6,15 @@ export const components = [
   { id: 'automation', name: 'Automation', type: 'server', description: 'Ansible and Semaphore separate inspection, simulation and manual changes.', technologies: ['Ansible', 'Semaphore'], caseId: 'automation', relations: ['host'] },
   { id: 'gpu', name: 'GPU lab', type: 'gpu', description: 'A controller coordinates GPU ownership between lab and inference.', technologies: ['systemd', 'Podman', 'GPU'], caseId: 'gpu-lab', relations: ['host'] }
 ];
+
+export const observatoryLayout = {
+  host: { topology: [50, 52], scene: [0, 0.1, 0] },
+  services: { topology: [76, 22], scene: [3.2, 0.05, -2.2] },
+  alerts: { topology: [84, 50], scene: [4.2, 0.15, 0] },
+  telemetry: { topology: [76, 78], scene: [3.2, 0.15, 2.2] },
+  automation: { topology: [23, 78], scene: [-3.2, 0.05, 2.2] },
+  gpu: { topology: [16, 50], scene: [-4.2, 0.1, 0] }
+};
 // JSON is valid YAML frontmatter and can be parsed in both Node and the browser.
 // Vite embeds the Markdown for the interactive island; Node reads the same file
 // directly, so content checks and development need no generated intermediate.
@@ -64,7 +73,19 @@ export function validateModel(caseIds) {
   const ids = new Set(components.map(item => item.id));
   for (const component of components) {
     if (!caseIds.includes(component.caseId)) throw new Error(`component/${component.id}: unknown case ${component.caseId}`);
+    const layout = observatoryLayout[component.id];
+    if (!layout) throw new Error(`component/${component.id}: missing Observatory layout`);
+    if (!Array.isArray(layout.topology) || layout.topology.length !== 2 || !layout.topology.every(value => Number.isFinite(value) && value >= 0 && value <= 100)) {
+      throw new Error(`component/${component.id}.layout.topology: expected two finite coordinates from 0 to 100`);
+    }
+    if (!Array.isArray(layout.scene) || layout.scene.length !== 3 || !layout.scene.every(Number.isFinite)) {
+      throw new Error(`component/${component.id}.layout.scene: expected three finite coordinates`);
+    }
     for (const relation of component.relations) if (!ids.has(relation)) throw new Error(`component/${component.id}: unknown relation ${relation}`);
+  }
+
+  for (const id of Object.keys(observatoryLayout)) {
+    if (!ids.has(id)) throw new Error(`observatoryLayout/${id}: unknown component`);
   }
   for (const phase of phases) {
     for (const id of phase.components) if (!ids.has(id)) throw new Error(`phase/${phase.id}: unknown component ${id}`);

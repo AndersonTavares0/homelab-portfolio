@@ -1,6 +1,17 @@
 import { describe, expect, it } from 'vitest';
-import { components, overview, overviewPhase, phases, selectView, views } from '../src/model.js';
+import { components, observatoryLayout, overview, overviewPhase, phases, selectView, views } from '../src/model.js';
 
+describe('Observatory layout', () => {
+  it('provides a 2D and 3D position for every system', () => {
+    expect(Object.keys(observatoryLayout).sort()).toEqual(components.map(component => component.id).sort());
+    for (const layout of Object.values(observatoryLayout)) {
+      expect(layout.topology).toHaveLength(2);
+      expect(layout.topology.every(value => Number.isFinite(value) && value >= 0 && value <= 100)).toBe(true);
+      expect(layout.scene).toHaveLength(3);
+      expect(layout.scene.every(Number.isFinite)).toBe(true);
+    }
+  });
+});
 describe('view selection', () => {
   it('keeps thematic phases separate from the full-system overview', () => {
     expect(views[0]).toBe(overviewPhase);

@@ -1,14 +1,7 @@
 import * as THREE from 'three';
+import { observatoryLayout } from '../model.js';
 
-const positions = {
-  host: [0, 0.1, 0],
-  services: [3.2, 0.05, -2.2],
-  alerts: [4.2, 0.15, 0],
-  telemetry: [3.2, 0.15, 2.2],
-  automation: [-3.2, 0.05, 2.2],
-  gpu: [-4.2, 0.1, 0]
-};
-const systemCount = Object.keys(positions).length;
+const systemCount = Object.keys(observatoryLayout).length;
 const colors = { server: 0x708ba4, storage: 0x4f9ea1, switch: 0x698db4, gpu: 0x9c8465 };
 
 function makeEquipment(type, material) {
@@ -134,13 +127,13 @@ export function createObservatory(canvas, onSelect, edges, components) {
   const hitTargets = [];
   const baseMaterials = new Map();
   const glowMaterial = new THREE.MeshStandardMaterial({ color: 0x33566e, emissive: 0x244963, emissiveIntensity: 0.65, metalness: 0.25, roughness: 0.45 });
-  for (const [id, point] of Object.entries(positions)) {
+  for (const [id, layout] of Object.entries(observatoryLayout)) {
     const component = componentById.get(id);
     const type = component?.type ?? 'server';
     const model = makeEquipment(type, colors[type] ?? colors.server);
     const scale = id === 'host' ? 1.16 : id === 'gpu' ? 1.08 : 1;
     model.scale.setScalar(scale);
-    model.position.set(...point);
+    model.position.set(...layout.scene);
     model.userData.componentId = id;
     const plateRadius = id === 'host' ? 1.15 : 0.82;
     const plate = new THREE.Mesh(
@@ -200,7 +193,7 @@ export function createObservatory(canvas, onSelect, edges, components) {
   const pointer = new THREE.Vector2();
   let selectedId = null;
   let hoveredId = null;
-  let phaseIds = new Set(Object.keys(positions));
+  let phaseIds = new Set(Object.keys(observatoryLayout));
   let destroyed = false;
   let dragging = false;
   let pointerStart = null;
@@ -221,7 +214,7 @@ export function createObservatory(canvas, onSelect, edges, components) {
 
   function focus(id) {
     cancelAnimationFrame(focusFrame);
-    const end = id && positions[id] ? new THREE.Vector3(...positions[id]) : defaultTarget;
+    const end = id && observatoryLayout[id] ? new THREE.Vector3(...observatoryLayout[id].scene) : defaultTarget;
     const start = target.clone();
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       target.copy(end);

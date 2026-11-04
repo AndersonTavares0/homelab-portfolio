@@ -1,6 +1,6 @@
 <script>
   import { onMount, tick } from 'svelte';
-  import { components, overview, overviewPhase, phases, selectView, views } from '../model.js';
+  import { components, observatoryLayout, overview, overviewPhase, phases, selectView, views } from '../model.js';
   import { sitePath } from '../site-path.js';
 
   let { cases = [] } = $props();
@@ -12,10 +12,6 @@
   let sceneError = $state(false);
   let sceneLoading = $state(false);
   let copyStatus = $state('');
-  const nodeCoordinates = {
-    host: [50, 52], services: [76, 22], alerts: [84, 50],
-    telemetry: [76, 78], automation: [23, 78], gpu: [16, 50]
-  };
   const edges = [];
   const edgeKeys = new Set();
   for (const component of components) {
@@ -32,7 +28,7 @@
   const activeComponents = $derived(components.filter((component) => activePhase?.components.includes(component.id)));
   const topologyLinks = $derived(edges
     .filter(([from, to]) => activePhase?.components.includes(from) && activePhase.components.includes(to))
-    .map(([from, to]) => ({ fromId: from, toId: to, from: nodeCoordinates[from], to: nodeCoordinates[to] })));
+    .map(([from, to]) => ({ fromId: from, toId: to, from: observatoryLayout[from].topology, to: observatoryLayout[to].topology })));
   const selectedComponent = $derived(components.find((component) => component.id === selectedId) ?? null);
   const selectedCase = $derived(cases.find((item) => item.id === selectedComponent?.caseId) ?? null);
   const activeCases = $derived((activePhase?.cases ?? []).map((id) => cases.find((item) => item.id === id)).filter(Boolean));
@@ -282,7 +278,7 @@
         </span>
       </div>
       {#snippet nodeButton(component)}
-        <button type="button" class="topology-node topology-node--{component.id}" class:is-selected={selectedId === component.id} class:is-related={selectedId === component.id || relatedComponents.some((relation) => relation.id === component.id)} class:is-dimmed={selectedId && selectedId !== component.id && !relatedComponents.some((relation) => relation.id === component.id)} data-component-id={component.id} style={`left: ${nodeCoordinates[component.id][0]}%; top: ${nodeCoordinates[component.id][1]}%;`} aria-label={`Select ${component.name}`} aria-pressed={selectedId === component.id} onclick={() => chooseComponent(component.id)} onkeydown={(event) => moveComponentFocus(event, component.id)}>
+        <button type="button" class="topology-node topology-node--{component.id}" class:is-selected={selectedId === component.id} class:is-related={selectedId === component.id || relatedComponents.some((relation) => relation.id === component.id)} class:is-dimmed={selectedId && selectedId !== component.id && !relatedComponents.some((relation) => relation.id === component.id)} data-component-id={component.id} style={`left: ${observatoryLayout[component.id].topology[0]}%; top: ${observatoryLayout[component.id].topology[1]}%;`} aria-label={`Select ${component.name}`} aria-pressed={selectedId === component.id} onclick={() => chooseComponent(component.id)} onkeydown={(event) => moveComponentFocus(event, component.id)}>
           <svg class="topology-node__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             {#if component.type === 'gpu'}
               <rect x="3" y="6" width="18" height="12" rx="2" /><circle cx="10" cy="12" r="3" /><path d="M10 9v6m-3-3h6M21 10h1m-1 4h1" />
