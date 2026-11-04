@@ -32,6 +32,11 @@ export function lead(text, maxChars = 220) {
   return kept.join(' ');
 }
 
+// Estimated reading time, used by the catalogue and by each study header.
+export function readingMinutes(text, wordsPerMinute = 200) {
+  return Math.max(1, Math.round(text.trim().split(/\s+/).length / wordsPerMinute));
+}
+
 // Catalogue order shared by the index and by previous/next navigation.
 export function orderedCases(cases) {
   const rank = id => {

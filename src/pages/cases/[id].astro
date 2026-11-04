@@ -1,6 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { loadContent, orderedCases } from '../../../scripts/content.mjs';
+import { loadContent, orderedCases, readingMinutes } from '../../../scripts/content.mjs';
 import { components, phases } from '../../model.js';
 import { marked } from 'marked';
 
@@ -9,6 +9,7 @@ export function getStaticPaths() {
 }
 
 const { item } = Astro.props;
+const minutes = readingMinutes(item.content);
 
 const componentById = new Map(components.map(component => [component.id, component]));
 const relatedPhase = phases.find(phase => phase.cases.includes(item.data.id) && phase.components.some(id => componentById.get(id)?.caseId === item.data.id))
@@ -84,7 +85,7 @@ const relatedStudies = [...relatedIds]
 <Layout title={item.data.title} description={item.data.summary} type="article">
   <article class="reading section-wrap">
     <a class="back-link" href="/cases/">← All case studies</a>
-    <p class="case-tech">{item.data.technologies.join(' / ')}</p>
+    <p class="case-tech">{item.data.technologies.join(' / ')} · About {minutes} min read</p>
     <h1>{item.data.title}</h1>
     <p class="lead">{item.data.summary}</p>
     <nav class="case-toc" aria-label="In this study">

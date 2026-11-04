@@ -1,16 +1,15 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { loadContent, orderedCases } from '../../../scripts/content.mjs';
+import { loadContent, orderedCases, readingMinutes } from '../../../scripts/content.mjs';
 import { phases } from '../../model.js';
 const { cases } = loadContent();
-const minutes = item => Math.max(1, Math.round(item.content.trim().split(/\s+/).length / 200));
 const items = orderedCases(cases).map(item => ({
   id: item.data.id,
   title: item.data.title,
   summary: item.data.summary,
   technologies: item.data.technologies,
   phase: phases.find(phase => phase.cases.includes(item.data.id))?.name ?? null,
-  minutes: minutes(item)
+  minutes: readingMinutes(item.content)
 }));
 ---
 <Layout title="Case studies" description="Five documented infrastructure studies: the problem, the decision, the evidence and what stayed unproven.">

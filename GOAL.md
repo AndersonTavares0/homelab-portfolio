@@ -29,7 +29,7 @@ Deliver the approved plan in full and keep improving the portfolio autonomously 
 - Stack: Astro static, Svelte island, Three.js, Tailwind 4, daisyUI 5, self-hosted Public Sans.
 - Routes: `/`, `/cases/<id>/` (5), `/profile/`. Observatory deep links use `?phase=&component=#observatory`.
 - Evolution HEAD: `feat/evolution`, 46 improvement cycles logged below.
-- Checks: 27 unit tests, 39 Chromium E2E tests (three axe audits, no-JavaScript, print, document structure, 320 px and 200% zoom), content validation, static build, `audit:public`, Gitleaks over all refs, private CI on every pushed commit.
+- Checks: 27 unit tests, 42 Chromium E2E tests (five axe audits, no-JavaScript, print, document structure, 320 px and 200% zoom), content validation, static build, `audit:public`, Gitleaks over all refs, private CI on every pushed commit.
 - Browser matrix exercised: 1440×900, 1280, 1024, 900, 844×390, 768, 720 (200% zoom), 390×844, 375 and 320 px.
 
 ## Backlog
@@ -234,9 +234,13 @@ Measured transfer per route with cache disabled: home 45 kB (HTML, CSS, 1.3 kB S
 
 The automated audit covered editorial routes and the desktop Observatory but never the stacked Observatory or the not-found page. Both were added: the mobile Observatory with a selected component and `/missing-page/` are clean at WCAG 2 A/AA and 2.1 A/AA. Suite is 41 E2E tests with five accessibility audits.
 
+### Cycle 48 — consistent reading estimate (done)
+
+The catalogue promised "About N min read" but a study opened from it did not repeat the estimate. `readingMinutes` moved into the shared content module, the catalogue uses it, and each study header now shows the same value next to its technologies. A navigation test asserts the header figure equals the catalogue figure for the same study. Suite is 42 E2E tests.
+
 ### Next cycle
 
-Compare a case page with the catalogue: the catalogue shows an estimated reading time and the study does not. The backlog above lists the only open ideas, each waiting on a trigger rather than a fix: a larger Three.js scene, a catalogue past eight studies, or an authorized publication. Any next cycle should start from a new observation in the browser rather than reopening these decisions.
+No urgent item remains. The backlog above lists the only open ideas, each waiting on a trigger rather than a fix: a larger Three.js scene, a catalogue past eight studies, or an authorized publication. Any next cycle should start from a new observation in the browser rather than reopening these decisions.
 
 
 ### Delivered baseline (before this document)

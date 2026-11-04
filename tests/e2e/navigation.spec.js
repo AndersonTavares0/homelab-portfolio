@@ -88,3 +88,16 @@ test('the professional summary follows the catalogue order', async ({ page }) =>
   await expect(page.locator('.profile-case small').first()).toContainText('Foundation');
   await expect(page.locator('.profile-order')).toContainText('thematic order');
 });
+
+test('a study header shows the same reading estimate as the catalogue', async ({ page }) => {
+  await page.goto('/cases/observability/');
+  const tech = page.locator('.case-tech').first();
+  await expect(tech).toContainText(/About \d+ min read/);
+  const header = await tech.textContent();
+  await page.goto('/cases/');
+  const row = page.locator('.case-list li', { hasText: 'Making telemetry failures visible' });
+  await expect(row).toContainText('min read');
+  const catalogue = await row.locator('.case-list__meta').textContent();
+  const headerMinutes = header.match(/About (\d+) min read/)[1];
+  expect(catalogue).toContain(`About ${headerMinutes} min read`);
+});
