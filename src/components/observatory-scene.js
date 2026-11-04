@@ -50,54 +50,103 @@ function makeEquipment(type, material) {
 
 function makeLabel(text) {
   const surface = document.createElement('canvas');
-  surface.width = 640;
-  surface.height = 144;
+  surface.width = 800;
+  surface.height = 176;
   const context = surface.getContext('2d');
   if (!context) return null;
-  context.fillStyle = '#17232d';
-  context.fillRect(2, 8, 636, 128);
-  context.strokeStyle = '#536d7c';
+  context.fillStyle = '#1c3440';
+  context.fillRect(2, 8, 796, 160);
+  context.strokeStyle = '#8ab6c8';
   context.lineWidth = 3;
-  context.strokeRect(3.5, 9.5, 633, 125);
-  context.fillStyle = '#82b9d2';
-  context.fillRect(24, 53, 5, 38);
-  context.fillStyle = '#ecf1f2';
-  context.font = '600 34px Public Sans, Arial, sans-serif';
+  context.strokeRect(3.5, 9.5, 793, 157);
+  context.fillStyle = '#a7d7e7';
+  context.fillRect(27, 64, 6, 48);
+  context.fillStyle = '#f2f8fa';
+  context.font = '650 39px Public Sans, Arial, sans-serif';
   context.textAlign = 'center';
   context.textBaseline = 'middle';
-  context.fillText(text, 330, 72, 560);
+  context.fillText(text, 410, 88, 700);
   const texture = new THREE.CanvasTexture(surface);
   texture.colorSpace = THREE.SRGBColorSpace;
   texture.generateMipmaps = false;
   texture.minFilter = THREE.LinearFilter;
   const label = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture, transparent: true, depthWrite: false }));
   label.scale.set(2.55, 0.58, 1);
-  label.position.y = 1.52;
+  label.position.y = 1.58;
   return label;
 }
 
-export function createObservatory(canvas, onSelect, edges, components) {
+function makeDeck() {
+  const deck = new THREE.Group();
+  const base = new THREE.Mesh(
+    new THREE.BoxGeometry(11.6, 0.14, 7.2),
+    new THREE.MeshStandardMaterial({ color: 0x13232d, metalness: 0.62, roughness: 0.48 })
+  );
+  base.position.y = -0.79;
+  base.receiveShadow = true;
+  deck.add(base);
+  const inset = new THREE.Mesh(
+    new THREE.BoxGeometry(10.7, 0.035, 6.3),
+    new THREE.MeshStandardMaterial({ color: 0x1d3441, metalness: 0.45, roughness: 0.62 })
+  );
+  inset.position.y = -0.7;
+  inset.receiveShadow = true;
+  deck.add(inset);
+  const frame = new THREE.LineSegments(
+    new THREE.EdgesGeometry(new THREE.BoxGeometry(11.75, 0.16, 7.35)),
+    new THREE.LineBasicMaterial({ color: 0x4d7182, transparent: true, opacity: 0.65 })
+  );
+  frame.position.y = -0.78;
+  deck.add(frame);
+  return deck;
+}
+
+function makeField() {
+  const positions = [];
+  let seed = 19;
+  const random = () => {
+    seed = (seed * 1664525 + 1013904223) % 4294967296;
+    return seed / 4294967296;
+  };
+  for (let index = 0; index < 64; index += 1) {
+    positions.push((random() - 0.5) * 17, 1.2 + random() * 5, (random() - 0.5) * 12);
+  }
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+  return new THREE.Points(geometry, new THREE.PointsMaterial({
+    color: 0x82b9d2,
+    size: 0.035,
+    transparent: true,
+    opacity: 0.42,
+    sizeAttenuation: true
+  }));
+}
+
+export function createObservatory(canvas, onSelect, onHover, edges, components) {
   const componentById = new Map(components.map(component => [component.id, component]));
   const scene = new THREE.Scene();
   scene.background = new THREE.Color('#101922');
   scene.fog = new THREE.Fog('#101922', 16, 30);
-  const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 80);
+  const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 80);
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: 'low-power' });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.6));
   renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.shadowMap.type = THREE.PCFShadowMap;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.15;
+  renderer.toneMappingExposure = 1.25;
 
-  scene.add(new THREE.HemisphereLight(0xb8d0dc, 0x1a242b, 2.0));
-  const key = new THREE.DirectionalLight(0xe0e9ee, 2.2);
+  scene.add(new THREE.HemisphereLight(0xd2e8ef, 0x15232c, 2.5));
+  const key = new THREE.DirectionalLight(0xeaf5f8, 2.8);
   key.position.set(-3, 8, 4);
   key.castShadow = true;
   scene.add(key);
-  const blue = new THREE.PointLight(0x4e8fbd, 18, 16);
+  const blue = new THREE.PointLight(0x4e8fbd, 22, 18);
   blue.position.set(4, 3, 1);
   scene.add(blue);
+  const teal = new THREE.PointLight(0x2cb7ad, 12, 14);
+  teal.position.set(-4, 2, -2);
+  scene.add(teal);
 
   const floor = new THREE.Mesh(new THREE.PlaneGeometry(20, 20), new THREE.MeshStandardMaterial({ color: 0x17222b, roughness: 0.85, metalness: 0.1 }));
   floor.rotation.x = -Math.PI / 2;
@@ -112,6 +161,8 @@ export function createObservatory(canvas, onSelect, edges, components) {
     material.depthWrite = false;
   }
   scene.add(grid);
+  scene.add(makeDeck());
+  scene.add(makeField());
   const orbit = new THREE.Mesh(
     new THREE.RingGeometry(5.1, 5.12, 96),
     new THREE.MeshBasicMaterial({ color: 0x54768a, transparent: true, opacity: 0.5, side: THREE.DoubleSide })
@@ -133,6 +184,8 @@ export function createObservatory(canvas, onSelect, edges, components) {
   const labels = new Map();
   const halos = new Map();
   const baseScales = new Map();
+  const basePositions = new Map();
+  const beacons = new Map();
   const hitTargets = [];
   const baseMaterials = new Map();
   const glowMaterial = new THREE.MeshStandardMaterial({ color: 0x33566e, emissive: 0x244963, emissiveIntensity: 0.65, metalness: 0.25, roughness: 0.45 });
@@ -143,6 +196,7 @@ export function createObservatory(canvas, onSelect, edges, components) {
     const scale = id === 'host' ? 1.16 : id === 'gpu' ? 1.08 : 1;
     model.scale.setScalar(scale);
     model.position.set(...layout.scene);
+    basePositions.set(id, model.position.clone());
     model.userData.componentId = id;
     const plateRadius = id === 'host' ? 1.15 : 0.82;
     const plate = new THREE.Mesh(
@@ -160,14 +214,31 @@ export function createObservatory(canvas, onSelect, edges, components) {
     halo.position.y = -0.48;
     halo.visible = false;
     model.add(halo);
+    const beacon = new THREE.Group();
+    const beam = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.012, 0.012, 0.68, 6),
+      new THREE.MeshBasicMaterial({ color: 0x82b9d2, transparent: true, opacity: 0.64 })
+    );
+    beam.position.y = 0.34;
+    const tip = new THREE.Mesh(
+      new THREE.SphereGeometry(0.045, 10, 6),
+      new THREE.MeshBasicMaterial({ color: 0xb1e0f0, transparent: true, opacity: 0.9 })
+    );
+    tip.position.y = 0.7;
+    beacon.add(beam, tip);
+    beacon.visible = false;
+    model.add(beacon);
     const label = makeLabel(component?.name ?? id);
     if (label) {
+      if (id === 'gpu' || id === 'automation') label.position.x = 0.34;
+      if (id === 'services' || id === 'alerts' || id === 'telemetry') label.position.x = -0.34;
       model.add(label);
       labels.set(id, label);
     }
     scene.add(model);
     nodes.set(id, model);
     halos.set(id, halo);
+    beacons.set(id, beacon);
     baseScales.set(id, scale);
     for (const child of model.children) {
       if (child.isMesh && child.material instanceof THREE.MeshStandardMaterial) {
@@ -191,11 +262,26 @@ export function createObservatory(canvas, onSelect, edges, components) {
     const start = nodes.get(id).position.clone();
     const end = nodes.get(other).position.clone();
     start.y = end.y = -0.5;
-    const geometry = new THREE.BufferGeometry().setFromPoints([start, end]);
-    const line = new THREE.Line(geometry, new THREE.LineBasicMaterial({ color: 0x54768a, transparent: true, opacity: 0.62 }));
+    const midpoint = start.clone().lerp(end, 0.5);
+    midpoint.y += 0.34;
+    const curve = new THREE.QuadraticBezierCurve3(start, midpoint, end);
+    const line = new THREE.Mesh(
+      new THREE.TubeGeometry(curve, 16, 0.018, 5, false),
+      new THREE.MeshBasicMaterial({ color: 0x54768a, transparent: true, opacity: 0.72 })
+    );
+    const glow = new THREE.Mesh(
+      new THREE.TubeGeometry(curve, 16, 0.05, 5, false),
+      new THREE.MeshBasicMaterial({ color: 0x82b9d2, transparent: true, opacity: 0.08, depthWrite: false })
+    );
+    const signal = new THREE.Mesh(
+      new THREE.SphereGeometry(0.055, 10, 6),
+      new THREE.MeshBasicMaterial({ color: 0xb1e0f0, transparent: true, opacity: 0.95 })
+    );
+    signal.visible = false;
     line.userData.componentIds = [id, other];
-    scene.add(line);
-    links.push(line);
+    glow.userData.componentIds = [id, other];
+    scene.add(glow, line, signal);
+    links.push({ line, glow, signal, curve, componentIds: [id, other] });
   }
 
   const raycaster = new THREE.Raycaster();
@@ -210,15 +296,17 @@ export function createObservatory(canvas, onSelect, edges, components) {
   let pointerMoved = false;
   let yaw = 0;
   let pitch = 0;
-  let distance = 12.6;
+  let distance = 10.8;
   const defaultTarget = new THREE.Vector3(0, 0.1, 0);
   const target = defaultTarget.clone();
   let focusFrame = 0;
+  let pulseFrame = 0;
+  let introFrame = 0;
   function minimumDistance() {
     const { width, height } = canvas.getBoundingClientRect();
-    if (!width || !height) return 12.6;
-    const fit = 5.5 / (Math.tan(camera.fov * Math.PI / 360) * width / height);
-    return Math.max(9.5, Math.min(20, fit));
+    if (!width || !height) return 10.8;
+    const fit = 5.3 / (Math.tan(camera.fov * Math.PI / 360) * width / height);
+    return Math.max(8.4, Math.min(18, fit));
   }
 
   function focus(id) {
@@ -238,6 +326,54 @@ export function createObservatory(canvas, onSelect, edges, components) {
       if (progress < 1 && !destroyed) focusFrame = requestAnimationFrame(move);
     }
     focusFrame = requestAnimationFrame(move);
+  }
+
+  function resetCamera() {
+    cancelAnimationFrame(focusFrame);
+    target.copy(defaultTarget);
+    yaw = 0;
+    pitch = 0;
+    distance = Math.max(10.8, minimumDistance());
+    updateCamera();
+  }
+
+  function pulseSelection() {
+    cancelAnimationFrame(pulseFrame);
+    for (const link of links) link.signal.visible = false;
+    if (!selectedId || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const connected = links.filter(link => link.componentIds.includes(selectedId));
+    if (!connected.length) return;
+    const begun = performance.now();
+    function pulse(now) {
+      const progress = Math.min((now - begun) / 1100, 1);
+      for (const [index, link] of connected.entries()) {
+        const point = link.curve.getPoint((progress + index * 0.18) % 1);
+        link.signal.position.copy(point);
+        link.signal.visible = true;
+      }
+      draw();
+      if (progress < 1 && !destroyed) pulseFrame = requestAnimationFrame(pulse);
+      else for (const link of connected) link.signal.visible = false;
+    }
+    pulseFrame = requestAnimationFrame(pulse);
+  }
+  function playIntro() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const begun = performance.now();
+    function reveal(now) {
+      const progress = Math.min((now - begun) / 850, 1);
+      const eased = 1 - (1 - progress) ** 3;
+      for (const [id, model] of nodes) {
+        const base = basePositions.get(id);
+        model.position.y = base.y - (1 - eased) * 0.32;
+        model.scale.setScalar(baseScales.get(id) * (0.82 + eased * 0.18));
+      }
+      orbit.scale.setScalar(0.86 + eased * 0.14);
+      orbit.material.opacity = 0.18 + eased * 0.32;
+      draw();
+      if (progress < 1 && !destroyed) introFrame = requestAnimationFrame(reveal);
+    }
+    introFrame = requestAnimationFrame(reveal);
   }
 
   const resizeObserver = new ResizeObserver(resize);
@@ -282,14 +418,20 @@ export function createObservatory(canvas, onSelect, edges, components) {
       const halo = halos.get(id);
       halo.visible = active && (selected || hovered);
       halo.material.opacity = selected ? 0.9 : hovered ? 0.6 : 0.28;
+      const beacon = beacons.get(id);
+      beacon.visible = active && (selected || hovered);
+      beacon.scale.setScalar(selected ? 1.12 : 1);
     }
-    for (const line of links) {
-      const [from, to] = line.userData.componentIds;
+    for (const link of links) {
+      const [from, to] = link.componentIds;
       const active = phaseIds.has(from) && phaseIds.has(to);
-      const connected = selectedId && line.userData.componentIds.includes(selectedId);
-      line.visible = active;
-      line.material.color.set(connected ? 0x82b9d2 : 0x54768a);
-      line.material.opacity = selectedId ? (connected ? 0.95 : 0.16) : 0.62;
+      const connected = selectedId && link.componentIds.includes(selectedId);
+      link.line.visible = active;
+      link.glow.visible = active;
+      link.signal.visible = false;
+      link.line.material.color.set(connected ? 0x82b9d2 : 0x54768a);
+      link.line.material.opacity = selectedId ? (connected ? 0.98 : 0.16) : 0.72;
+      link.glow.material.opacity = selectedId ? (connected ? 0.2 : 0.025) : 0.08;
     }
     draw();
   }
@@ -304,6 +446,7 @@ export function createObservatory(canvas, onSelect, edges, components) {
     const next = hit?.object.userData.componentId ?? hit?.object.parent.userData.componentId ?? null;
     if (next === hoveredId) return;
     hoveredId = next;
+    onHover?.(hoveredId);
     canvas.style.cursor = hoveredId ? 'pointer' : 'grab';
     applySelection();
   }
@@ -346,6 +489,7 @@ export function createObservatory(canvas, onSelect, edges, components) {
   function onPointerLeave() {
     if (dragging || hoveredId === null) return;
     hoveredId = null;
+    onHover?.(null);
     canvas.style.cursor = 'grab';
     applySelection();
   }
@@ -364,23 +508,24 @@ export function createObservatory(canvas, onSelect, edges, components) {
   canvas.addEventListener('contextmenu', onContextMenu);
   updateCamera();
   applySelection();
-
+  playIntro();
   return {
     setPhase(ids) { phaseIds = new Set(ids); applySelection(); },
     setSelected(id) {
       selectedId = id;
-      if (!id) {
-        hoveredId = null;
-        yaw = 0;
-        pitch = 0;
-        distance = Math.max(12.6, minimumDistance());
-      }
+      hoveredId = null;
+      onHover?.(null);
+      if (!id) resetCamera();
       applySelection();
-      if (!id || phaseIds.size < systemCount) focus(id);
+      pulseSelection();
+      if (id && phaseIds.size < systemCount) focus(id);
     },
+    resetCamera,
     destroy() {
       destroyed = true;
       cancelAnimationFrame(focusFrame);
+      cancelAnimationFrame(pulseFrame);
+      cancelAnimationFrame(introFrame);
       resizeObserver.disconnect();
       canvas.removeEventListener('pointerdown', onPointerDown);
       canvas.removeEventListener('pointermove', onPointerMove);

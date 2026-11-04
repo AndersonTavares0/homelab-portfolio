@@ -2,7 +2,8 @@
   import Observatory from '../components/Observatory.svelte';
   import { resolve } from '$app/paths';
   let { data } = $props();
-  const base = resolve('').replace(/\/+$/, '');
+  const resolvedBase = resolve('/');
+  const base = resolvedBase === '.' || resolvedBase === './' ? '' : resolvedBase.replace(/\/+$/, '');
 </script>
 
 <svelte:head>

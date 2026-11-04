@@ -1,7 +1,8 @@
 <script lang="ts">
   import { resolve } from '$app/paths';
   let { data } = $props();
-  const base = resolve('').replace(/\/+$/, '');
+  const resolvedBase = resolve('/');
+  const base = resolvedBase === '.' || resolvedBase === './' ? '' : resolvedBase.replace(/\/+$/, '');
 </script>
 
 <svelte:head><meta property="og:type" content="website" /></svelte:head>
