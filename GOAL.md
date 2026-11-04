@@ -206,9 +206,13 @@ Audited every tracked path: twelve root files, five scripts, six E2E specs, two 
 
 All twelve direct dependencies are used by the build, a route or a test. One real problem surfaced: `scripts/share-card.mjs` imported `playwright-core`, which is not a declared dependency — it worked only because the Playwright package hoists it. It now imports `chromium` from `@playwright/test`, and regenerating the card produced a byte-identical `og.png`, so the asset stays deterministic. Lockfile still matches `package.json`.
 
-### Next cycle — README accuracy after the cycle work
+### Cycle 41 — README accuracy (done)
 
-Read the generated README as a newcomer: commands, licence pointers and the phase summary must still describe the current repository, not an earlier state.
+Read as a newcomer and found two real gaps: the command list implied `npm run test:e2e` works on a fresh clone, although it serves `dist`, and there was no route map. The README now states that a build must precede the browser tests, lists the four public routes, and describes the not-found page as the handling for unknown paths (rather than a `/404` URL that the static server does not serve). Regenerated from the shared content; licences and phase summary were already accurate.
+
+### Next cycle — final consolidation
+
+Run the whole battery once more at the head commit, confirm the repository state, and leave the status block with the final numbers so the branch is ready for review.
 
 
 ### Delivered baseline (before this document)
