@@ -519,6 +519,9 @@
     .observatory__legend { gap: .7rem; padding-inline: .7rem; font-size: .64rem; }
     .phase-panel, .phase-work, .observatory__detail { padding: 1rem; }
   }
+  @media (forced-colors: active) {
+    .observatory__map-caption { width: fit-content; margin-inline: auto; left: 0; right: 0; color: CanvasText; background: Canvas; border: 1px solid CanvasText; padding: .2rem .5rem; }
+  }
   @media (max-height: 520px) {
     .observatory__visual { min-height: 16rem; }
     .observatory__map { min-height: 12rem; }

@@ -218,6 +218,10 @@ Full battery at the head commit: content check, 27 unit tests, 32 E2E tests, bui
 
 Printing `/` exposed a real defect: the interactive Observatory printed as a dark block with controls and the primary button kept its blue fill and white label, because daisyUI's layered `!important` rules outrank unlayered overrides. The print sheet now hides the Observatory and the action buttons, prints a line explaining where the interactive view lives, prints the summary and GitHub URLs as text, and stacks the project and lesson lists. Verified by exporting an A4 PDF with no colour blocks, no clipped controls and contact information intact.
 
+### Cycle 44 — forced-colors mode (done)
+
+Emulated Windows high-contrast (`forced-colors: active`) on the Observatory. Structure survived: borders, headings, button outlines and the phase briefing all use system colours, but the map caption became black text over the painted scene. It now renders as a compact centred pill using `Canvas`/`CanvasText`, readable in both captures. The 3D scene itself stays in full colour, which is acceptable for a decorative illustration.
+
 ### Next cycle
 
 No urgent item remains. The backlog above lists the only open ideas, each waiting on a trigger rather than a fix: a larger Three.js scene, a catalogue past eight studies, or an authorized publication. Any next cycle should start from a new observation in the browser rather than reopening these decisions.
