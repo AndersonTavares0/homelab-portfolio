@@ -1,49 +1,76 @@
 # Homelab Portfolio
 
-Build an independent, evidence-based English-language professional portfolio. Present skills and five documented projects, with an editorial Atlas and an interactive Observatory that explains the homelab without exposing operational identifiers.
+An independent, evidence-based English-language portfolio. It presents documented infrastructure work — five case studies, a thematic development map and an interactive Observatory — without exposing operational identifiers.
 
-## MVP
+Repository: `AndersonTavares0/homelab-portfolio` (private). Default branch `main`.
 
-Deliver a complete, accessible English-language portfolio that demonstrates documented infrastructure work without requiring the visitor to use 3D:
+## Status
 
-- An editorial home, five evidence-based case studies and a printable professional summary.
-- An interactive Observatory whose phases, components, relationships and case links stay synchronized, with usable keyboard controls and equivalent mobile and WebGL fallback navigation.
-- A generated README from shared portfolio content, local assets, content validation, behavior tests and a static build.
-- A private GitHub branch with successful CI, browser checks and a documented security review. No publication, merge or visibility change is included.
+MVP delivered and integrated. No site deployment, Pages configuration or visibility change exists; publishing requires a fresh review and explicit authorization.
 
-The MVP is ready for private review when these paths work end to end and the checks below have passed for the candidate commit. Future public release requires a fresh review and separate authorization.
+## MVP criteria
+
+| Criterion | Evidence |
+|---|---|
+| Private repository, no copied history | Repository created empty; `isPrivate: true`; commits authored with the account noreply identity |
+| English site and README with identity, skills and five original narratives | Generated README plus five case studies with context, decision, observed result, learning and documented state |
+| Home → Observatory → component → case → return | Playwright journey test, deep-link restoration, browser back/forward |
+| Phase selection changes scene, topology and related content | Milestone panel exposes challenge, learning, documented state and next step |
+| Five cases and summary usable without 3D | Static routes for every case and the printable summary; all internal links return 200 |
+| Mobile and WebGL fallback | 390×844 topology with no horizontal overflow; missing and lost WebGL contexts fall back to the DOM topology |
+| Keyboard, focus and reduced motion | Skip target, named controls, visible focus, reduced-motion test |
+| Build, tests and private CI | 25 unit tests, 9 Chromium E2E tests, static build and private workflow |
+| Content, dependencies and history reviewed | `audit:public`, Gitleaks over all refs, `npm audit` with the result recorded below |
 
 ## Constraints
 
-Keep the GitHub repository private. Do not publish the site, merge, copy private source files or history, expose credentials or internal access identifiers, or operate the homelab. Documented past observations are not claims about live state. Use original material, MIT for original code and CC BY 4.0 for original text and diagrams. Recheck the exact candidate before any future authorized publication.
+Keep the repository private. Do not publish the site, copy private source files or history, expose credentials or internal access identifiers, or operate the homelab. Documented past observations are not claims about live state. Original code is MIT; original text and diagrams are CC BY 4.0. Recheck the exact candidate before any future authorized publication.
 
 ## Design
 
-A light editorial Atlas leads to a dark Observatory. A local open-license sans, blue selection accent and shared semantic controls connect both. Equipment is illustrative, not a physical inventory. Respect keyboard access and reduced motion.
+A light editorial Atlas leads to a dark Observatory; one self-hosted sans, one blue accent, shared semantic controls. Equipment is illustrative. Details, tokens and states live in `DESIGN.md`; audience and truth constraints live in `PRODUCT.md`.
 
-## Progress
+## Delivered
 
-- Source repository map and five case evidence sources inspected. Target directory did not exist.
-- Ponytail 5.3.3 full: smallest complete implementation without cutting requested behavior, security, tests or accessibility.
-- Private GitHub repository created and privacy confirmed. Initial independent commit on main; work continues on feat/portfolio-mvp.
-- Five evidence-based case narratives and thematic phases written; content generation and relationship validation passed locally.
-- Dependency audit found three low-severity findings in the Svelte integration's build-time deepmerge dependency; no fixed release was available at the time checked.
-- Local verification after MVP review: content generation/check, 23 unit tests, static build, heuristic public-content audit and five Chromium end-to-end tests passed. The lazy Three.js chunk exceeds 500 kB.
-- Desktop 1440×900: selected the GPU by clicking its 3D model and checked its relationships and decision/learning. Mobile 390×844: selected a topology node with no horizontal overflow. Browser interaction after actual WebGL context loss returned to the usable 2D view.
-- Gitleaks 8.30.1, verified against the official release checksum, found no secrets in the initial Git history or the inspected authored files and generated site. Scanning is not proof of absence; repeat on the exact candidate and all refs before any publication.
-- Private CI passed for the reviewed implementation commit `de9f8538f623490ce69959457578acc758cd7eb7` (run 41760326094), including content checks, build, dependency audit and Chromium E2E. Gitleaks scanned the five-commit history across existing refs without findings; commit names, filenames and noreply identities were also reviewed.
-- No site publication, visibility change or merge is authorized.
-- MVP review synchronized documented relationships in the 2D and 3D views, added the selected case's decision and learning, derived thematic milestones from one Markdown source, and improved the Atlas illustration.
-- Second review added the confirmed author identity and public GitHub profile, a lessons section and a closing summary/contact section, expanded each case with mechanism, limits and an explicit documented-state section, and made Observatory phase/component state deep-linkable so returning from a case restores the selection (browser back/forward included).
-- Local checks after the second review: content validation, 25 unit tests, static build, heuristic public-content audit and nine Chromium end-to-end tests passed.
-- Final plan audit fixed the Observatory panel: it summarized the whole case, which stretched the desktop column past 1,600 px. Panel text now keeps whole sentences within a 220-character budget and the case page keeps the full reasoning; panel height dropped to ~500 px. A white WebGL layer in one capture was traced to the capture tool, not the page: element inspection and a Playwright screenshot both show the dark surface.
-- Final audit evidence: every internal link and local asset returned 200, the built site references no external runtime origin, and desktop 1440×900 plus mobile 390×844 were re-inspected after the fix.
-- Reviewed content candidate `c1f90870abdea859a61ed35207621efc9eb7c64a`: private CI passed (run 41827082150) and the pull-request check passed (run 41827088565). Gitleaks found no findings across the eight-commit history, authored files and generated site; the tree and `dist` were rescanned after every later change. Later commits only edit this GOAL file and pass the same CI workflow. `main` remains at the initial commit; the work is proposed by pull request 1.
-- Documentation pass: `DESIGN.md` now maps both surfaces to daisyUI semantic tokens with contrast rules; `PRODUCT.md` records audience, truth constraints and non-goals without a new interview; the generated README links each study, separates documented state from next steps, and lists every verification command.
-- Site pass: per-route descriptions and Open Graph metadata, theme colour, colour scheme, an authored favicon, `scroll-margin` for anchors, a focusable skip target, and a decorative canvas removed from the accessibility tree. Verified all internal routes and assets return 200 with no failed responses.
-- Final state: work integrated on `main` through pull requests 1 and 2; merged branches removed, no open pull requests. Changes continue to reach `main` only through a pull request, never a direct push.
-- Observatory pass: the 2D topology no longer overlays the 3D scene on desktop. Nodes became a component strip under the stage, while mobile and WebGL-fallback views keep the positioned topology; the detail panel now aligns to its content instead of stretching. Camera framing tightened slightly. Verified by screenshots at 1440×900 and 390×844 and by the full E2E suite.
-- Latest reviewed commit `fdd7b8e0d593241c637f7cf176d990a5a66938b4`: private CI passed (run 41829115827). The Observatório desktop scene, component strip and mobile topology were re-inspected at 1440×900 and 390×844 after the change.
-- Responsiveness pass: hero and intro collapse to a single column up to 1100 px so tablets no longer squeeze the headline; verified at 1280, 1024, 768 and 375 px on all three routes with no horizontal overflow. Printable summary renders on one A4 page via a real PDF export.
-- Integration decision: the owner authorized merging and prohibited direct pushes to `main`; integration therefore goes through pull request 1 with its checks green.
-- Integration completed through pull request 1 as a merge commit `fc4e0b6881181c65bd9c977ce9012669ae04218f`; CI passed on `main` (run 41830631935). Repository description and topics were set; visibility remains private and no deployment or Pages configuration exists.
+Verified on `main` at commit `fb5b46a` (CI run 41831557568).
+
+```sh
+npm ci
+npm run dev            # local development
+npm run build          # static output in dist/
+npm run preview        # serve dist on 127.0.0.1:4321
+npm test               # model and content unit tests
+npm run test:e2e       # Chromium end-to-end tests
+npm run content:check
+npm run content:build  # regenerate README.md
+npm run audit:public
+```
+
+Observatory state is deep-linkable: `/?phase=accelerated&component=gpu#observatory`.
+
+## Verification
+
+- Content validation, README generation, 25 unit tests, static build and the heuristic public-content audit pass.
+- Nine Chromium end-to-end tests cover the exploration journey, deep links, invalid state, case return, history, mobile, keyboard, reduced motion and absent WebGL.
+- Browser review at 1440×900, 1280, 1024, 768, 390 and 375 px: no horizontal overflow; the printable summary renders on one A4 page.
+- Every internal route and local asset responds 200; the built site requests no external runtime origin.
+- Gitleaks scans all refs, authored files and the built site without findings; commit messages, filenames and author identities were reviewed too.
+- Private CI passed on every merged commit, including the merge commit on `main`.
+
+## Known limits
+
+- `npm audit --omit=dev` reports three low-severity findings in the Svelte build-time `deepmerge` dependency; no corrected release was available when checked. CI fails at moderate severity or above.
+- The lazy Three.js chunk exceeds 500 kB. It loads only when the Observatory enters the viewport and never blocks editorial content.
+- Scanners and automated checks reduce risk; they do not prove the absence of exposure.
+
+## Progress log
+
+- Source repository map and five evidence sources inspected; target directory created outside the private tree.
+- Private repository created; content, model and site built on a feature branch.
+- Observatory relationships unified across 3D and DOM; case decision and learning surfaced; milestones moved to one Markdown source.
+- Author identity, confirmed GitHub profile, lessons section and closing contact section added.
+- Identity-free deep links and case return with browser history added.
+- Observatory panel summarized and aligned; desktop scene separated from its DOM controls.
+- Tablet breakpoint corrected; per-route metadata, favicon and skip target added.
+- Design tokens, product context and README build instructions documented.
+- Work integrated through pull requests 1, 2 and 3; merged branches removed; no open pull requests.
