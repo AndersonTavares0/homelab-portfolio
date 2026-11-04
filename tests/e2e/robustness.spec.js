@@ -93,6 +93,13 @@ test('the layout holds at 320 px without horizontal scrolling', async ({ page })
     const header = await page.locator('.site-header').boundingBox();
     expect(header.height, route).toBeLessThan(140);
   }
+
+  await page.goto('/cases/rss-relay/');
+  const pager = page.getByRole('navigation', { name: 'Case studies' });
+  await expect(pager.getByRole('link')).toHaveCount(2);
+  for (const box of await pager.getByRole('link').evaluateAll(links => links.map(l => l.getBoundingClientRect().width))) {
+    expect(box).toBeLessThan(200);
+  }
 });
 
 test('a case page stays readable at 200% zoom', async ({ page }) => {

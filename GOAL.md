@@ -194,9 +194,13 @@ Case pages already carried `og:type=article`, a per-study description and the sh
 
 At 320 px each catalogue row carried a decorative index column inside a 2.2 rem gutter, squeezing the title into two lines and the metadata into three. Below 380 px the numbering is now hidden and the row becomes a single column, so rows shrink from about 261 px to 226 px, the title gains width and the reading-time line stays intact. The 320 px test still passes with no horizontal scrolling.
 
-### Next cycle — case page pager at 320 px
+### Cycle 38 — pager at 320 px (verified, test extended)
 
-The previous/next pager holds two equal columns; check whether long study titles collide at 320 px and adjust the pattern if the capture shows it.
+Two equal columns hold 139 px each at 320 px; labels stay aligned to their edges and the longest title wraps to three lines without touching the other side. No layout change was needed, so the 320 px test now also asserts both pager links exist and stay under 200 px, guarding the pattern against future title growth.
+
+### Next cycle — repository hygiene check
+
+Confirm the ignored paths, scripts and root files are still what they should be after 38 cycles, and remove anything that no longer earns its place.
 
 
 ### Delivered baseline (before this document)
