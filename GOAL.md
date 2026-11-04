@@ -49,9 +49,13 @@ Added `tests/e2e/a11y.spec.js` backed by `axe-core`, auditing `/`, `/cases/`, a 
 
 New `/cases/` route lists the five studies with summary, technologies and phase, in editorial numbering, and returns to the catalogue from each study. Primary navigation is now `Case studies · Observatory · Professional summary`, which fits one line at 390 px. Added `tests/e2e/navigation.spec.js` (index contents, navigation from home, mobile order and overflow) and included the route in the axe audit. Verified on desktop and mobile screenshots with no overflow and no console errors.
 
-### Next cycle — Observatory keyboard model
+### Cycle 3 — Observatory keyboard model (done)
 
-Arrow/Home/End navigation across the component controls in both the strip and the topology, with focus following selection.
+Arrow keys, Home and End move focus and selection across the visible components in both the strip and the topology; the wrap-around is explicit and the phase restricts the set. Covered by `tests/e2e/keyboard.spec.js` (two tests) and by the full suite: 17 E2E tests, three accessibility audits included.
+
+### Next cycle — performance budget
+
+Measure the initial document weight, script and style payloads and LCP on the editorial route; remove avoidable cost (font loading, duplicate CSS, island loading) without changing the stack.
 
 
 ### Delivered baseline (before this document)

@@ -92,6 +92,30 @@
     syncUrl();
   }
 
+  function moveComponentFocus(event, id) {
+    const keys = ['ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp', 'Home', 'End'];
+    if (!keys.includes(event.key)) return;
+    event.preventDefault();
+    const ids = activeComponents.map(component => component.id);
+    if (ids.length < 2) return;
+    const current = ids.indexOf(id);
+    const last = ids.length - 1;
+    const next = event.key === 'Home' ? 0
+      : event.key === 'End' ? last
+        : event.key === 'ArrowRight' || event.key === 'ArrowDown' ? (current === last ? 0 : current + 1)
+          : (current <= 0 ? last : current - 1);
+    const targetId = ids[next];
+    selectComponent(targetId);
+    document.querySelector(`[data-component-id="${targetId}"]`)?.focus();
+  }
+
+  function selectComponent(id) {
+    if (!activePhase?.components.includes(id)) return;
+    selectedId = id;
+    scene?.setSelected(id);
+    syncUrl();
+  }
+
   function clearSelection() {
     const state = overview({ phaseId, selectedId });
     selectedId = state.selectedId;
@@ -197,7 +221,7 @@
         <span class="observatory__stage-hint">{sceneMode === '3d' ? 'Click a model or use the component list' : 'Select a node to explore'}</span>
       </div>
       {#snippet nodeButton(component)}
-        <button type="button" class="topology-node topology-node--{component.id}" class:is-selected={selectedId === component.id} data-component-id={component.id} aria-label={`Select ${component.name}`} aria-pressed={selectedId === component.id} onclick={() => chooseComponent(component.id)}>
+        <button type="button" class="topology-node topology-node--{component.id}" class:is-selected={selectedId === component.id} data-component-id={component.id} aria-label={`Select ${component.name}`} aria-pressed={selectedId === component.id} onclick={() => chooseComponent(component.id)} onkeydown={(event) => moveComponentFocus(event, component.id)}>
           <span class="topology-node__glyph" aria-hidden="true">{component.type === 'gpu' ? '▰' : component.type === 'switch' ? '⌁' : component.type === 'storage' ? '▤' : '▥'}</span>
           <span>{component.name}</span>
         </button>
