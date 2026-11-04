@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { components, phases, validateModel } from '../src/model.js';
+import { caseSection } from '../scripts/content.mjs';
 
 const caseIds = ['gpu-lab', 'rss-relay', 'alert-relay', 'automation', 'observability'];
 
@@ -43,5 +44,50 @@ describe('content relationship validation', () => {
     } finally {
       phase.cases = original;
     }
+  });
+});
+
+describe('required model fields', () => {
+  it.each([
+    ['description', ''],
+    ['type', ''],
+    ['technologies', []],
+    ['relations', null],
+    ['caseId', '']
+  ])('reports an invalid component %s at its field path', (field, value) => {
+    const component = components[0];
+    const original = component[field];
+    component[field] = value;
+    try {
+      expect(() => validateModel(caseIds)).toThrow(`component/host.${field}`);
+    } finally {
+      component[field] = original;
+    }
+  });
+
+  it.each(['description', 'challenge', 'learning', 'status', 'next', 'components', 'skills', 'cases'])(
+    'reports an invalid phase %s at its field path', field => {
+      const phase = phases[0];
+      const original = phase[field];
+      phase[field] = Array.isArray(original) ? [] : '';
+      try {
+        expect(() => validateModel(caseIds)).toThrow(`phase/foundation.${field}`);
+      } finally {
+        phase[field] = original;
+      }
+    }
+  );
+});
+
+describe('case section extraction', () => {
+  it('keeps multiline paragraphs and stops before the next section', () => {
+    const content = '## Contribution and decision\nFirst line.\nSecond line.\n\nAnother paragraph.\n\n## Observed result\nResult.';
+    expect(caseSection(content, 'Contribution and decision', 'example.md'))
+      .toBe('First line.\nSecond line.\n\nAnother paragraph.');
+  });
+
+  it('reports a missing required section and its source file', () => {
+    expect(() => caseSection('## Context\nBackground.', 'Learning and next step', 'example.md'))
+      .toThrow('content/cases/example.md: missing section Learning and next step');
   });
 });

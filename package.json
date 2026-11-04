@@ -8,7 +8,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "content:check": "node scripts/content.mjs --check",
-    "content:build": "node scripts/content.mjs --build",
+    "content:build": "node scripts/build-readme.mjs",
     "audit:public": "node scripts/audit-public.mjs",
     "test": "vitest run",
     "test:e2e": "playwright test"

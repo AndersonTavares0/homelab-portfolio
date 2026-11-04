@@ -6,12 +6,21 @@ export const components = [
   { id: 'automation', name: 'Automation', type: 'server', description: 'Ansible and Semaphore separate inspection, simulation and manual changes.', technologies: ['Ansible', 'Semaphore'], caseId: 'automation', relations: ['host'] },
   { id: 'gpu', name: 'GPU lab', type: 'gpu', description: 'A controller coordinates GPU ownership between lab and inference.', technologies: ['systemd', 'Podman', 'GPU'], caseId: 'gpu-lab', relations: ['host'] }
 ];
-export const phases = [
-  { id: 'foundation', name: 'Foundation', description: 'Virtualization and Linux establish the environment.', components: ['host'], skills: ['Linux', 'Proxmox'], cases: ['automation'], challenge: 'Keep management and workload boundaries clear.', learning: 'Treat documented configuration and live state as distinct.', status: 'Virtualization is documented.', next: 'Continue checking assumptions against evidence.' },
-  { id: 'services', name: 'Services', description: 'Container services and a feed relay extend the environment.', components: ['host', 'services'], skills: ['Podman', 'Quadlet', 'systemd'], cases: ['rss-relay'], challenge: 'Keep service delivery independent of scarce compute.', learning: 'Remove unnecessary dependencies from a critical path.', status: 'The relay change is documented as a historical operation.', next: 'Translation was left as a separate possible change.' },
-  { id: 'operations', name: 'Automation & observability', description: 'Inspection, simulations and telemetry support operations.', components: ['host', 'services', 'alerts', 'telemetry', 'automation'], skills: ['Ansible', 'Semaphore', 'Grafana', 'Loki'], cases: ['automation', 'alert-relay', 'observability'], challenge: 'Distinguish missing, old and failed observations.', learning: 'Keep safe inspection separate from changes.', status: 'Historical tests and simulations are documented.', next: 'Validate a change before applying it.' },
-  { id: 'accelerated', name: 'Accelerated computing', description: 'A shared GPU has an explicit lifecycle and isolation boundary.', components: ['host', 'gpu'], skills: ['Linux', 'systemd', 'Podman', 'GPU'], cases: ['gpu-lab'], challenge: 'Prevent stale sessions from claiming a shared resource.', learning: 'Prove ownership and cleanup together.', status: 'A historical cutover and recovery checks are documented.', next: 'Retest the ordinary user journey after lifecycle changes.' }
-];
+// JSON is valid YAML frontmatter and can be parsed in both Node and the browser.
+// Vite embeds the Markdown for the interactive island; Node reads the same file
+// directly, so content checks and development need no generated intermediate.
+const timelineSource = typeof window === 'undefined'
+  ? process.getBuiltinModule('fs').readFileSync('content/timeline/phases.md', 'utf8')
+  : import.meta.glob('../content/timeline/phases.md', { eager: true, query: '?raw', import: 'default' })['../content/timeline/phases.md'];
+const frontmatter = timelineSource.match(/^---\s*\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/);
+if (!frontmatter) throw new Error('content/timeline/phases.md: missing frontmatter');
+let timeline;
+try {
+  timeline = JSON.parse(frontmatter[1]);
+} catch (error) {
+  throw new Error(`content/timeline/phases.md: invalid JSON frontmatter: ${error.message}`);
+}
+export const phases = timeline.phases;
 export function selectPhase(state, phaseId) {
   const phase = phases.find(item => item.id === phaseId);
   if (!phase) throw new Error(`Unknown phase: ${phaseId}`);
@@ -19,13 +28,26 @@ export function selectPhase(state, phaseId) {
 }
 export function overview(state) { return { ...state, selectedId: null }; }
 export function validateModel(caseIds) {
-  for (const [kind, items] of [['component', components], ['phase', phases]]) {
+  const nonempty = value => typeof value === 'string' && value.trim().length > 0;
+  const validateFields = (kind, items, strings, lists) => {
+    if (!Array.isArray(items) || !items.length) throw new Error(`${kind}: expected a non-empty array`);
     const ids = new Set();
-    for (const item of items) {
-      if (!item.id || !item.name || ids.has(item.id)) throw new Error(`${kind}/${item.id}: missing or duplicate ID/name`);
+    for (const [index, item] of items.entries()) {
+      const path = `${kind}/${nonempty(item?.id) ? item.id : index}`;
+      for (const field of strings) {
+        if (!nonempty(item?.[field])) throw new Error(`${path}.${field}: expected a non-empty string`);
+      }
+      if (ids.has(item.id)) throw new Error(`${path}.id: duplicate ID ${item.id}`);
       ids.add(item.id);
+      for (const field of lists) {
+        if (!Array.isArray(item[field]) || !item[field].length || !item[field].every(nonempty)) {
+          throw new Error(`${path}.${field}: expected a non-empty array of strings`);
+        }
+      }
     }
-  }
+  };
+  validateFields('component', components, ['id', 'name', 'type', 'description', 'caseId'], ['technologies', 'relations']);
+  validateFields('phase', phases, ['id', 'name', 'description', 'challenge', 'learning', 'status', 'next'], ['components', 'skills', 'cases']);
   const ids = new Set(components.map(item => item.id));
   for (const component of components) {
     if (!caseIds.includes(component.caseId)) throw new Error(`component/${component.id}: unknown case ${component.caseId}`);
@@ -34,6 +56,5 @@ export function validateModel(caseIds) {
   for (const phase of phases) {
     for (const id of phase.components) if (!ids.has(id)) throw new Error(`phase/${phase.id}: unknown component ${id}`);
     for (const id of phase.cases) if (!caseIds.includes(id)) throw new Error(`phase/${phase.id}: unknown case ${id}`);
-    for (const field of ['description', 'challenge', 'learning', 'status', 'next']) if (!phase[field]) throw new Error(`phase/${phase.id}: missing ${field}`);
   }
 }

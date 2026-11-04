@@ -28,8 +28,16 @@ test('phase, component, case and return preserve the exploration path', async ({
   await page.getByRole('button', phaseButton('Accelerated computing')).click();
   const gpu = page.getByRole('button', componentButton('GPU lab'));
   await expect(gpu).toBeVisible();
+  await expect(page.locator('.observatory__wires line[data-from="gpu"][data-to="host"]')).toBeAttached();
   await gpu.click();
   await expect(gpu).toHaveAttribute('aria-pressed', 'true');
+  const detail = page.locator('.observatory__detail');
+  await expect(detail.getByRole('heading', { name: 'Decision and learning' })).toBeVisible();
+  await expect(detail).toContainText(/controller/i);
+  await expect(detail.getByRole('button', { name: 'Select related system Virtualization host' })).toBeVisible();
+  await page.getByRole('button', { name: 'Overview' }).click();
+  await expect(gpu).toHaveAttribute('aria-pressed', 'false');
+  await gpu.click();
 
   await page.getByRole('link', { name: 'Read the case: Sharing a GPU safely' }).click();
   await expect(page).toHaveURL(/\/cases\/gpu-lab\/?$/);

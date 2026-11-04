@@ -14,15 +14,30 @@
     host: [17, 27], services: [50, 27], alerts: [83, 27],
     telemetry: [83, 75], automation: [50, 75], gpu: [17, 75]
   };
+  const edges = [];
+  const edgeKeys = new Set();
+  for (const component of components) {
+    for (const id of component.relations) {
+      const pair = [component.id, id].sort();
+      const key = JSON.stringify(pair);
+      if (!edgeKeys.has(key)) {
+        edgeKeys.add(key);
+        edges.push(pair);
+      }
+    }
+  }
   const activePhase = $derived(phases.find((phase) => phase.id === phaseId) ?? phases[0]);
   const activeComponents = $derived(components.filter((component) => activePhase?.components.includes(component.id)));
-  const topologyLinks = $derived(activeComponents.flatMap((component) => component.relations
-    .filter((id) => component.id < id && activePhase?.components.includes(id))
-    .map((id) => ({ from: nodeCoordinates[component.id], to: nodeCoordinates[id] }))));
+  const topologyLinks = $derived(edges
+    .filter(([from, to]) => activePhase?.components.includes(from) && activePhase.components.includes(to))
+    .map(([from, to]) => ({ fromId: from, toId: to, from: nodeCoordinates[from], to: nodeCoordinates[to] })));
   const selectedComponent = $derived(components.find((component) => component.id === selectedId) ?? null);
   const selectedCase = $derived(cases.find((item) => item.id === selectedComponent?.caseId) ?? null);
   const activeCases = $derived((activePhase?.cases ?? []).map((id) => cases.find((item) => item.id === id)).filter(Boolean));
-  const relatedComponents = $derived(selectedComponent ? selectedComponent.relations.map((id) => components.find((component) => component.id === id)).filter((component) => component && activePhase.components.includes(component.id)) : []);
+  const relatedComponents = $derived(selectedComponent ? edges
+    .filter((edge) => edge.includes(selectedComponent.id))
+    .map(([from, to]) => components.find((component) => component.id === (from === selectedComponent.id ? to : from)))
+    .filter(Boolean) : []);
 
   function choosePhase(id) {
     const state = selectPhase({ phaseId, selectedId }, id);
@@ -58,7 +73,7 @@
         if (!support) throw new Error('WebGL is unavailable');
         const { createObservatory } = await import('./observatory-scene.js');
         if (destroyed || !media.matches) return;
-        scene = createObservatory(canvas, chooseComponent);
+        scene = createObservatory(canvas, chooseComponent, edges);
         scene.setPhase(activePhase?.components ?? []);
         scene.setSelected(selectedId);
         sceneMode = '3d';
@@ -136,7 +151,7 @@
         {/if}
         <div class="observatory__map" aria-label="System topology">
           <svg class="observatory__wires" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" focusable="false">
-            {#each topologyLinks as link}<line x1={link.from[0]} y1={link.from[1]} x2={link.to[0]} y2={link.to[1]} />{/each}
+            {#each topologyLinks as link}<line data-from={link.fromId} data-to={link.toId} x1={link.from[0]} y1={link.from[1]} x2={link.to[0]} y2={link.to[1]} />{/each}
           </svg>
           {#each activeComponents as component (component.id)}
             <button type="button" class="topology-node" class:is-selected={selectedId === component.id} class:topology-node--host={component.id === 'host'} class:topology-node--services={component.id === 'services'} class:topology-node--alerts={component.id === 'alerts'} class:topology-node--telemetry={component.id === 'telemetry'} class:topology-node--automation={component.id === 'automation'} class:topology-node--gpu={component.id === 'gpu'} data-component-id={component.id} aria-label={`Select ${component.name}`} aria-pressed={selectedId === component.id} onclick={() => chooseComponent(component.id)}>
@@ -166,9 +181,16 @@
         <div class="detail__section">
           <h4>Connected systems</h4>
           {#if relatedComponents.length}
-            <ul class="detail__relations">{#each relatedComponents as relation}<li><button type="button" onclick={() => chooseComponent(relation.id)} aria-label={`Select related system ${relation.name}`}>{relation.name}</button></li>{/each}</ul>
-          {:else}<p class="detail__quiet">No other systems in this phase.</p>{/if}
+            <ul class="detail__relations">{#each relatedComponents as relation}<li>{#if activePhase.components.includes(relation.id)}<button type="button" onclick={() => chooseComponent(relation.id)} aria-label={`Select related system ${relation.name}`}>{relation.name}</button>{:else}<span>{relation.name} (outside this phase)</span>{/if}</li>{/each}</ul>
+          {:else}<p class="detail__quiet">No connected systems are documented.</p>{/if}
         </div>
+        {#if selectedCase?.decision || selectedCase?.learning}
+          <div class="detail__section">
+            <h4>Decision and learning</h4>
+            {#if selectedCase.decision}<p class="detail__description">{selectedCase.decision}</p>{/if}
+            {#if selectedCase.learning}<p class="detail__description">{selectedCase.learning}</p>{/if}
+          </div>
+        {/if}
         {#if selectedCase}
           <a class="btn btn-primary btn-sm detail__case-link" href={`/cases/${selectedCase.id}/`}>Read the case: {selectedCase.title}</a>
         {/if}
@@ -190,11 +212,12 @@
 
   <div class="observatory__lower">
     <section class="phase-panel" aria-labelledby="phase-heading">
-      <div class="lower-heading"><div><p class="observatory__eyebrow">A documented progression</p><h3 id="phase-heading">Explore by phase</h3></div><span class="phase-panel__count">{phases.length} phases</span></div>
+      <div class="lower-heading"><div><p class="observatory__eyebrow">Themes from documented work</p><h3 id="phase-heading">Explore by phase</h3></div><span class="phase-panel__count">{phases.length} phases</span></div>
+      <p class="phase-panel__context">These phases group related work by theme; their order is not a measured chronology.</p>
       <div class="phase-list" role="group" aria-label="Choose a project phase">
-        {#each phases as phase, index (phase.id)}
+        {#each phases as phase (phase.id)}
           <button type="button" class="phase-option" class:phase-option--active={phaseId === phase.id} data-phase-id={phase.id} aria-pressed={phaseId === phase.id} onclick={() => choosePhase(phase.id)}>
-            <span class="phase-option__index">{String(index + 1).padStart(2, '0')}</span><span class="phase-option__text"><strong>{phase.name}</strong><small>{phase.description}</small></span><span class="phase-option__arrow" aria-hidden="true">↗</span>
+            <span class="phase-option__text"><strong>{phase.name}</strong><small>{phase.description}</small></span><span class="phase-option__arrow" aria-hidden="true">↗</span>
           </button>
         {/each}
       </div>
@@ -298,11 +321,11 @@
   .lower-heading h3 { margin: 0; font-size: 1.14rem; }
   .lower-heading .observatory__eyebrow { font-size: .63rem; }
   .phase-panel__count { color: var(--obs-muted); font-size: .7rem; padding-top: .2rem; }
+  .phase-panel__context { margin: 0 0 1rem; color: var(--obs-muted); font-size: .75rem; line-height: 1.5; }
   .phase-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; }
   .phase-option { min-width: 0; display: flex; align-items: flex-start; gap: .7rem; padding: .75rem; border: 1px solid #3c4e5a; border-radius: .5rem; color: var(--obs-text); background: #182630; text-align: left; cursor: pointer; }
   .phase-option:hover { border-color: #7899aa; }
   .phase-option--active { border-color: #7bb6cb; background: #223847; box-shadow: inset 3px 0 #82b9d2; }
-  .phase-option__index { padding-top: .05rem; color: var(--obs-teal); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .68rem; }
   .phase-option__text { display: grid; gap: .3rem; min-width: 0; }
   .phase-option__text strong { font-size: .76rem; line-height: 1.3; }
   .phase-option__text small { color: var(--obs-muted); font-size: .68rem; line-height: 1.4; }

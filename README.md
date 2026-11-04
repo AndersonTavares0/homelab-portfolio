@@ -16,9 +16,16 @@ Linux · Proxmox · Podman · systemd · Ansible · Semaphore · Grafana · Loki
 - **Making telemetry failures visible** — Freshness and delivery status matter as much as collected metrics.
 - **Decoupling an RSS relay from inference** — Removing an unnecessary GPU dependency while retaining reliable feed delivery.
 
-## Development
+## Areas of development
 
-The timeline groups work thematically, not chronologically.
+These phases are an editorial grouping, not a measured chronology.
+
+- **Foundation**: Virtualization and Linux establish the environment. Virtualization is documented. Treat documented configuration and live state as distinct. Next: Continue checking assumptions against evidence.
+- **Services**: Container services and a feed relay extend the environment. The relay change is documented as a historical operation. Remove unnecessary dependencies from a critical path. Next: Translation was left as a separate possible change.
+- **Automation & observability**: Inspection, simulations and telemetry support operations. Historical tests and simulations are documented. Keep safe inspection separate from changes. Next: Validate a change before applying it.
+- **Accelerated computing**: A shared GPU has an explicit lifecycle and isolation boundary. A historical cutover and recovery checks are documented. Prove ownership and cleanup together. Next: Retest the ordinary user journey after lifecycle changes.
+
+## Development
 
 Run npm ci, npm run dev, or npm run build. Generate this README with npm run content:build.
 

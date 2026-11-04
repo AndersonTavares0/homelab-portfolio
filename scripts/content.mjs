@@ -1,11 +1,25 @@
 import fs from 'node:fs';
 import matter from 'gray-matter';
-import { validateModel } from '../src/model.js';
+import { phases, validateModel } from '../src/model.js';
+
+export function caseSection(content, heading, file) {
+  const match = content.match(new RegExp(`(?:^|\\r?\\n)## ${heading}[ \\t]*\\r?\\n([\\s\\S]*?)(?=\\r?\\n## |$)`));
+  const text = match?.[1].trim();
+  if (!text) throw new Error(`content/cases/${file}: missing section ${heading}`);
+  return text;
+}
 
 export function loadContent() {
   const profile = matter(fs.readFileSync('content/profile.md', 'utf8'));
   const files = fs.readdirSync('content/cases').filter(name => name.endsWith('.md'));
-  const cases = files.map(file => ({ ...matter(fs.readFileSync(`content/cases/${file}`, 'utf8')), file }));
+  const cases = files.map(file => {
+    const item = matter(fs.readFileSync(`content/cases/${file}`, 'utf8'));
+    return {
+      ...item, file,
+      decision: caseSection(item.content, 'Contribution and decision', file),
+      learning: caseSection(item.content, 'Learning and next step', file)
+    };
+  });
   const ids = new Set();
   for (const item of cases) {
     const { id, title, summary, technologies } = item.data;
@@ -14,13 +28,11 @@ export function loadContent() {
   }
   validateModel([...ids]);
   if (!profile.data.title || !profile.data.skills?.length || !profile.content.trim()) throw new Error('content/profile.md: missing profile fields');
-  return { profile, cases };
+  const timeline = matter(fs.readFileSync('content/timeline/phases.md', 'utf8'));
+  if (!timeline.data.title || !timeline.content.trim()) throw new Error('content/timeline/phases.md: missing title or editorial context');
+  return { profile, cases, timeline, phases };
 }
 if (process.argv[1]?.replaceAll('\\', '/').endsWith('/scripts/content.mjs')) {
-  const { profile, cases } = loadContent();
-  if (process.argv.includes('--build')) {
-    const text = `# ${profile.data.title}\n\n${profile.content.trim()}\n\n![Illustrative infrastructure topology showing virtualization, services, alerting, automation, observation and GPU computing](public/topology.svg)\n\n## Skills\n\n${profile.data.skills.join(' · ')}\n\n## Projects\n\n${cases.map(c => `- **${c.data.title}** — ${c.data.summary}`).join('\n')}\n\n## Development\n\nThe timeline groups work thematically, not chronologically.\n\nRun npm ci, npm run dev, or npm run build. Generate this README with npm run content:build.\n\nOriginal code is MIT licensed; original text and diagrams are CC BY 4.0.\n`;
-    fs.writeFileSync('README.md', text);
-  }
+  const { cases } = loadContent();
   console.log(`Validated ${cases.length} cases and their relationships.`);
 }

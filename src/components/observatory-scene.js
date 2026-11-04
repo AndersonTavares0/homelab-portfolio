@@ -54,7 +54,7 @@ function makeEquipment(type, material) {
   return group;
 }
 
-export function createObservatory(canvas, onSelect) {
+export function createObservatory(canvas, onSelect, edges) {
   const scene = new THREE.Scene();
   scene.background = new THREE.Color('#101922');
   scene.fog = new THREE.Fog('#101922', 12, 23);
@@ -114,24 +114,15 @@ export function createObservatory(canvas, onSelect) {
   }
 
   const links = [];
-  const linked = new Set();
-  for (const [id, model] of nodes) {
-    const related = {
-      host: ['services', 'automation', 'gpu'], services: ['alerts'], alerts: ['telemetry'], telemetry: [], automation: [], gpu: []
-    }[id] ?? [];
-    for (const other of related) {
-      const keyId = [id, other].sort().join(':');
-      if (linked.has(keyId)) continue;
-      linked.add(keyId);
-      const a = model.position.clone();
-      const b = nodes.get(other).position.clone();
-      a.y = b.y = -0.5;
-      const geometry = new THREE.BufferGeometry().setFromPoints([a, b]);
-      const line = new THREE.Line(geometry, new THREE.LineBasicMaterial({ color: 0x54768a, transparent: true, opacity: 0.72 }));
-      line.userData.componentIds = [id, other];
-      scene.add(line);
-      links.push(line);
-    }
+  for (const [id, other] of edges) {
+    const a = nodes.get(id).position.clone();
+    const b = nodes.get(other).position.clone();
+    a.y = b.y = -0.5;
+    const geometry = new THREE.BufferGeometry().setFromPoints([a, b]);
+    const line = new THREE.Line(geometry, new THREE.LineBasicMaterial({ color: 0x54768a, transparent: true, opacity: 0.72 }));
+    line.userData.componentIds = [id, other];
+    scene.add(line);
+    links.push(line);
   }
 
   const raycaster = new THREE.Raycaster();
@@ -198,7 +189,7 @@ export function createObservatory(canvas, onSelect) {
       }
     }
     for (const line of links) {
-      line.visible = line.userData.componentIds.every(id => phaseIds.has(id)) && (!selectedId || line.userData.componentIds.includes(selectedId));
+      line.visible = line.userData.componentIds.every(id => phaseIds.has(id));
       line.material.color.set(selectedId ? 0x77b8d2 : 0x54768a);
       line.material.opacity = selectedId ? 0.9 : 0.65;
     }
