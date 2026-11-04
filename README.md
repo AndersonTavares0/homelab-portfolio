@@ -1,6 +1,8 @@
 <div align="center">
 
-<h1>Anderson Tavares</h1>
+<h1>Homelab portfolio</h1>
+
+<p><img alt="Astro static site" src="https://img.shields.io/badge/Astro-static-BC52EE?logo=astro&logoColor=white"> <img alt="Svelte interactions" src="https://img.shields.io/badge/Svelte-island-FF3E00?logo=svelte&logoColor=white"> <img alt="Three.js topology" src="https://img.shields.io/badge/Three.js-3D-000000?logo=threedotjs&logoColor=white"> <img alt="Tailwind CSS" src="https://img.shields.io/badge/Tailwind_CSS-UI-06B6D4?logo=tailwindcss&logoColor=white"> <img alt="Node.js build" src="https://img.shields.io/badge/Node.js-build-339933?logo=nodedotjs&logoColor=white"></p>
 
 <p><strong>Infrastructure, understood by building.</strong></p>
 
@@ -61,13 +63,21 @@ The `/profile/` route presents a concise, project-based summary that readers can
 
 ## Architecture
 
-| Layer | Technology | Role |
-|---|---|---|
-| Static pages | Astro | Builds the home page, case catalogue, five studies, profile and not-found page |
-| Interaction | Svelte | Manages Observatory selection and URL state |
-| 3D visualization | Three.js | Renders the optional desktop scene after the section approaches the viewport |
-| Styling | Tailwind CSS 4, daisyUI 5 | Responsive presentation and semantic controls |
-| Content | Markdown and shared model | Drives the site and the generated README |
+```mermaid
+flowchart LR
+  Markdown["Case-study markdown"] --> Model["Shared content model"]
+  Model --> Astro["Astro static routes"]
+  Model --> Readme["Generated README"]
+  Astro --> Atlas["Atlas and case studies"]
+  Astro --> Observatory["Svelte Observatory"]
+  Observatory --> DOM["Accessible DOM topology"]
+  Observatory -. optional desktop .-> Three["Three.js scene"]
+  Model --> Profile["Printable profile"]
+  CI["Private GitHub Actions"] --> Checks["Content, tests, build and privacy audit"]
+  Checks --> Deploy["GitHub Pages deployment from main"]
+```
+
+The shared content model drives the site and this README. The Observatory keeps its DOM topology available when the optional Three.js view cannot run.
 
 ## Run locally
 
@@ -103,13 +113,13 @@ npm run test:e2e
 
 Install Chromium once before the browser suite with `npx playwright install chromium`. Build before `npm run test:e2e`; Playwright serves the generated `dist/` site on `127.0.0.1:4327`.
 
-The private GitHub Actions workflow validates content, tests the model, audits runtime dependencies, builds the site, scans public artifacts and runs Chromium tests. It runs on pushes and pull requests with read-only contents access. No deployment job is configured.
+Private GitHub Actions verifies pushes and pull requests. A push to `main` deploys only after verification; Pages and OIDC write permissions are isolated to that job. The Pages build uses `SITE_BASE_PATH=/homelab-portfolio` and sets `PUBLIC_SITE_URL` at deployment time.
 
 `npm run audit:public` checks configured patterns in authored and generated files. It is a heuristic, not proof that every possible exposure has been removed.
 
 ## Privacy and publication
 
-The repository is private and has no published site URL. Case studies distinguish historical records from current live state, and the topology is illustrative rather than a physical inventory. Set `PUBLIC_SITE_URL` only when a published origin exists; the build uses it for absolute share metadata.
+The source repository remains private. The workflow is configured to deploy the static site to GitHub Pages from `main`; its public URL will be listed here only after deployment succeeds and public browser access is validated. Case studies distinguish historical records from current live state, and the topology is illustrative rather than a physical inventory.
 
 ## Contact
 

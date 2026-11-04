@@ -2,8 +2,11 @@
 import '../styles/global.css';
 import fontUrl from '@fontsource-variable/public-sans/files/public-sans-latin-wght-normal.woff2?url';
 import { loadContent } from '../../scripts/content.mjs';
+import { sitePath } from '../site-path.js';
 const { profile } = loadContent();
-const path = Astro.url.pathname;
+const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
+const isBasePrefixed = basePath !== '' && Astro.url.pathname.startsWith(`${basePath}/`);
+const path = isBasePrefixed ? Astro.url.pathname.slice(basePath.length) : Astro.url.pathname;
 const onCases = path === '/cases/' || path.startsWith('/cases/');
 const onProfile = path === '/profile/';
 const summary = profile.content.trim().split(/(?<=[.!?])\s+/)[0];
@@ -21,8 +24,9 @@ const absolute = value => {
   if (!siteUrl) return value;
   try { return new URL(value, siteUrl).href; } catch { return value; }
 };
-const shareImage = absolute(image);
-const shareUrl = absolute(Astro.url.pathname);
+const shareImage = absolute(image.startsWith('http') ? image : sitePath(image));
+const currentPath = isBasePrefixed ? Astro.url.pathname : sitePath(Astro.url.pathname);
+const shareUrl = absolute(currentPath);
 const author = { '@type': 'Person', name: profile.data.name, sameAs: [profile.data.github] };
 const structuredData = type === 'article'
   ? {
@@ -54,6 +58,7 @@ const structuredData = type === 'article'
   <meta property="og:description" content={description} />
   <meta property="og:site_name" content={profile.data.name} />
   <meta property="og:url" content={shareUrl} />
+  <link rel="canonical" href={shareUrl} />
   <meta property="og:image" content={shareImage} />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
@@ -62,14 +67,14 @@ const structuredData = type === 'article'
   <meta name="twitter:title" content={title} />
   <meta name="twitter:description" content={description} />
   <meta name="twitter:image" content={shareImage} />
-  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href={sitePath('/favicon.svg')} type="image/svg+xml" />
   <link rel="preload" href={fontUrl} as="font" type="font/woff2" crossorigin />
   <title>{title} | {profile.data.name}</title>
   <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
-  <header class="site-header"><a class="wordmark" href="/">{profile.data.name}<span>.</span></a><nav aria-label="Main navigation"><a class="py-1" href="/cases/" aria-current={onCases ? 'page' : undefined}>Case studies</a><a class="py-1" href="/#observatory">Observatory</a><a class="py-1" href="/profile/" aria-current={onProfile ? 'page' : undefined}>Professional summary</a></nav></header>
+  <header class="site-header"><a class="wordmark" href={sitePath('/')}>{profile.data.name}<span>.</span></a><nav aria-label="Main navigation"><a class="py-1" href={sitePath('/cases/')} aria-current={onCases ? 'page' : undefined}>Case studies</a><a class="py-1" href={sitePath('/#observatory')}>Observatory</a><a class="py-1" href={sitePath('/profile/')} aria-current={onProfile ? 'page' : undefined}>Professional summary</a></nav></header>
   <main id="main" tabindex="-1"><slot /></main>
   <footer class="site-footer"><span>Built from documented work.</span><a href={profile.data.github}>GitHub profile</a><a href="#main">Back to top</a></footer>
 </body>

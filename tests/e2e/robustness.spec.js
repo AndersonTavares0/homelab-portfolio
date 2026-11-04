@@ -29,7 +29,7 @@ test('every internal link resolves to a document', async ({ page, request }) => 
 test('malformed Observatory parameters fall back without breaking the page', async ({ page }) => {
   await page.goto('/?phase=nope&component=nope#observatory');
   await page.waitForFunction(() => !document.querySelector('astro-island')?.hasAttribute('ssr'));
-  await expect(page.getByRole('button', { name: 'Foundation' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('button', { name: 'All systems' })).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('[data-component-id][aria-pressed="true"]')).toHaveCount(0);
 
   await page.goto('/?phase=accelerated&component=services#observatory');

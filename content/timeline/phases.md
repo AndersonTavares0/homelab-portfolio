@@ -9,5 +9,4 @@
   ]
 }
 ---
-
 These phases are an editorial grouping, not a measured chronology.

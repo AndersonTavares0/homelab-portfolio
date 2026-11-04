@@ -6,9 +6,9 @@ test('a touch device can select a phase and a component, then clear it', async (
   await page.goto('/#observatory');
   await page.waitForFunction(() => !document.querySelector('astro-island')?.hasAttribute('ssr'));
 
-  const phases = page.getByRole('group', { name: 'Choose a project phase' });
-  await phases.getByRole('button', { name: 'Services' }).tap();
-  await expect(phases.getByRole('button', { name: 'Services' })).toHaveAttribute('aria-pressed', 'true');
+  const phases = page.getByRole('group', { name: 'Choose a project view' });
+  await phases.getByRole('button', { name: /^Services/ }).tap();
+  await expect(phases.getByRole('button', { name: /^Services/ })).toHaveAttribute('aria-pressed', 'true');
 
   const services = page.getByRole('button', { name: 'Select Container services' });
   await services.tap();
@@ -27,7 +27,7 @@ test('touch targets stay large enough on the stacked layout', async ({ page }) =
 
   const controls = [
     page.getByRole('button', { name: 'Overview' }),
-    page.getByRole('group', { name: 'Choose a project phase' }).getByRole('button', { name: 'Foundation' }),
+    page.getByRole('group', { name: 'Choose a project view' }).getByRole('button', { name: 'All systems' }),
     page.getByRole('button', { name: 'Select Virtualization host' })
   ];
   for (const control of controls) {

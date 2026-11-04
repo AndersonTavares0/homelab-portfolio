@@ -4,7 +4,7 @@ Persistent execution document for the portfolio's planned baseline and the user'
 
 ## Mission
 
-Build a professional, evidence-based English portfolio with the Atlas editorial identity, interactive Observatory, five case studies, documented timeline, 3D topology with complete mobile/WebGL fallback, and printable professional summary. Continue beyond the initial plan where verified opportunities add real value. Keep the repository private; do not publish or deploy the site.
+Build a professional, evidence-based English portfolio with the Atlas editorial identity, interactive Observatory, five case studies, documented timeline, 3D topology with complete mobile/WebGL fallback, and printable professional summary. Continue beyond the initial plan where verified opportunities add real value. Keep the source repository private. GitHub Pages deployment through Actions is authorized only if the account permits publishing from a private repository; never change repository visibility. Record the public URL and set the repository Website field only after public browser validation.
 
 ## Completion workflow
 
@@ -12,11 +12,11 @@ Build a professional, evidence-based English portfolio with the Atlas editorial 
 2. Run the plan's content, unit, dependency, build, public-content, E2E and secret-history checks.
 3. Inspect the built site in a real browser at desktop and mobile sizes; verify the exercised journey and runtime.
 4. Continue with scoped, evidence-backed improvements authorized by the current user request; stop when remaining work is marginal or would expand scope.
-5. Record evidence and real limitations here. Merge completed work to `main` through a pull request after private CI passes. Never deploy, publish, or change repository visibility.
+5. Record evidence and real limitations here. Merge completed work to `main` through a pull request after private CI passes. Deploy from `main` through GitHub Actions only if Pages eligibility for this private source is confirmed. Never change repository visibility; validate anonymous public access before recording the URL or setting Website.
 
 ## Constraints
 
-- Repository stays **private**; merges to `main` are authorized through pull requests after private CI passes. Deployment, Pages, public publication and visibility changes remain prohibited.
+- Source repository stays **private**; merges to `main` are authorized through pull requests after private CI passes. GitHub Pages deployment from `main` is authorized only if the current account permits Pages from a private source. Never change visibility.
 - Earlier PRs #5 and #6 were merged under prior authorization. The current instruction authorizes ongoing merges; preserve history and do not rewrite or revert existing work.
 - No credentials, addresses, internal usernames, inventory or operational detail from the homelab.
 - Documented past observations are not live-state claims. No invented metrics, roles or history.
@@ -33,7 +33,7 @@ Build a professional, evidence-based English portfolio with the Atlas editorial 
 
 ## Backlog
 
-All six original MVP items shipped (accessibility automation, `/cases/` index, Observatory keyboard model, measured performance budget, cross-linking and robustness). The current user mandate explicitly authorizes evidence-backed evolution beyond the original plan. Public publication/deployment and visibility changes remain prohibited.
+All six original MVP items shipped (accessibility automation, `/cases/` index, Observatory keyboard model, measured performance budget, cross-linking and robustness). The current user mandate explicitly authorizes evidence-backed evolution beyond the original plan. Public GitHub Pages deployment is authorized only while source visibility remains private and account eligibility is confirmed; changing visibility is prohibited.
 
 ## Cycle log
 
@@ -243,7 +243,7 @@ Every page now ships JSON-LD: `Person` with the confirmed GitHub profile on edit
 
 ### MVP completion status
 
-The MVP acceptance criteria are met. `npm audit --omit=dev --audit-level=moderate` passes with three low-severity `deepmerge` advisories inherited through the Svelte/Vite adapter; the scanner's suggested `--force` remediation would downgrade `@astrojs/svelte` to a breaking version, so it was not applied. The current explicit user request authorizes further evidence-backed refinements and merges through private PRs after CI passes. Public deployment, publication and visibility changes remain prohibited. GitHub repository homepage metadata is unset, Pages is disabled, and no published portfolio URL is confirmed; do not guess a URL or deploy.
+The MVP acceptance criteria are met. `npm audit --omit=dev --audit-level=moderate` passes with three low-severity `deepmerge` advisories inherited through the Svelte/Vite adapter; the scanner's suggested `--force` remediation would downgrade `@astrojs/svelte` to a breaking version, so it was not applied. The user now authorizes a public GitHub Pages site from the private source repository, conditional on account-plan support. GitHub accepted Pages workflow configuration on 2026-11-04; the source remains private, no deployment has completed, and the repository Website field and README URL must wait for a successful deployment and public browser validation.
 
 
 ### Delivered baseline (before this document)
@@ -270,3 +270,11 @@ The production build warns about a minified chunk above 500 kB. The warned asset
 ### Cycle 56 — README redesign and generated-output guard
 
 Rebuilt the generated README around the portfolio’s intended order: professional identity and skills, five source-linked studies, development themes with their challenges and lessons, the interactive Observatory, printable summary and contact. Added site routes, architecture, local setup, verification steps, privacy and licensing; all claims come from the existing content model and implementation. Updated `scripts/build-readme.mjs` to use catalogue order and added a CI check that fails if generated `README.md` differs from the committed file. Local verification passed: content validation/generation, 27 unit tests, moderate-threshold runtime audit, a 9-route build, public-content audit, 48 Chromium E2E tests, 8 local file links and 6 section anchors. The public-content scan is heuristic, not a security guarantee.
+
+### Cycle 57 — Observatory framing and Pages pipeline (local verification complete)
+
+The desktop “All systems” view previously moved its camera to the selected node, pushing other systems out of frame. It now keeps the complete six-system topology centered while preserving focus in narrower views; the mobile and WebGL-fallback DOM topology remains the same accessible interface. One shared layout model now supplies both 2D and 3D coordinates, and content validation rejects missing, invalid or orphaned component layouts. GitHub Pages project-base support covers navigation, assets, canonical/social metadata and case-return links. The generated README documents the main-branch deployment flow without claiming a live URL.
+
+GitHub confirmed the source repository is still private and accepted Pages workflow configuration. That acceptance does not prove public deployment eligibility or anonymous access. The workflow verifies first, then deploys only on a push to `main` with job-scoped `pages:write` and `id-token:write`; the deploy actions are pinned to verified commits. No site deployment has completed, so the Website field and public URL remain pending.
+
+Local verification: 29 unit tests, 49 Chromium E2E tests, content validation for five cases, moderate-threshold runtime audit (three inherited low-severity `deepmerge` advisories), a nine-route build, public-content heuristic and clean `git diff --check`. A built `/homelab-portfolio` preview returned 200 for home, catalogue and GPU case; the case-return path preserved `phase=overview&component=gpu`. Chromium screenshots confirmed the centered desktop 3D topology and the 390 px DOM topology without overflow or application errors.

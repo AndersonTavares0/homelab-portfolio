@@ -1,7 +1,8 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import { loadContent, orderedCases, readingMinutes } from '../../../scripts/content.mjs';
-import { components, phases } from '../../model.js';
+import { components, overviewPhase, phases, views } from '../../model.js';
+import { sitePath } from '../../site-path.js';
 import { marked } from 'marked';
 
 export function getStaticPaths() {
@@ -21,16 +22,16 @@ const relatedComponent = phaseComponentsFor.find(component => component.id === i
   ?? null;
 
 const observatoryState = {
-  defaultPhaseId: phases[0]?.id ?? '',
+  defaultPhaseId: overviewPhase.id,
   phaseId: relatedPhase?.id ?? '',
   componentId: relatedComponent?.id ?? ''
 };
-const phaseComponents = Object.fromEntries(phases.map(phase => [phase.id, phase.components]));
+const phaseComponents = Object.fromEntries(views.map(view => [view.id, view.components]));
 const observatoryParams = new URLSearchParams();
 if (observatoryState.phaseId && observatoryState.phaseId !== observatoryState.defaultPhaseId) observatoryParams.set('phase', observatoryState.phaseId);
 if (observatoryState.componentId) observatoryParams.set('component', observatoryState.componentId);
 const observatoryQuery = observatoryParams.toString();
-const observatoryHref = `/${observatoryQuery ? `?${observatoryQuery}` : ''}#observatory`;
+const observatoryHref = `${sitePath('/')}${observatoryQuery ? `?${observatoryQuery}` : ''}#observatory`;
 
 // "Documented state" is rendered as its own block instead of trailing prose.
 function takeSection(markdown, heading) {
@@ -84,7 +85,7 @@ const relatedStudies = [...relatedIds]
 ---
 <Layout title={item.data.title} description={item.data.summary} type="article" section={relatedPhase?.name}>
   <article class="reading section-wrap">
-    <a class="back-link" href="/cases/">← All case studies</a>
+    <a class="back-link" href={sitePath('/cases/')}>← All case studies</a>
     <p class="case-tech">{item.data.technologies.join(' / ')} · About {minutes} min read</p>
     <h1>{item.data.title}</h1>
     <p class="lead">{item.data.summary}</p>
@@ -108,7 +109,7 @@ const relatedStudies = [...relatedIds]
         <h2 id="case-related-heading">Related studies</h2>
         <ul>
           {relatedStudies.map(study => (
-            <li><a href={`/cases/${study.id}/`}><strong>{study.title}</strong><span>{study.summary}</span></a></li>
+            <li><a href={sitePath(`/cases/${study.id}/`)}><strong>{study.title}</strong><span>{study.summary}</span></a></li>
           ))}
         </ul>
       </section>
@@ -116,10 +117,10 @@ const relatedStudies = [...relatedIds]
     {(previous || next) && (
       <nav class="case-pager" aria-label="Case studies">
         {previous && (
-          <a href={`/cases/${previous.id}/`} rel="prev"><span>Previous study</span><strong>{previous.title}</strong></a>
+          <a href={sitePath(`/cases/${previous.id}/`)} rel="prev"><span>Previous study</span><strong>{previous.title}</strong></a>
         )}
         {next && (
-          <a href={`/cases/${next.id}/`} rel="next"><span>Next study</span><strong>{next.title}</strong></a>
+          <a href={sitePath(`/cases/${next.id}/`)} rel="next"><span>Next study</span><strong>{next.title}</strong></a>
         )}
       </nav>
     )}
@@ -130,7 +131,7 @@ const relatedStudies = [...relatedIds]
       <a class="btn" href={observatoryHref} data-observatory-return>Return to the Observatory</a>
     </div>
   </article>
-  <script define:vars={{ observatoryState, phaseComponents }}>
+  <script define:vars={{ observatoryState, phaseComponents, siteBase: import.meta.env.BASE_URL }}>
     function syncObservatoryReturn() {
       const link = document.querySelector('[data-observatory-return]');
       if (!link) return;
@@ -149,8 +150,8 @@ const relatedStudies = [...relatedIds]
       if (candidates.includes(requestedComponent)) componentId = requestedComponent;
       else if (directVisit && candidates.includes(observatoryState.componentId)) componentId = observatoryState.componentId;
 
-      const url = new URL('/', window.location.origin);
-      if (phaseId && phaseId !== observatoryState.defaultPhaseId) url.searchParams.set('phase', phaseId);
+      const url = new URL(`${siteBase.replace(/\/+$/, '')}/`, window.location.origin);
+      if (phaseId && (phaseId !== observatoryState.defaultPhaseId || componentId)) url.searchParams.set('phase', phaseId);
       if (componentId) url.searchParams.set('component', componentId);
       url.hash = 'observatory';
       link.href = `${url.pathname}${url.search}${url.hash}`;

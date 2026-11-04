@@ -14,7 +14,7 @@ A technical reader — hiring manager, engineer or peer — who wants to see how
 - No credentials, addresses, internal usernames or operational inventory appear in the published surface.
 - Nothing invented: no job titles, seniority, certifications, metrics or dates that the sources do not support.
 - The site works without WebGL and without interacting with the scene; the DOM topology carries the same information.
-- The repository stays private and no site deployment is configured until a separate publication decision.
+- The source repository stays private. A public GitHub Pages site may deploy from it only when the account plan permits it; never change repository visibility.
 
 ## Out of scope for the MVP
 

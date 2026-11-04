@@ -6,6 +6,9 @@ import { extname, join, normalize, resolve } from 'node:path';
 
 const root = resolve('dist');
 const port = Number(process.argv[2] ?? 4327);
+const configuredBasePath = process.argv[3] ?? process.env.SITE_BASE_PATH ?? '';
+const basePathSegment = configuredBasePath.replace(/^\/+|\/+$/g, '');
+const basePath = basePathSegment ? `/${basePathSegment}` : '';
 const types = {
   '.html': 'text/html; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
@@ -18,6 +21,11 @@ const types = {
 };
 
 async function fileFor(pathname) {
+  if (basePath) {
+    if (pathname === basePath || pathname === `${basePath}/`) pathname = '/';
+    else if (pathname.startsWith(`${basePath}/`)) pathname = pathname.slice(basePath.length);
+    else return null;
+  }
   const clean = normalize(decodeURIComponent(pathname)).replace(/^(\.\.[/\\])+/, '');
   let file = join(root, clean);
   if (!file.startsWith(root)) return null;
@@ -40,5 +48,5 @@ createServer(async (request, response) => {
   response.writeHead(200, { 'content-type': types[extname(file)] ?? 'application/octet-stream' });
   response.end(body);
 }).listen(port, '127.0.0.1', () => {
-  console.log(`Serving dist on http://127.0.0.1:${port}`);
+  console.log(`Serving ${root} at ${basePath || '/'} on http://127.0.0.1:${port}`);
 });

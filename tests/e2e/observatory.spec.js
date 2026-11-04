@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 const componentButton = name => ({ role: 'button', name: `Select ${name}` });
-const phaseButton = name => ({ role: 'button', name });
+const phaseButton = name => ({ role: 'button', name: new RegExp(`^${name}`) });
 
 function watchForExternalRequests(page) {
   const external = [];
@@ -40,16 +40,17 @@ test('phase, component, case and return preserve the exploration path', async ({
   await page.getByRole('button', { name: 'Overview' }).click();
   await expect(gpu).toHaveAttribute('aria-pressed', 'false');
   await gpu.click();
+  await expect(page).toHaveURL(/\/\?phase=overview&component=gpu#observatory$/);
 
   await page.getByRole('link', { name: 'Read the case: Sharing a GPU safely' }).click();
-  await expect(page).toHaveURL(/\/cases\/gpu-lab\/\?phase=accelerated&component=gpu$/);
+  await expect(page).toHaveURL(/\/cases\/gpu-lab\/\?phase=overview&component=gpu$/);
   await expect(page.getByRole('heading', { name: 'Sharing a GPU safely' })).toBeVisible();
   await expect(page.locator('[data-case-state]').getByRole('heading', { name: 'Documented state' })).toBeVisible();
   await page.getByRole('link', { name: 'Return to the Observatory' }).click();
-  await expect(page).toHaveURL(/\/\?phase=accelerated&component=gpu#observatory$/);
+  await expect(page).toHaveURL(/\/\?phase=overview&component=gpu#observatory$/);
   await expect(page.locator('#observatory')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Overview' })).toHaveAttribute('aria-pressed', 'false');
-  await expect(page.getByRole('button', phaseButton('Accelerated computing'))).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('button', phaseButton('All systems'))).toHaveAttribute('aria-pressed', 'true');
   await expect(gpu).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('.observatory__detail')).toContainText('GPU lab');
   assertNoExternalRequests();
@@ -72,7 +73,7 @@ test('deep links restore a selection and ignore invalid state', async ({ page })
   await page.goto('/?phase=missing&component=not-a-node#observatory');
   await page.waitForFunction(() => !document.querySelector('astro-island')?.hasAttribute('ssr'));
   await expect(page.getByRole('button', { name: 'Overview' })).toHaveAttribute('aria-pressed', 'true');
-  await expect(page.getByRole('button', phaseButton('Foundation'))).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('button', { name: 'All systems' })).toHaveAttribute('aria-pressed', 'true');
   await expect(page).toHaveURL(/\/#observatory$/);
   assertNoExternalRequests();
 });
@@ -98,7 +99,7 @@ test('a case return preserves a phase without a component', async ({ page }) => 
   await expect(page).toHaveURL(/\/\?phase=accelerated#observatory$/);
   await page.waitForFunction(() => !document.querySelector('astro-island')?.hasAttribute('ssr'));
   await expect(page.getByRole('button', phaseButton('Accelerated computing'))).toHaveAttribute('aria-pressed', 'true');
-  await expect(page.getByRole('button', { name: 'Overview' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('button', { name: 'Overview' })).toHaveAttribute('aria-pressed', 'false');
   assertNoExternalRequests();
 });
 
@@ -111,8 +112,8 @@ test('browser history restores the observatory selection around a case page', as
   await expect(page).toHaveURL(/\/cases\/rss-relay\/\?phase=services&component=services$/);
   await page.goBack();
   await expect(page).toHaveURL(/\/\?phase=services&component=services#observatory$/);
-  const phaseGroup = page.getByRole('group', { name: 'Choose a project phase' });
-  await expect(phaseGroup.getByRole('button', { name: 'Services' })).toHaveAttribute('aria-pressed', 'true');
+  const phaseGroup = page.getByRole('group', { name: 'Choose a project view' });
+  await expect(phaseGroup.getByRole('button', phaseButton('Services'))).toHaveAttribute('aria-pressed', 'true');
   await expect(page.getByRole('button', componentButton('Container services'))).toHaveAttribute('aria-pressed', 'true');
   await page.goForward();
   await expect(page).toHaveURL(/\/cases\/rss-relay\//);
@@ -135,6 +136,19 @@ test('mobile topology exposes phase and component selection without horizontal o
   assertNoExternalRequests();
 });
 
+test('the full-system map highlights only the selected system relationships', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/#observatory');
+  await page.waitForFunction(() => !document.querySelector('astro-island')?.hasAttribute('ssr'));
+
+  const map = page.locator('.observatory__map');
+  await expect(map.locator('[data-component-id]')).toHaveCount(6);
+  await page.getByRole('button', { name: 'Select Virtualization host' }).click();
+  await expect(map.locator('.wire-active')).toHaveCount(4);
+  await expect(map.locator('.wire-muted')).toHaveCount(2);
+  await expect(map.locator('line[data-from="alerts"][data-to="services"]')).toHaveClass(/wire-muted/);
+});
+
 test('observatory controls are keyboard operable', async ({ page }) => {
   const assertNoExternalRequests = watchForExternalRequests(page);
   await page.goto('/');
@@ -144,7 +158,7 @@ test('observatory controls are keyboard operable', async ({ page }) => {
   await expect(page.locator('#observatory')).toBeVisible();
   await page.waitForFunction(() => !document.querySelector('astro-island')?.hasAttribute('ssr'));
 
-  const phase = page.getByRole('group', { name: 'Choose a project phase' }).getByRole('button', phaseButton('Services'));
+  const phase = page.getByRole('group', { name: 'Choose a project view' }).getByRole('button', phaseButton('Services'));
   await phase.focus();
   await page.keyboard.press('Enter');
   await expect(phase).toHaveAttribute('aria-pressed', 'true');

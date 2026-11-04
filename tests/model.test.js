@@ -1,23 +1,45 @@
 import { describe, expect, it } from 'vitest';
-import { overview, selectPhase } from '../src/model.js';
+import { components, observatoryLayout, overview, overviewPhase, phases, selectView, views } from '../src/model.js';
 
-describe('phase selection', () => {
-  it('clears a component that is not present in the selected phase', () => {
-    expect(selectPhase({ phaseId: 'accelerated', selectedId: 'services' }, 'accelerated')).toEqual({
+describe('Observatory layout', () => {
+  it('provides a 2D and 3D position for every system', () => {
+    expect(Object.keys(observatoryLayout).sort()).toEqual(components.map(component => component.id).sort());
+    for (const layout of Object.values(observatoryLayout)) {
+      expect(layout.topology).toHaveLength(2);
+      expect(layout.topology.every(value => Number.isFinite(value) && value >= 0 && value <= 100)).toBe(true);
+      expect(layout.scene).toHaveLength(3);
+      expect(layout.scene.every(Number.isFinite)).toBe(true);
+    }
+  });
+});
+describe('view selection', () => {
+  it('keeps thematic phases separate from the full-system overview', () => {
+    expect(views[0]).toBe(overviewPhase);
+    expect(overviewPhase.components).toEqual(components.map(component => component.id));
+    expect(overviewPhase.cases).toEqual([...new Set(components.map(component => component.caseId))]);
+    expect(views.slice(1)).toEqual(phases);
+  });
+
+  it('clears a component that is absent from a selected view', () => {
+    expect(selectView({ phaseId: 'accelerated', selectedId: 'services' }, 'accelerated')).toEqual({
       phaseId: 'accelerated',
       selectedId: null
     });
   });
 
-  it('keeps a component that remains present in the selected phase', () => {
-    expect(selectPhase({ phaseId: 'foundation', selectedId: 'host' }, 'operations')).toEqual({
+  it('keeps a component that remains present when switching views', () => {
+    expect(selectView({ phaseId: 'foundation', selectedId: 'host' }, 'operations')).toEqual({
       phaseId: 'operations',
       selectedId: 'host'
     });
+    expect(selectView({ phaseId: 'accelerated', selectedId: 'gpu' }, 'overview')).toEqual({
+      phaseId: 'overview',
+      selectedId: 'gpu'
+    });
   });
 
-  it('rejects an unknown phase with its ID', () => {
-    expect(() => selectPhase({ selectedId: null }, 'missing-phase')).toThrow('Unknown phase: missing-phase');
+  it('rejects an unknown view with its ID', () => {
+    expect(() => selectView({ selectedId: null }, 'missing-view')).toThrow('Unknown view: missing-view');
   });
 });
 
