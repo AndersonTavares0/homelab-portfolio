@@ -29,7 +29,7 @@ Deliver the approved plan in full and keep improving the portfolio autonomously 
 - Stack: Astro static, Svelte island, Three.js, Tailwind 4, daisyUI 5, self-hosted Public Sans.
 - Routes: `/`, `/cases/<id>/` (5), `/profile/`. Observatory deep links use `?phase=&component=#observatory`.
 - Evolution HEAD: `feat/evolution`, 46 improvement cycles logged below.
-- Checks: 27 unit tests, 44 Chromium E2E tests (five axe audits, no-JavaScript, print, document structure, touch, 320 px and 200% zoom), content validation, static build, `audit:public`, Gitleaks over all refs, private CI on every pushed commit.
+- Checks: 27 unit tests, 45 Chromium E2E tests (five axe audits, no-JavaScript, print, document structure, structured data, touch, 320 px and 200% zoom), content validation, static build, `audit:public`, Gitleaks over all refs, private CI on every pushed commit.
 - Browser matrix exercised: 1440×900, 1280, 1024, 900, 844×390, 768, 720 (200% zoom), 390×844, 375 and 320 px.
 
 ## Backlog
@@ -241,6 +241,10 @@ The catalogue promised "About N min read" but a study opened from it did not rep
 ### Cycle 49 — touch interaction (done)
 
 Added a Chromium context with `hasTouch` and a 390×844 viewport: tapping a phase and a component selects both, scrolls the detail panel into view, announces the selection and clears with Overview; a second test asserts every primary control keeps at least a 24 px touch target on the stacked layout. Both selectors were scoped to the phase group after a strict-mode collision. Suite is 44 E2E tests.
+
+### Cycle 50 — structured data (done)
+
+Every page now ships JSON-LD: `Person` with the confirmed GitHub profile on editorial routes, and `Article` with headline, description, author and `articleSection` (the study's phase) on case pages. A structure test parses the payload and asserts both variants. Suite is 45 E2E tests.
 
 ### Next cycle
 

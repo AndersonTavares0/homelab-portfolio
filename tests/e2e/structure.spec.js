@@ -21,3 +21,18 @@ for (const route of routes) {
     expect(result.h1).toBe(1);
   });
 }
+
+test('structured data describes the page', async ({ page }) => {
+  await page.goto('/');
+  const person = JSON.parse(await page.locator('script[type="application/ld+json"]').textContent());
+  expect(person['@type']).toBe('Person');
+  expect(person.name).toBe('Anderson Tavares');
+  expect(person.sameAs).toContain('https://github.com/AndersonTavares0');
+
+  await page.goto('/cases/gpu-lab/');
+  const article = JSON.parse(await page.locator('script[type="application/ld+json"]').textContent());
+  expect(article['@type']).toBe('Article');
+  expect(article.headline).toBe('Sharing a GPU safely');
+  expect(article.articleSection).toBe('Accelerated computing');
+  expect(article.author['@type']).toBe('Person');
+});

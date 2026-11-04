@@ -11,7 +11,8 @@ const {
   title = 'Infrastructure in practice',
   description = summary,
   type = 'website',
-  image = '/og.png'
+  image = '/og.png',
+  section = undefined
 } = Astro.props;
 
 // Share previews need absolute URLs. Set PUBLIC_SITE_URL at build time when the site has a real origin.
@@ -22,6 +23,23 @@ const absolute = value => {
 };
 const shareImage = absolute(image);
 const shareUrl = absolute(Astro.url.pathname);
+const author = { '@type': 'Person', name: profile.data.name, sameAs: [profile.data.github] };
+const structuredData = type === 'article'
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'Article',
+      headline: title,
+      description,
+      author,
+      ...(section ? { articleSection: section } : {})
+    }
+  : {
+      '@context': 'https://schema.org',
+      '@type': 'Person',
+      name: profile.data.name,
+      description: summary,
+      sameAs: [profile.data.github]
+    };
 ---
 <!doctype html>
 <html lang="en" data-theme="light">
@@ -47,6 +65,7 @@ const shareUrl = absolute(Astro.url.pathname);
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="preload" href={fontUrl} as="font" type="font/woff2" crossorigin />
   <title>{title} | {profile.data.name}</title>
+  <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>

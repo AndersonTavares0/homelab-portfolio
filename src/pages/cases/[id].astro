@@ -82,7 +82,7 @@ const relatedStudies = [...relatedIds]
   .filter(Boolean)
   .map(entry => ({ id: entry.data.id, title: entry.data.title, summary: entry.data.summary }));
 ---
-<Layout title={item.data.title} description={item.data.summary} type="article">
+<Layout title={item.data.title} description={item.data.summary} type="article" section={relatedPhase?.name}>
   <article class="reading section-wrap">
     <a class="back-link" href="/cases/">← All case studies</a>
     <p class="case-tech">{item.data.technologies.join(' / ')} · About {minutes} min read</p>
