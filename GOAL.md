@@ -41,9 +41,18 @@ Deliver the approved plan in full and keep improving the portfolio autonomously 
 
 ## Cycle log
 
-### Cycle 1 — accessibility automation (in progress)
+### Cycle 1 — accessibility automation (done)
 
-Adds an axe-core pass over `/`, a case page and `/profile/` at desktop and mobile, plus the Observatory with a selection. Findings drive fixes; the test lands in CI.
+Added `tests/e2e/a11y.spec.js` backed by `axe-core`, auditing `/`, `/cases/`, a case page and `/profile/` at desktop and mobile, plus the Observatory with a component selected. The harness was validated by injecting a known contrast violation and confirming axe reports it. All routes are clean at WCAG 2 A/AA and 2.1 A/AA. 15 E2E tests now pass, three of them accessibility.
+
+### Cycle 2 — case index (done)
+
+New `/cases/` route lists the five studies with summary, technologies and phase, in editorial numbering, and returns to the catalogue from each study. Primary navigation is now `Case studies · Observatory · Professional summary`, which fits one line at 390 px. Added `tests/e2e/navigation.spec.js` (index contents, navigation from home, mobile order and overflow) and included the route in the axe audit. Verified on desktop and mobile screenshots with no overflow and no console errors.
+
+### Next cycle — Observatory keyboard model
+
+Arrow/Home/End navigation across the component controls in both the strip and the topology, with focus following selection.
+
 
 ### Delivered baseline (before this document)
 
