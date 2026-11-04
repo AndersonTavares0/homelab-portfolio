@@ -46,6 +46,25 @@ function takeSection(markdown, heading) {
 const { body, section } = takeSection(item.content, 'Documented state');
 const html = await marked.parse(body);
 const documentedState = section ? await marked.parse(section) : null;
+
+// Related studies come from the shared model: neighbour components and the phases that include this case.
+const caseComponents = components.filter(component => component.caseId === item.data.id);
+const relatedIds = new Set();
+for (const component of caseComponents) {
+  for (const relationId of component.relations) {
+    const relatedCase = componentById.get(relationId)?.caseId;
+    if (relatedCase && relatedCase !== item.data.id) relatedIds.add(relatedCase);
+  }
+}
+for (const phase of phases) {
+  if (!phase.cases.includes(item.data.id)) continue;
+  for (const caseId of phase.cases) if (caseId !== item.data.id) relatedIds.add(caseId);
+}
+const allCases = loadContent().cases;
+const relatedStudies = [...relatedIds]
+  .map(id => allCases.find(entry => entry.data.id === id))
+  .filter(Boolean)
+  .map(entry => ({ id: entry.data.id, title: entry.data.title, summary: entry.data.summary }));
 ---
 <Layout title={item.data.title} description={item.data.summary}>
   <article class="reading section-wrap">
@@ -58,6 +77,16 @@ const documentedState = section ? await marked.parse(section) : null;
       <section class="prose case-state" aria-labelledby="case-state-heading" data-case-state>
         <h2 id="case-state-heading">Documented state</h2>
         <div set:html={documentedState} />
+      </section>
+    )}
+    {relatedStudies.length > 0 && (
+      <section class="case-related" aria-labelledby="case-related-heading" data-case-related>
+        <h2 id="case-related-heading">Related studies</h2>
+        <ul>
+          {relatedStudies.map(study => (
+            <li><a href={`/cases/${study.id}/`}><strong>{study.title}</strong><span>{study.summary}</span></a></li>
+          ))}
+        </ul>
       </section>
     )}
     <div class="case-return">
@@ -102,4 +131,11 @@ const documentedState = section ? await marked.parse(section) : null;
   .case-state h2 { margin-top: 0; }
   .case-return { display: grid; gap: .8rem; justify-items: start; margin-top: 2.5rem; }
   .case-return p { margin: 0; }
+  .case-related { margin-top: 3rem; border-top: 1px solid #cbd5d9; padding-top: 1.5rem; }
+  .case-related h2 { font-size: 1.35rem; margin: 0 0 1rem; }
+  .case-related ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 1rem; }
+  .case-related a { display: grid; gap: .3rem; text-decoration: none; }
+  .case-related a:hover strong { text-decoration: underline; text-decoration-color: #2459b7; text-underline-offset: .22em; }
+  .case-related strong { font-size: 1.05rem; }
+  .case-related span { color: #344850; line-height: 1.55; max-width: 62ch; }
 </style>

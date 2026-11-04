@@ -53,9 +53,17 @@ New `/cases/` route lists the five studies with summary, technologies and phase,
 
 Arrow keys, Home and End move focus and selection across the visible components in both the strip and the topology; the wrap-around is explicit and the phase restricts the set. Covered by `tests/e2e/keyboard.spec.js` (two tests) and by the full suite: 17 E2E tests, three accessibility audits included.
 
-### Next cycle — performance budget
+### Cycle 4 — performance budget (measured, no change needed)
 
-Measure the initial document weight, script and style payloads and LCP on the editorial route; remove avoidable cost (font loading, duplicate CSS, island loading) without changing the stack.
+Cold load of `/`: HTML 21 kB, CSS 27 kB, initial JS 1.3 kB, atlas 1.2 kB, font 26 kB. DOMContentLoaded 48 ms and load 62 ms locally; first contentful paint 144 ms. The Three.js island stays lazy. No optimisation justified at this size; keep the budget in mind when adding features.
+
+### Cycle 5 — related studies (done)
+
+Each case now derives "Related studies" from the shared model: neighbouring components' cases plus cases sharing a phase. GPU Lab links to Automation, for example, and the block sits between Documented state and the Observatory return. Covered by `tests/e2e/related.spec.js`; full suite is 19 E2E tests.
+
+### Next cycle — robustness
+
+Not-found route, URL-state edge cases (unknown component with valid phase, pasted malformed params) and a check that every internal link still resolves after the index and related-studies additions.
 
 
 ### Delivered baseline (before this document)
