@@ -73,9 +73,13 @@ Each study now opens with "In this study": anchor links to Context, Contribution
 
 The phase group now supports the same Arrow/Home/End model as the components: focus and selection move together, wrap at the ends and stay inside the current set. `tests/e2e/keyboard.spec.js` covers both groups; suite is 24 E2E tests.
 
-### Next cycle — content and voice pass
+### Cycle 9 — content and voice review (done)
 
-Review the five studies and the profile against no-ai-slop with fresh eyes, checking for claims the sources do not support and for sentences that only repeat the heading.
+Read all five studies and the profile against no-ai-slop: no banned filler, no binary-contrast or puffery patterns, em dashes limited to technical enumerations, and every claim still tied to a documented source. One inaccuracy fixed: the atlas alternative text described layers while the illustration is an isometric server linking services, observation and compute.
+
+### Next cycle — share metadata
+
+Add a real share image and article metadata for case pages so links preview correctly outside the site, prepared but unused until publication is authorized.
 
 
 ### Delivered baseline (before this document)
