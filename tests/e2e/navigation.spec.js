@@ -74,3 +74,17 @@ test('studies offer previous and next navigation in catalogue order', async ({ p
   await last.getByRole('link', { name: /Previous study/ }).click();
   await expect(page).toHaveURL(/\/cases\/alert-relay\/?$/);
 });
+
+test('the professional summary follows the catalogue order', async ({ page }) => {
+  await page.goto('/profile/');
+  const order = await page.locator('.profile-case h3').allTextContents();
+  expect(order).toEqual([
+    'Automation with a review boundary',
+    'Decoupling an RSS relay from inference',
+    'Making telemetry failures visible',
+    'Safer alert delivery',
+    'Sharing a GPU safely'
+  ]);
+  await expect(page.locator('.profile-case small').first()).toContainText('Foundation');
+  await expect(page.locator('.profile-order')).toContainText('thematic order');
+});

@@ -169,9 +169,13 @@ Tabbed through a case page: sixteen stops in reading order (skip link, wordmark,
 
 The walkthrough exposed a design-floor violation in the same screen: the active phase used a 3 px coloured left bar. It now reads through border colour, background tint and a brighter title, with no side bar. Suite remains 29 E2E tests.
 
-### Next cycle — content audit of the professional summary
+### Cycle 32 — professional summary review (done)
 
-Read `/profile/` as a hiring reader would: check that it answers role, scope and evidence without repeating the case summaries verbatim, and adjust only what is demonstrably redundant.
+Read as a hiring reader: the page states scope, technical areas and one-line evidence per study, then points to printing. The per-study lines are an index, not duplicated prose, so they stayed. Two real inconsistencies were fixed: the list followed file order instead of the catalogue order (now shared `orderedCases`, with the phase shown per study), and the GitHub link sat flush against the paragraph above it (now spaced). A navigation test locks the order and the phase label. Suite is 30 E2E tests.
+
+### Next cycle — navigation labels under 360 px
+
+Check the header and footer at 320–360 px, where four links plus the wordmark are tightest, and fix wrapping or overlap that the capture shows.
 
 
 ### Delivered baseline (before this document)
