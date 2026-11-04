@@ -28,7 +28,7 @@ Deliver the approved plan in full and keep improving the portfolio autonomously 
 - Evolution branch: `feat/evolution`.
 - Stack: Astro static, Svelte island, Three.js, Tailwind 4, daisyUI 5, self-hosted Public Sans.
 - Routes: `/`, `/cases/<id>/` (5), `/profile/`. Observatory deep links use `?phase=&component=#observatory`.
-- Evolution HEAD: `feat/evolution`, 41 improvement cycles logged below.
+- Evolution HEAD: `feat/evolution`, 46 improvement cycles logged below.
 - Checks: 27 unit tests, 39 Chromium E2E tests (three axe audits, no-JavaScript, print, document structure, 320 px and 200% zoom), content validation, static build, `audit:public`, Gitleaks over all refs, private CI on every pushed commit.
 - Browser matrix exercised: 1440×900, 1280, 1024, 900, 844×390, 768, 720 (200% zoom), 390×844, 375 and 320 px.
 
