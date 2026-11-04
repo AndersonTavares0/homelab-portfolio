@@ -45,3 +45,25 @@ test('arrow navigation follows the selected phase', async ({ page }) => {
   await expect(host).toHaveAttribute('aria-pressed', 'true');
   await expect(page.getByRole('button', component('Automation'))).toHaveCount(0);
 });
+
+test('arrow keys move through the phase group', async ({ page }) => {
+  await page.goto('/#observatory');
+  await page.waitForFunction(() => !document.querySelector('astro-island')?.hasAttribute('ssr'));
+
+  const group = page.getByRole('group', { name: 'Choose a project phase' });
+  const foundation = group.getByRole('button', { name: 'Foundation' });
+  await foundation.focus();
+  await page.keyboard.press('ArrowRight');
+  const services = group.getByRole('button', { name: 'Services' });
+  await expect(services).toBeFocused();
+  await expect(services).toHaveAttribute('aria-pressed', 'true');
+
+  await page.keyboard.press('End');
+  const accelerated = group.getByRole('button', { name: 'Accelerated computing' });
+  await expect(accelerated).toBeFocused();
+  await expect(accelerated).toHaveAttribute('aria-pressed', 'true');
+
+  await page.keyboard.press('ArrowRight');
+  await expect(foundation).toBeFocused();
+  await expect(foundation).toHaveAttribute('aria-pressed', 'true');
+});

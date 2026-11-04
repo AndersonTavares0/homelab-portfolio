@@ -109,6 +109,23 @@
     document.querySelector(`[data-component-id="${targetId}"]`)?.focus();
   }
 
+  function movePhaseFocus(event, id) {
+    const keys = ['ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp', 'Home', 'End'];
+    if (!keys.includes(event.key)) return;
+    event.preventDefault();
+    const ids = phases.map(phase => phase.id);
+    if (ids.length < 2) return;
+    const current = ids.indexOf(id);
+    const last = ids.length - 1;
+    const next = event.key === 'Home' ? 0
+      : event.key === 'End' ? last
+        : event.key === 'ArrowRight' || event.key === 'ArrowDown' ? (current === last ? 0 : current + 1)
+          : (current <= 0 ? last : current - 1);
+    const targetId = ids[next];
+    choosePhase(targetId);
+    document.querySelector(`[data-phase-id="${targetId}"]`)?.focus();
+  }
+
   function selectComponent(id) {
     if (!activePhase?.components.includes(id)) return;
     selectedId = id;
@@ -301,7 +318,7 @@
       <p class="phase-panel__context">These phases group related work by theme; their order is not a measured chronology.</p>
       <div class="phase-list" role="group" aria-label="Choose a project phase">
         {#each phases as phase (phase.id)}
-          <button type="button" class="phase-option" class:phase-option--active={phaseId === phase.id} data-phase-id={phase.id} aria-pressed={phaseId === phase.id} onclick={() => choosePhase(phase.id)}>
+          <button type="button" class="phase-option" class:phase-option--active={phaseId === phase.id} data-phase-id={phase.id} aria-pressed={phaseId === phase.id} onclick={() => choosePhase(phase.id)} onkeydown={(event) => movePhaseFocus(event, phase.id)}>
             <span class="phase-option__text"><strong>{phase.name}</strong><small>{phase.description}</small></span><span class="phase-option__arrow" aria-hidden="true">↗</span>
           </button>
         {/each}

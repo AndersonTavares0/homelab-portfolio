@@ -69,9 +69,13 @@ Added `/404` with the editorial layout, `tests/e2e/robustness.spec.js` covering 
 
 Each study now opens with "In this study": anchor links to Context, Contribution and decision, Observed result, Learning and next step and Documented state. Heading ids are derived from the Markdown, and the links scroll with an offset that keeps the target readable. Covered by the third test in `tests/e2e/related.spec.js`; suite now 23 E2E tests.
 
-### Next cycle — phase keyboard model
+### Cycle 8 — phase keyboard model (done)
 
-Extend the arrow-key pattern to the phase group so both control groups behave the same way.
+The phase group now supports the same Arrow/Home/End model as the components: focus and selection move together, wrap at the ends and stay inside the current set. `tests/e2e/keyboard.spec.js` covers both groups; suite is 24 E2E tests.
+
+### Next cycle — content and voice pass
+
+Review the five studies and the profile against no-ai-slop with fresh eyes, checking for claims the sources do not support and for sentences that only repeat the heading.
 
 
 ### Delivered baseline (before this document)
