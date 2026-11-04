@@ -1,5 +1,7 @@
 ---
 import '../styles/global.css';
+import { loadContent } from '../../scripts/content.mjs';
+const { profile } = loadContent();
 const { title = 'Infrastructure in practice' } = Astro.props;
 ---
 <!doctype html>
@@ -8,12 +10,12 @@ const { title = 'Infrastructure in practice' } = Astro.props;
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="Evidence-led infrastructure projects and lessons from a homelab." />
-  <title>{title} | Homelab portfolio</title>
+  <title>{title} | {profile.data.name}</title>
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
-  <header class="site-header"><a class="wordmark" href="/">Infrastructure in practice<span>.</span></a><nav aria-label="Main navigation"><a href="/#projects">Projects</a><a href="/#observatory">Observatory</a><a href="/profile/">Professional summary</a></nav></header>
+  <header class="site-header"><a class="wordmark" href="/">{profile.data.name}<span>.</span></a><nav aria-label="Main navigation"><a href="/#projects">Projects</a><a href="/#observatory">Observatory</a><a href="/profile/">Professional summary</a></nav></header>
   <main id="main"><slot /></main>
-  <footer class="site-footer"><span>Built from documented work.</span><a href="#main">Back to top</a></footer>
+  <footer class="site-footer"><span>Built from documented work.</span><a href={profile.data.github}>GitHub profile</a><a href="#main">Back to top</a></footer>
 </body>
 </html>

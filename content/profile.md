@@ -1,6 +1,8 @@
 ---
 title: Infrastructure in practice
+name: Anderson Tavares
+github: https://github.com/AndersonTavares0
 skills: [Linux, Proxmox, Podman, systemd, Ansible, Semaphore, Grafana, Loki, Python]
 ---
 
-A portfolio of infrastructure projects built and documented in a homelab: from virtualized services and container operations to observability, automation and shared GPU computing. The cases focus on decisions, evidence and lessons rather than job titles or unverified outcomes.
+Infrastructure projects documented through hands-on work with Linux, virtualization, container operations, observability and shared GPU computing. Each case records a problem, a technical decision and the evidence available.

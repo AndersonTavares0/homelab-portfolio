@@ -1,13 +1,105 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import { loadContent } from '../../../scripts/content.mjs';
+import { components, phases } from '../../model.js';
 import { marked } from 'marked';
+
 export function getStaticPaths() {
   return loadContent().cases.map(item => ({ params: { id: item.data.id }, props: { item } }));
 }
+
 const { item } = Astro.props;
-const html = await marked.parse(item.content);
+
+const componentById = new Map(components.map(component => [component.id, component]));
+const relatedPhase = phases.find(phase => phase.cases.includes(item.data.id) && phase.components.some(id => componentById.get(id)?.caseId === item.data.id))
+  ?? phases.find(phase => phase.cases.includes(item.data.id))
+  ?? phases[0];
+const phaseComponentsFor = (relatedPhase?.components ?? []).map(id => componentById.get(id)).filter(Boolean);
+const relatedComponent = phaseComponentsFor.find(component => component.id === item.data.id)
+  ?? phaseComponentsFor.find(component => component.caseId === item.data.id)
+  ?? null;
+
+const observatoryState = {
+  defaultPhaseId: phases[0]?.id ?? '',
+  phaseId: relatedPhase?.id ?? '',
+  componentId: relatedComponent?.id ?? ''
+};
+const phaseComponents = Object.fromEntries(phases.map(phase => [phase.id, phase.components]));
+const observatoryParams = new URLSearchParams();
+if (observatoryState.phaseId && observatoryState.phaseId !== observatoryState.defaultPhaseId) observatoryParams.set('phase', observatoryState.phaseId);
+if (observatoryState.componentId) observatoryParams.set('component', observatoryState.componentId);
+const observatoryQuery = observatoryParams.toString();
+const observatoryHref = `/${observatoryQuery ? `?${observatoryQuery}` : ''}#observatory`;
+
+// "Documented state" is rendered as its own block instead of trailing prose.
+function takeSection(markdown, heading) {
+  const pattern = new RegExp(`^##\\s+${heading}\\s*$`, 'mi');
+  const match = pattern.exec(markdown);
+  if (!match) return { body: markdown, section: null };
+  const rest = markdown.slice(match.index + match[0].length);
+  const nextHeading = rest.search(/^##\s+/m);
+  const section = (nextHeading === -1 ? rest : rest.slice(0, nextHeading)).trim();
+  const body = `${markdown.slice(0, match.index)}${nextHeading === -1 ? '' : rest.slice(nextHeading)}`.trim();
+  return { body, section: section || null };
+}
+
+const { body, section } = takeSection(item.content, 'Documented state');
+const html = await marked.parse(body);
+const documentedState = section ? await marked.parse(section) : null;
 ---
 <Layout title={item.data.title}>
-  <article class="reading section-wrap"><a class="back-link" href="/#projects">← All projects</a><p class="case-tech">{item.data.technologies.join(' / ')}</p><h1>{item.data.title}</h1><p class="lead">{item.data.summary}</p><div class="prose" set:html={html} /><a class="btn" href="/#observatory">Return to the Observatory</a></article>
+  <article class="reading section-wrap">
+    <a class="back-link" href="/#projects">← All projects</a>
+    <p class="case-tech">{item.data.technologies.join(' / ')}</p>
+    <h1>{item.data.title}</h1>
+    <p class="lead">{item.data.summary}</p>
+    <div class="prose" set:html={html} />
+    {documentedState && (
+      <section class="prose case-state" aria-labelledby="case-state-heading" data-case-state>
+        <h2 id="case-state-heading">Documented state</h2>
+        <div set:html={documentedState} />
+      </section>
+    )}
+    <div class="case-return">
+      {relatedPhase && (
+        <p class="case-tech">Observatory context: {relatedPhase.name}{relatedComponent ? ` · ${relatedComponent.name}` : ''}</p>
+      )}
+      <a class="btn" href={observatoryHref} data-observatory-return>Return to the Observatory</a>
+    </div>
+  </article>
+  <script define:vars={{ observatoryState, phaseComponents }}>
+    function syncObservatoryReturn() {
+      const link = document.querySelector('[data-observatory-return]');
+      if (!link) return;
+      const params = new URLSearchParams(window.location.search);
+      const phaseIds = Object.keys(phaseComponents);
+      const requestedPhase = params.get('phase');
+      const requestedComponent = params.get('component');
+      const directVisit = !requestedPhase && !requestedComponent;
+      let phaseId = observatoryState.defaultPhaseId;
+      if (phaseIds.includes(requestedPhase)) phaseId = requestedPhase;
+      else if (requestedComponent && phaseIds.some(id => (phaseComponents[id] ?? []).includes(requestedComponent))) {
+        phaseId = phaseIds.find(id => (phaseComponents[id] ?? []).includes(requestedComponent));
+      } else if (directVisit && observatoryState.phaseId) phaseId = observatoryState.phaseId;
+      const candidates = phaseComponents[phaseId] ?? [];
+      let componentId = null;
+      if (candidates.includes(requestedComponent)) componentId = requestedComponent;
+      else if (directVisit && candidates.includes(observatoryState.componentId)) componentId = observatoryState.componentId;
+
+      const url = new URL('/', window.location.origin);
+      if (phaseId && phaseId !== observatoryState.defaultPhaseId) url.searchParams.set('phase', phaseId);
+      if (componentId) url.searchParams.set('component', componentId);
+      url.hash = 'observatory';
+      link.href = `${url.pathname}${url.search}${url.hash}`;
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', syncObservatoryReturn, { once: true });
+    else syncObservatoryReturn();
+  </script>
 </Layout>
+
+<style>
+  .case-state { border-top: 1px solid #cbd5d9; padding-top: .5rem; }
+  .case-state h2 { margin-top: 0; }
+  .case-return { display: grid; gap: .8rem; justify-items: start; margin-top: 2.5rem; }
+  .case-return p { margin: 0; }
+</style>

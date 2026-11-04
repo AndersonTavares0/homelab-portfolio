@@ -1,6 +1,8 @@
-# Infrastructure in practice
+# Anderson Tavares
 
-A portfolio of infrastructure projects built and documented in a homelab: from virtualized services and container operations to observability, automation and shared GPU computing. The cases focus on decisions, evidence and lessons rather than job titles or unverified outcomes.
+Infrastructure projects documented through hands-on work with Linux, virtualization, container operations, observability and shared GPU computing. Each case records a problem, a technical decision and the evidence available.
+
+[GitHub profile](https://github.com/AndersonTavares0)
 
 ![Illustrative infrastructure topology showing virtualization, services, alerting, automation, observation and GPU computing](public/topology.svg)
 

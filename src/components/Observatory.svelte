@@ -38,6 +38,43 @@
     .filter((edge) => edge.includes(selectedComponent.id))
     .map(([from, to]) => components.find((component) => component.id === (from === selectedComponent.id ? to : from)))
     .filter(Boolean) : []);
+  const defaultPhaseId = phases[0]?.id ?? '';
+
+  // The URL carries the exploration state so a case page can link back to the
+  // exact phase and component. Unknown IDs fall back to the overview instead of
+  // failing, and only known IDs are ever written back to the address bar.
+  function stateFromUrl(search) {
+    const params = new URLSearchParams(search);
+    const requestedPhase = params.get('phase');
+    const requested = params.get('component');
+    const phase = phases.find((item) => item.id === requestedPhase)
+      ?? phases.find((item) => requested && item.components.includes(requested))
+      ?? phases[0];
+    const component = components.find((item) => item.id === requested && phase?.components.includes(item.id));
+    return { phaseId: phase?.id ?? '', selectedId: component?.id ?? null };
+  }
+
+  function searchParamsFor(state, includeDefaultPhase = false) {
+    const params = new URLSearchParams();
+    if (state.phaseId && (includeDefaultPhase || state.phaseId !== defaultPhaseId)) params.set('phase', state.phaseId);
+    if (state.selectedId) params.set('component', state.selectedId);
+    return params;
+  }
+
+  function caseHref(id) {
+    const query = searchParamsFor({ phaseId, selectedId }, true).toString();
+    return `/cases/${id}/${query ? `?${query}` : ''}`;
+  }
+
+  function syncUrl() {
+    const url = new URL(window.location.href);
+    url.searchParams.delete('phase');
+    url.searchParams.delete('component');
+    for (const [key, value] of searchParamsFor({ phaseId, selectedId })) url.searchParams.set(key, value);
+    const next = `${url.pathname}${url.search}${url.hash}`;
+    const current = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+    if (next !== current) history.replaceState(history.state, '', next);
+  }
 
   function choosePhase(id) {
     const state = selectPhase({ phaseId, selectedId }, id);
@@ -45,18 +82,21 @@
     selectedId = state.selectedId;
     scene?.setPhase(phases.find((phase) => phase.id === id)?.components ?? []);
     scene?.setSelected(selectedId);
+    syncUrl();
   }
 
   function chooseComponent(id) {
     if (!activePhase?.components.includes(id)) return;
     selectedId = selectedId === id ? null : id;
     scene?.setSelected(selectedId);
+    syncUrl();
   }
 
   function clearSelection() {
     const state = overview({ phaseId, selectedId });
     selectedId = state.selectedId;
     scene?.setSelected(null);
+    syncUrl();
   }
 
   onMount(() => {
@@ -64,6 +104,19 @@
     let observer;
     const media = window.matchMedia('(min-width: 800px)');
     const host = canvas?.closest('.observatory');
+    const initial = stateFromUrl(window.location.search);
+    phaseId = initial.phaseId;
+    selectedId = initial.selectedId;
+    syncUrl();
+
+    function restoreFromHistory() {
+      const next = stateFromUrl(window.location.search);
+      if (next.phaseId === phaseId && next.selectedId === selectedId) return;
+      phaseId = next.phaseId;
+      selectedId = next.selectedId;
+      scene?.setPhase(activePhase?.components ?? []);
+      scene?.setSelected(selectedId);
+    }
 
     async function loadScene() {
       if (!media.matches || !canvas || scene || sceneLoading || destroyed) return;
@@ -110,11 +163,13 @@
     }
     canvas?.addEventListener('webglcontextlost', contextLost);
     media.addEventListener('change', updateMode);
+    window.addEventListener('popstate', restoreFromHistory);
     updateMode();
     return () => {
       destroyed = true;
       observer?.disconnect();
       media.removeEventListener('change', updateMode);
+      window.removeEventListener('popstate', restoreFromHistory);
       canvas?.removeEventListener('webglcontextlost', contextLost);
       scene?.destroy();
       scene = null;
@@ -122,7 +177,7 @@
   });
 </script>
 
-<section class="observatory" id="observatory" data-scene-mode={sceneMode} aria-labelledby="observatory-title">
+<section class="observatory" id="observatory" data-scene-mode={sceneMode} aria-labelledby="observatory-title" tabindex="-1">
   <header class="observatory__header">
     <div>
       <p class="observatory__eyebrow">Infrastructure, in context</p>
@@ -192,7 +247,7 @@
           </div>
         {/if}
         {#if selectedCase}
-          <a class="btn btn-primary btn-sm detail__case-link" href={`/cases/${selectedCase.id}/`}>Read the case: {selectedCase.title}</a>
+          <a class="btn btn-primary btn-sm detail__case-link" href={caseHref(selectedCase.id)}>Read the case: {selectedCase.title}</a>
         {/if}
       {:else}
         <div class="detail__topline"><span>Phase briefing</span><span class="detail__id">{activePhase?.id}</span></div>
@@ -230,7 +285,7 @@
       </div>
       {#if activeCases.length}
         <h4 class="phase-work__case-heading">Related case studies</h4>
-        <ul class="phase-work__cases">{#each activeCases as item (item.id)}<li><a href={`/cases/${item.id}/`}>{item.title}<span aria-hidden="true">↗</span></a></li>{/each}</ul>
+        <ul class="phase-work__cases">{#each activeCases as item (item.id)}<li><a href={caseHref(item.id)}>{item.title}<span aria-hidden="true">↗</span></a></li>{/each}</ul>
       {/if}
     </section>
   </div>

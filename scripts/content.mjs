@@ -27,7 +27,7 @@ export function loadContent() {
     ids.add(id);
   }
   validateModel([...ids]);
-  if (!profile.data.title || !profile.data.skills?.length || !profile.content.trim()) throw new Error('content/profile.md: missing profile fields');
+  if (!profile.data.title || !profile.data.name || !profile.data.github || !profile.data.skills?.length || !profile.content.trim()) throw new Error('content/profile.md: missing profile fields');
   const timeline = matter(fs.readFileSync('content/timeline/phases.md', 'utf8'));
   if (!timeline.data.title || !timeline.content.trim()) throw new Error('content/timeline/phases.md: missing title or editorial context');
   return { profile, cases, timeline, phases };

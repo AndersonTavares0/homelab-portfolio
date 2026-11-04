@@ -34,3 +34,6 @@ A light editorial Atlas leads to a dark Observatory. A local open-license sans, 
 - Private CI passed for the reviewed implementation commit `de9f8538f623490ce69959457578acc758cd7eb7` (run 41760326094), including content checks, build, dependency audit and Chromium E2E. Gitleaks scanned the five-commit history across existing refs without findings; commit names, filenames and noreply identities were also reviewed.
 - No site publication, visibility change or merge is authorized.
 - MVP review synchronized documented relationships in the 2D and 3D views, added the selected case's decision and learning, derived thematic milestones from one Markdown source, and improved the Atlas illustration.
+- Second review added the confirmed author identity and public GitHub profile, a lessons section and a closing summary/contact section, expanded each case with mechanism, limits and an explicit documented-state section, and made Observatory phase/component state deep-linkable so returning from a case restores the selection (browser back/forward included).
+- Local checks after the second review: content validation, 23 unit tests, static build, heuristic public-content audit and nine Chromium end-to-end tests passed.
+- Integration policy: no direct merge or push to `main`; the feature branch is the only target, and any integration goes through a pull request.
