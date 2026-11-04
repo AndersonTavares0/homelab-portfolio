@@ -10,6 +10,7 @@
   let sceneMode = $state('topology');
   let sceneError = $state(false);
   let sceneLoading = $state(false);
+  let copyStatus = $state('');
   const nodeCoordinates = {
     host: [17, 27], services: [50, 27], alerts: [83, 27],
     telemetry: [83, 75], automation: [50, 75], gpu: [17, 75]
@@ -133,6 +134,16 @@
     syncUrl();
   }
 
+  async function copyViewLink() {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      copyStatus = 'Link copied';
+    } catch {
+      copyStatus = 'Copy failed; use the address bar';
+    }
+    setTimeout(() => { copyStatus = ''; }, 3000);
+  }
+
   function clearSelection() {
     const state = overview({ phaseId, selectedId });
     selectedId = state.selectedId;
@@ -225,9 +236,15 @@
       <h2 id="observatory-title">The Observatory</h2>
       <p class="observatory__intro">Follow the connections between systems, decisions and the work behind them.</p>
     </div>
-    <button type="button" class="btn btn-sm observatory__overview" onclick={clearSelection} aria-pressed={!selectedId}>
-      Overview
-    </button>
+    <div class="observatory__actions">
+      <button type="button" class="btn btn-sm observatory__overview" onclick={clearSelection} aria-pressed={!selectedId}>
+        Overview
+      </button>
+      <button type="button" class="btn btn-sm observatory__overview" onclick={copyViewLink} data-copy-view>
+        Copy link
+      </button>
+      <p class="observatory__copy-status" role="status" aria-live="polite">{copyStatus}</p>
+    </div>
   </header>
 
   <div class="observatory__layout">
@@ -367,6 +384,9 @@
   .observatory .btn-primary { color: #101922; background: var(--obs-blue); border-color: var(--obs-blue); }
   .observatory .btn-primary:hover { background: #a1cfe1; }
   .observatory button:focus-visible, .observatory a:focus-visible { outline: 3px solid #acd7e9; outline-offset: 3px; }
+  .observatory__actions { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: .4rem; }
+  .observatory__actions .btn { white-space: nowrap; }
+  .observatory__copy-status { width: 100%; margin: 0; min-height: 1rem; color: var(--obs-muted); font-size: .72rem; text-align: right; }
   .observatory__layout { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(17rem, .8fr); gap: 1rem; align-items: start; }
   .observatory__stage, .observatory__detail, .phase-panel, .phase-work { border: 1px solid var(--obs-line); border-radius: .9rem; background: var(--obs-surface); }
   .observatory__stage { min-width: 0; overflow: hidden; }

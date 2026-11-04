@@ -77,9 +77,13 @@ The phase group now supports the same Arrow/Home/End model as the components: fo
 
 Read all five studies and the profile against no-ai-slop: no banned filler, no binary-contrast or puffery patterns, em dashes limited to technical enumerations, and every claim still tied to a documented source. One inaccuracy fixed: the atlas alternative text described layers while the illustration is an isometric server linking services, observation and compute.
 
+### Cycle 10 — copy the current view (done)
+
+Added a "Copy link" control in the Observatory header that writes the canonical URL with phase, component and fragment, with a polite live status for success and failure. Covered in `tests/e2e/robustness.spec.js`; suite is 25 E2E tests. Buttons were verified at 390 px without overflow.
+
 ### Next cycle — share metadata
 
-Add a real share image and article metadata for case pages so links preview correctly outside the site, prepared but unused until publication is authorized.
+Add article metadata and a share image for case pages, ready but unused until publication is authorized.
 
 
 ### Delivered baseline (before this document)

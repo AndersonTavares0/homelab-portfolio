@@ -38,3 +38,16 @@ test('malformed Observatory parameters fall back without breaking the page', asy
   await expect(page.locator('[data-component-id][aria-pressed="true"]')).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Select GPU lab' })).toBeVisible();
 });
+
+test('the observatory can copy the current deep link', async ({ page, context }) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+  await page.goto('/?phase=operations&component=telemetry#observatory');
+  await page.waitForFunction(() => !document.querySelector('astro-island')?.hasAttribute('ssr'));
+
+  await page.getByRole('button', { name: 'Copy link' }).click();
+  await expect(page.getByRole('status').filter({ hasText: 'Link copied' })).toBeVisible();
+  const copied = await page.evaluate(() => navigator.clipboard.readText());
+  expect(copied).toContain('phase=operations');
+  expect(copied).toContain('component=telemetry');
+  expect(copied).toContain('#observatory');
+});
