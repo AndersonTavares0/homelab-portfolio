@@ -65,9 +65,13 @@ Each case now derives "Related studies" from the shared model: neighbouring comp
 
 Added `/404` with the editorial layout, `tests/e2e/robustness.spec.js` covering the not-found response, a crawl that requests every internal link collected from four routes, and Observatory URL edge cases (unknown phase, unknown component, component outside the selected phase). 22 E2E tests pass.
 
-### Next cycle — case reading navigation
+### Cycle 7 — case reading navigation (done)
 
-The studies are now long; add an "In this study" section index so a reader can jump to context, decision, result, learning or documented state.
+Each study now opens with "In this study": anchor links to Context, Contribution and decision, Observed result, Learning and next step and Documented state. Heading ids are derived from the Markdown, and the links scroll with an offset that keeps the target readable. Covered by the third test in `tests/e2e/related.spec.js`; suite now 23 E2E tests.
+
+### Next cycle — phase keyboard model
+
+Extend the arrow-key pattern to the phase group so both control groups behave the same way.
 
 
 ### Delivered baseline (before this document)

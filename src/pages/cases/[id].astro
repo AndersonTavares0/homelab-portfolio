@@ -44,8 +44,19 @@ function takeSection(markdown, heading) {
 }
 
 const { body, section } = takeSection(item.content, 'Documented state');
-const html = await marked.parse(body);
+
+const slug = value => value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+const headings = [...body.matchAll(/^##\s+(.+)$/gm)].map(match => match[1].trim());
+let html = await marked.parse(body);
+for (const heading of headings) {
+  html = html.replace(`<h2>${heading}</h2>`, `<h2 id="${slug(heading)}">${heading}</h2>`);
+}
+html = html.replace('</h2>', '</h2>');
 const documentedState = section ? await marked.parse(section) : null;
+const sections = [
+  ...headings.map(heading => ({ id: slug(heading), label: heading })),
+  ...(section ? [{ id: 'case-state-heading', label: 'Documented state' }] : [])
+];
 
 // Related studies come from the shared model: neighbour components and the phases that include this case.
 const caseComponents = components.filter(component => component.caseId === item.data.id);
@@ -72,6 +83,14 @@ const relatedStudies = [...relatedIds]
     <p class="case-tech">{item.data.technologies.join(' / ')}</p>
     <h1>{item.data.title}</h1>
     <p class="lead">{item.data.summary}</p>
+    <nav class="case-toc" aria-label="In this study">
+      <p>In this study</p>
+      <ol>
+        {sections.map(entry => (
+          <li><a href={`#${entry.id}`}>{entry.label}</a></li>
+        ))}
+      </ol>
+    </nav>
     <div class="prose" set:html={html} />
     {documentedState && (
       <section class="prose case-state" aria-labelledby="case-state-heading" data-case-state>
@@ -131,6 +150,11 @@ const relatedStudies = [...relatedIds]
   .case-state h2 { margin-top: 0; }
   .case-return { display: grid; gap: .8rem; justify-items: start; margin-top: 2.5rem; }
   .case-return p { margin: 0; }
+  .case-toc { border-top: 1px solid #aebec4; border-bottom: 1px solid #cbd5d9; padding: .9rem 0; margin: 0 0 1rem; }
+  .case-toc p { margin: 0 0 .5rem; color: #4a6069; font-size: .78rem; }
+  .case-toc ol { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: .4rem 1.1rem; }
+  .case-toc a { font-size: .88rem; }
+  [id] { scroll-margin-top: 1.5rem; }
   .case-related { margin-top: 3rem; border-top: 1px solid #cbd5d9; padding-top: 1.5rem; }
   .case-related h2 { font-size: 1.35rem; margin: 0 0 1rem; }
   .case-related ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 1rem; }
