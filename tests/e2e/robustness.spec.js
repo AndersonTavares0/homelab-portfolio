@@ -57,10 +57,12 @@ test('share metadata points at a real image on every route', async ({ page, requ
     await page.goto(route);
     const meta = await page.evaluate(() => ({
       image: document.querySelector('meta[property="og:image"]')?.getAttribute('content'),
+      url: document.querySelector('meta[property="og:url"]')?.getAttribute('content'),
       large: document.querySelector('meta[name="twitter:card"]')?.getAttribute('content'),
       type: document.querySelector('meta[property="og:type"]')?.getAttribute('content')
     }));
     expect(meta.image, route).toBe('/og.png');
+    expect(meta.url, route).toBe(route);
     expect(meta.large, route).toBe('summary_large_image');
     expect(meta.type, route).toBe(route.startsWith('/cases/') && route !== '/cases/' ? 'article' : 'website');
     expect((await request.get(meta.image)).status(), route).toBe(200);

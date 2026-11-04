@@ -13,6 +13,15 @@ const {
   type = 'website',
   image = '/og.png'
 } = Astro.props;
+
+// Share previews need absolute URLs. Set PUBLIC_SITE_URL at build time when the site has a real origin.
+const siteUrl = import.meta.env.PUBLIC_SITE_URL;
+const absolute = value => {
+  if (!siteUrl) return value;
+  try { return new URL(value, siteUrl).href; } catch { return value; }
+};
+const shareImage = absolute(image);
+const shareUrl = absolute(Astro.url.pathname);
 ---
 <!doctype html>
 <html lang="en" data-theme="light">
@@ -26,14 +35,15 @@ const {
   <meta property="og:title" content={title} />
   <meta property="og:description" content={description} />
   <meta property="og:site_name" content={profile.data.name} />
-  <meta property="og:image" content={image} />
+  <meta property="og:url" content={shareUrl} />
+  <meta property="og:image" content={shareImage} />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:image:alt" content={`${profile.data.name}: infrastructure case studies and an interactive Observatory`} />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={title} />
   <meta name="twitter:description" content={description} />
-  <meta name="twitter:image" content={image} />
+  <meta name="twitter:image" content={shareImage} />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="preload" href={fontUrl} as="font" type="font/woff2" crossorigin />
   <title>{title} | {profile.data.name}</title>

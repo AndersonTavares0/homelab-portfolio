@@ -186,9 +186,13 @@ At a 720 px viewport (200% zoom on a 1440 window) a case page keeps a 576 px rea
 
 Full local battery at the head commit: content check, 27 unit tests, 32 E2E tests, build, `audit:public`, and Gitleaks across all refs (48 commits, no findings). Repository confirmed private, default branch `main` at `5be5393`, only `feat/evolution` alongside it, no open pull requests, no deployment or Pages configuration. The status block above now carries the cycle count, the test numbers and the browser matrix so the project can be handed over without reading this log.
 
-### Next cycle — study page metadata
+### Cycle 36 — share metadata resolution (done)
 
-Case pages expose `og:type=article` but no article-specific description for the catalogue card. Check how a shared case link would render and add only what is missing.
+Case pages already carried `og:type=article`, a per-study description and the shared card, but `og:image` and the page URL were relative, which no preview crawler resolves. The layout now emits `og:url` and can make both values absolute from an optional `PUBLIC_SITE_URL` set at build time, falling back to relative paths locally. Verified by building with and without the variable (`/cases/gpu-lab/` and `/og.png` versus `https://example.invalid/...`), and the metadata test now checks `og:url` on four routes. README documents the variable.
+
+### Next cycle — catalogue card at 320 px
+
+The catalogue metadata line now carries technologies, phase and reading time. Check the row at 320 px for wrapping that pushes the title or hides the reading time.
 
 
 ### Delivered baseline (before this document)

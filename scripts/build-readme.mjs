@@ -54,6 +54,8 @@ const lines = [
   '',
   'The Observatory state is deep-linkable, for example `/?phase=accelerated&component=gpu#observatory`.',
   '',
+  'Share metadata uses relative URLs by default. Set `PUBLIC_SITE_URL` to an absolute origin at build time when the site has one, so Open Graph and Twitter previews resolve.',
+  '',
   '## Licensing',
   '',
   'Original code is [MIT licensed](LICENSE). Original text and diagrams are [CC BY 4.0](CONTENT-LICENSE.md). Third-party dependencies and fonts keep their own licenses.',
