@@ -117,9 +117,15 @@ On stacked layouts a tap selected a component but left its detail panel below th
 
 Found the cause of the intermittent axe failure: `.observatory__map` carried `aria-label` on a generic `div`, which is prohibited. In 3D mode the map is now `aria-hidden`, and in topology mode it is a named group. Also aligned the "outside this phase" relation text with the relation links (same size, muted colour) instead of rendering at body size. Evidence: four consecutive full-suite runs pass with Playwright managing its own preview server; previously the axe audit failed roughly one run in three.
 
-### Next cycle — study depth
+### Cycle 20 — announcement and study-depth review (done)
 
-Review whether any of the five studies states a decision without the constraint that forced it, and add the missing constraint only where the source supports it.
+The detail panel was `aria-live="polite" aria-atomic="true"`, so every selection re-read the entire panel. It is now a complementary region labelled by its heading, and a short status line announces only what changed ("Observability selected. 2 connected systems."). Axe still passes and the journey test asserts both the announcement and the region name.
+
+Study-depth review: read all five studies looking for a decision stated without the constraint that forced it. Each already pairs the decision with its constraint and tradeoff (plugin error path, mixed operations, hidden delivery failure, exclusive GPU lease), so no text was changed — inventing a stronger constraint would have broken the evidence rule.
+
+### Next cycle — catalogue discoverability
+
+The `/cases/` index lists five studies in one order. Check whether a first-time reader can tell which study to start with, and add orientation if the screen does not answer that.
 
 
 ### Delivered baseline (before this document)

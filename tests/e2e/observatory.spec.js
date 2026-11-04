@@ -31,6 +31,8 @@ test('phase, component, case and return preserve the exploration path', async ({
   await expect(page.locator('.observatory__wires line[data-from="gpu"][data-to="host"]')).toBeAttached();
   await gpu.click();
   await expect(gpu).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('[data-selection-status]')).toContainText('GPU lab selected');
+  await expect(page.getByRole('complementary', { name: 'GPU lab' })).toBeVisible();
   const detail = page.locator('.observatory__detail');
   await expect(detail.getByRole('heading', { name: 'Decision and learning' })).toBeVisible();
   await expect(detail).toContainText(/controller/i);

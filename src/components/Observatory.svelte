@@ -304,10 +304,13 @@
       </div>
     </div>
 
-    <aside class="observatory__detail" aria-live="polite" aria-atomic="true">
+    <p class="sr-only" role="status" data-selection-status>
+      {selectedComponent ? `${selectedComponent.name} selected. ${relatedComponents.length} connected systems.` : `${activePhase?.name} phase shown.`}
+    </p>
+    <aside class="observatory__detail" aria-labelledby="detail-heading">
       {#if selectedComponent}
         <div class="detail__topline"><span>Selected system</span><span class="detail__id">{selectedComponent.id}</span></div>
-        <h3>{selectedComponent.name}</h3>
+        <h3 id="detail-heading">{selectedComponent.name}</h3>
         <p class="detail__description">{selectedComponent.description}</p>
         <div class="detail__section">
           <h4>Technologies</h4>
@@ -331,7 +334,7 @@
         {/if}
       {:else}
         <div class="detail__topline"><span>Phase briefing</span><span class="detail__id">{activePhase?.id}</span></div>
-        <h3>{activePhase?.name}</h3>
+        <h3 id="detail-heading">{activePhase?.name}</h3>
         <p class="detail__description">{activePhase?.description}</p>
         {#if activePhase}
           <dl class="phase-facts">
