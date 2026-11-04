@@ -63,6 +63,16 @@ test('main navigation links have at least 24px of hit height on narrow screens',
   }
 });
 
+test('the standalone summary link has a comfortable mobile hit area', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+
+  const link = page.getByRole('link', { name: 'Read the professional summary' });
+  const height = await link.evaluate(element => element.getBoundingClientRect().height);
+
+  expect(height).toBeGreaterThanOrEqual(24);
+});
+
 test('the navigation marks the current section', async ({ page }) => {
   await page.goto('/cases/gpu-lab/');
   await expect(page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link', { name: 'Case studies' })).toHaveAttribute('aria-current', 'page');

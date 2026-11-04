@@ -28,8 +28,8 @@ Deliver the approved plan: an evidence-based English portfolio with the Atlas ed
 - Stack: Astro static, Svelte island, Three.js, Tailwind 4, daisyUI 5, self-hosted Public Sans.
 - Routes: `/`, `/cases/<id>/` (5), `/profile/`; Observatory deep links use `?phase=&component=#observatory`.
 - All 50 logged evolution cycles are present on `main`; original MVP and requested follow-up work are integrated.
-- Current local verification: 27 unit tests, 47 Chromium E2E tests, a 9-route build, `audit:public` and `git diff --check`. Private CI passed for the first navigation commit (`ddd8b96`, run `41870276812`); the case-index refinement awaits its own CI.
-- Current browser verification: navigation links measure 30 px at 390 and 1440 and 28 px at 320; the case section-index links measure 24 px at 390. No horizontal overflow or application errors; the case anchor lands in view.
+- Current local verification: 27 unit tests, 48 Chromium E2E tests, a 9-route build, `audit:public` and `git diff --check`. Private CI passed for navigation and case-index commits; the latest summary-link refinement awaits CI.
+- Current browser verification: navigation targets measure 30 px at 390 and 1440 and 28 px at 320; case index links measure 24 px at 390; the standalone summary link measures 32 px at 390. No horizontal overflow or application errors; case and profile navigation work.
 
 ## Backlog
 
@@ -254,6 +254,9 @@ MVP integrated: five evidence-based cases, printable summary, Observatory with 3
 
 At 390 px the three main-navigation links had 22 px-high targets, below the intended 24 px hit height; a new Playwright assertion reproduced the gap before the fix. Added 8 px of vertical padding via Tailwind `py-1`; browser measurements are now 30 px at 390 and 1440, and 28 px at 320, with no horizontal overflow. The case-studies link works at desktop and the browser reported no application errors. Local verification: 27 unit tests, 46 E2E tests, a 9-route build, public-content audit and clean diff check. Gitleaks 8.30.1 found no leaks in the history and authored/generated paths. Private CI passed for commit `ddd8b96` in run `41870276812`.
 
-### Cycle 52 — case section-index hit targets (in progress)
+### Cycle 52 — case section-index hit targets (done)
 
-On the 390 px case page, the five “In this study” links measured 16 px high inside a flex-wrapped index. A new mobile E2E assertion reproduced the short hit area; each link now receives Tailwind `py-1`, measuring 24 px. The selected section remains visible after following its link. Local verification: 27 unit tests, 47 E2E tests, a 9-route build, public-content audit, clean diff check, and Gitleaks 8.30.1 with no findings in 68 commits or the scanned current source, tests, GOAL and `dist`. The new commit's private CI remains pending.
+On the 390 px case page, the five “In this study” links measured 16 px high inside a flex-wrapped index. A new mobile E2E assertion reproduced the short hit area; each link now receives Tailwind `py-1`, measuring 24 px. The selected section remains visible after following its link. Local verification: 27 unit tests, 47 E2E tests, a 9-route build, public-content audit, clean diff check, and Gitleaks 8.30.1 with no findings in 69 commits or the scanned current source, tests, GOAL and `dist`. Private CI passed for commit `545081c` in run `41871555684`.
+### Cycle 53 — professional-summary link hit area (in progress)
+
+The standalone “Read the professional summary” link in the home skills panel measured 19 px high at 390 px. A new E2E assertion reproduced the short target; `inline-block py-1` now gives it a 32 px target. Browser navigation reaches `/profile/` without overflow or application errors. Local verification: 27 unit tests, 48 E2E tests, a 9-route build, `audit:public` and `git diff --check`; Gitleaks 8.30.1 found no leaks in the scanned source, tests, GOAL and generated site. Full-history scan and private CI remain.
