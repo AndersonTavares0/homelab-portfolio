@@ -1,0 +1,13 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { loadContent } from '../../../scripts/content.mjs';
+import { marked } from 'marked';
+export function getStaticPaths() {
+  return loadContent().cases.map(item => ({ params: { id: item.data.id }, props: { item } }));
+}
+const { item } = Astro.props;
+const html = await marked.parse(item.content);
+---
+<Layout title={item.data.title}>
+  <article class="reading section-wrap"><a class="back-link" href="/#projects">← All projects</a><p class="case-tech">{item.data.technologies.join(' / ')}</p><h1>{item.data.title}</h1><p class="lead">{item.data.summary}</p><div class="prose" set:html={html} /><a class="btn" href="/#observatory">Return to the Observatory</a></article>
+</Layout>

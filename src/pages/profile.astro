@@ -1,0 +1,6 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { loadContent } from '../../scripts/content.mjs';
+const { profile, cases } = loadContent();
+---
+<Layout title="Professional summary"><article class="reading section-wrap"><a class="back-link" href="/">← Home</a><h1>Professional summary</h1><p class="lead">{profile.content.trim()}</p><h2>Technical areas</h2><p>{profile.data.skills.join(' / ')}</p><h2>Project experience</h2>{cases.map(({data}) => <section class="profile-case"><h3><a href={`/cases/${data.id}/`}>{data.title}</a></h3><p>{data.summary}</p><small>{data.technologies.join(' / ')}</small></section>)}<p>This summary is based on documented projects and is suitable for printing.</p></article></Layout>

@@ -1,0 +1,19 @@
+---
+import '../styles/global.css';
+const { title = 'Infrastructure in practice' } = Astro.props;
+---
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Evidence-led infrastructure projects and lessons from a homelab." />
+  <title>{title} | Homelab portfolio</title>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header"><a class="wordmark" href="/">Infrastructure in practice<span>.</span></a><nav aria-label="Main navigation"><a href="/#projects">Projects</a><a href="/#observatory">Observatory</a><a href="/profile/">Professional summary</a></nav></header>
+  <main id="main"><slot /></main>
+  <footer class="site-footer"><span>Built from documented work.</span><a href="#main">Back to top</a></footer>
+</body>
+</html>
