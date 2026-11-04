@@ -2,13 +2,13 @@
 
 <h1>Homelab portfolio</h1>
 
-<p><a href="https://andersontavares0.github.io/homelab-portfolio/"><img alt="Live portfolio website" src="https://img.shields.io/badge/site-live-2A9D8F?logo=githubpages&logoColor=white"></a> <img alt="Astro static site" src="https://img.shields.io/badge/Astro-static-BC52EE?logo=astro&logoColor=white"> <img alt="Svelte interactions" src="https://img.shields.io/badge/Svelte-island-FF3E00?logo=svelte&logoColor=white"> <img alt="Three.js topology" src="https://img.shields.io/badge/Three.js-3D-000000?logo=threedotjs&logoColor=white"> <img alt="Tailwind CSS" src="https://img.shields.io/badge/Tailwind_CSS-UI-06B6D4?logo=tailwindcss&logoColor=white"> <img alt="Node.js build" src="https://img.shields.io/badge/Node.js-build-339933?logo=nodedotjs&logoColor=white"></p>
+<p><a href="https://andersontavares0.github.io/homelab-portfolio/"><img alt="Live portfolio website" src="https://img.shields.io/badge/site-live-2A9D8F?logo=githubpages&logoColor=white"></a> <img alt="SvelteKit" src="https://img.shields.io/badge/SvelteKit-app-FF3E00?logo=svelte&logoColor=white"> <img alt="Svelte 5" src="https://img.shields.io/badge/Svelte-5-FF3E00?logo=svelte&logoColor=white"> <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white"> <img alt="Tailwind CSS 4" src="https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss&logoColor=white"> <img alt="Bits UI" src="https://img.shields.io/badge/Bits_UI-accessible-111827"> <img alt="GSAP" src="https://img.shields.io/badge/GSAP-motion-88CE02?logo=greensock&logoColor=111827"> <img alt="Three.js topology" src="https://img.shields.io/badge/Three.js-3D-000000?logo=threedotjs&logoColor=white"></p>
 
 <p><strong>Infrastructure, understood by building.</strong></p>
 
 <p>Infrastructure projects documented through hands-on work with Linux, virtualization, container operations, observability and shared GPU computing. Each case records a problem, a technical decision and the evidence available.</p>
 
-<p><a href="https://andersontavares0.github.io/homelab-portfolio/">Live site</a> · <a href="#case-studies">Case studies</a> · <a href="#development-themes">Development themes</a> · <a href="#the-observatory">The Observatory</a> · <a href="#professional-summary">Professional summary</a> · <a href="#run-locally">Run locally</a> · <a href="#contact">Contact</a></p>
+<p><a href="https://andersontavares0.github.io/homelab-portfolio/">Live site</a> · <a href="#case-studies">Case studies</a> · <a href="#development-themes">Development themes</a> · <a href="#the-observatory">The Observatory</a> · <a href="#professional-summary">Professional summary</a> · <a href="#run-locally">Run locally</a></p>
 
 </div>
 
@@ -41,9 +41,23 @@ Each phase pairs a challenge with a lesson. They group related work as editorial
 
 ## The Observatory
 
-![Conceptual map connecting virtualization, services, alert delivery, automation, observability and GPU computing](public/topology.svg)
+```mermaid
+flowchart TB
+  Host["Virtualization host<br/>Linux · Proxmox"]
+  Services["Container services<br/>Podman · Quadlet · systemd"]
+  Alerts["Alert relay<br/>CrowdSec · Telegram"]
+  Telemetry["Observability<br/>Grafana · Loki · Uptime Kuma"]
+  Automation["Automation<br/>Ansible · Semaphore"]
+  GPU["GPU lab<br/>systemd · Podman · GPU"]
+  Host --> Services
+  Host --> Telemetry
+  Host --> Automation
+  Host --> GPU
+  Services --> Alerts
+  Alerts --> Telemetry
+```
 
-The Observatory connects a selected component to its documented projects, skills and phase. The accessible DOM topology is the source of truth; Three.js renders the same nodes and relationships as an optional desktop view.
+The Observatory connects each documented system to its technologies, related work and phase. The lines above represent documented relationships, not physical placement or live status. The accessible DOM topology is the source of truth; Three.js renders the same nodes and relationships as an optional desktop view.
 
 On desktop, the 3D scene loads when the Observatory approaches the viewport. Narrow layouts and unavailable WebGL keep the DOM topology usable. Keyboard and touch controls, browser history, reduced-motion preferences and shareable URLs preserve access to the same information.
 
@@ -61,23 +75,6 @@ The `/profile/` route presents a concise, project-based summary that readers can
 | `/profile/` | Printable, project-based professional summary |
 | Unknown path | Editorial 404 page |
 
-## Architecture
-
-```mermaid
-flowchart LR
-  Markdown["Case-study markdown"] --> Model["Shared content model"]
-  Model --> Astro["Astro static routes"]
-  Model --> Readme["Generated README"]
-  Astro --> Atlas["Atlas and case studies"]
-  Astro --> Observatory["Svelte Observatory"]
-  Observatory --> DOM["Accessible DOM topology"]
-  Observatory -. optional desktop .-> Three["Three.js scene"]
-  Model --> Profile["Printable profile"]
-  CI["Private GitHub Actions"] --> Checks["Content, tests, build and privacy audit"]
-  Checks --> Deploy["GitHub Pages deployment from main"]
-```
-
-The shared content model drives the site and this README. The Observatory keeps its DOM topology available when the optional Three.js view cannot run.
 
 ## Run locally
 
@@ -88,7 +85,7 @@ npm ci
 npm run dev
 ```
 
-Open the local address printed by Astro, normally `http://localhost:4321`.
+Open the local address printed by Vite, normally `http://localhost:5173`.
 
 To inspect the static build, run these commands after stopping the development server:
 
@@ -121,9 +118,6 @@ Private GitHub Actions verifies pushes and pull requests. A push to `main` deplo
 
 The source repository remains private. The live site is available at [homelab portfolio](https://andersontavares0.github.io/homelab-portfolio/); GitHub Actions deploys the static site from `main` after verification. Case studies distinguish historical records from current live state, and the topology is illustrative rather than a physical inventory.
 
-## Contact
-
-[GitHub profile](https://github.com/AndersonTavares0)
 
 ## License
 

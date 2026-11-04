@@ -3,6 +3,7 @@ id: observability
 title: Making telemetry failures visible
 summary: Freshness and delivery status matter as much as collected metrics.
 technologies: [Python, systemd, Uptime Kuma, Grafana, Loki]
+technologyContext: "Python tracks each source's freshness and failure class; Grafana and Loki surface the evidence, while Uptime Kuma monitors heartbeat delivery."
 ---
 
 ## Context

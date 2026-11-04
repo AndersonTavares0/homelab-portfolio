@@ -1,6 +1,7 @@
 node_modules/
 dist/
 .astro/
+.svelte-kit/
 playwright-report/
 test-results/
 .env*

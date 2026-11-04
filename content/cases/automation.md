@@ -3,6 +3,7 @@ id: automation
 title: Automation with a review boundary
 summary: Ansible and Semaphore separate read-only discovery, simulation and guarded changes.
 technologies: [Ansible, Semaphore, Proxmox, Linux]
+technologyContext: "Semaphore launches versioned Ansible playbooks: facts, update simulations and individually confirmed applies stay separate."
 ---
 
 ## Context

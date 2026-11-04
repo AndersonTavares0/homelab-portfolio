@@ -60,8 +60,8 @@ export function loadContent() {
   });
   const ids = new Set();
   for (const item of cases) {
-    const { id, title, summary, technologies } = item.data;
-    if (!id || !title || !summary || !Array.isArray(technologies) || !technologies.length || ids.has(id)) throw new Error(`content/cases/${item.file}: missing fields or duplicate ID ${id}`);
+    const { id, title, summary, technologies, technologyContext } = item.data;
+    if (!id || !title || !summary || !Array.isArray(technologies) || !technologies.length || typeof technologyContext !== 'string' || !technologyContext.trim() || ids.has(id)) throw new Error(`content/cases/${item.file}: missing fields or duplicate ID ${id}`);
     ids.add(id);
   }
   validateModel([...ids]);
