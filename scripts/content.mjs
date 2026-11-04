@@ -32,6 +32,15 @@ export function lead(text, maxChars = 220) {
   return kept.join(' ');
 }
 
+// Catalogue order shared by the index and by previous/next navigation.
+export function orderedCases(cases) {
+  const rank = id => {
+    const index = phases.findIndex(phase => phase.cases.includes(id));
+    return index === -1 ? phases.length : index;
+  };
+  return [...cases].sort((a, b) => rank(a.data.id) - rank(b.data.id) || a.data.title.localeCompare(b.data.title));
+}
+
 export function loadContent() {
   const profile = matter(fs.readFileSync('content/profile.md', 'utf8'));
   const files = fs.readdirSync('content/cases').filter(name => name.endsWith('.md'));

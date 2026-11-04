@@ -59,3 +59,18 @@ test('the navigation marks the current section', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('header nav a[aria-current="page"]')).toHaveCount(0);
 });
+
+test('studies offer previous and next navigation in catalogue order', async ({ page }) => {
+  await page.goto('/cases/automation/');
+  const pager = page.getByRole('navigation', { name: 'Case studies' });
+  await expect(pager.getByRole('link', { name: /Next study/ })).toHaveAttribute('href', '/cases/rss-relay/');
+  await expect(pager.getByRole('link', { name: /Previous study/ })).toHaveCount(0);
+
+  await page.goto('/cases/gpu-lab/');
+  const last = page.getByRole('navigation', { name: 'Case studies' });
+  await expect(last.getByRole('link', { name: /Previous study/ })).toHaveAttribute('href', '/cases/alert-relay/');
+  await expect(last.getByRole('link', { name: /Next study/ })).toHaveCount(0);
+
+  await last.getByRole('link', { name: /Previous study/ }).click();
+  await expect(page).toHaveURL(/\/cases\/alert-relay\/?$/);
+});

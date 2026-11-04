@@ -1,23 +1,17 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { loadContent } from '../../../scripts/content.mjs';
+import { loadContent, orderedCases } from '../../../scripts/content.mjs';
 import { phases } from '../../model.js';
 const { cases } = loadContent();
-const phaseOrder = id => {
-  const index = phases.findIndex(phase => phase.cases.includes(id));
-  return index === -1 ? phases.length : index;
-};
 const minutes = item => Math.max(1, Math.round(item.content.trim().split(/\s+/).length / 200));
-const items = cases
-  .map(item => ({
-    id: item.data.id,
-    title: item.data.title,
-    summary: item.data.summary,
-    technologies: item.data.technologies,
-    phase: phases.find(phase => phase.cases.includes(item.data.id))?.name ?? null,
-    minutes: minutes(item)
-  }))
-  .sort((a, b) => phaseOrder(a.id) - phaseOrder(b.id) || a.title.localeCompare(b.title));
+const items = orderedCases(cases).map(item => ({
+  id: item.data.id,
+  title: item.data.title,
+  summary: item.data.summary,
+  technologies: item.data.technologies,
+  phase: phases.find(phase => phase.cases.includes(item.data.id))?.name ?? null,
+  minutes: minutes(item)
+}));
 ---
 <Layout title="Case studies" description="Five documented infrastructure studies: the problem, the decision, the evidence and what stayed unproven.">
   <article class="reading section-wrap case-index">

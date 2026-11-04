@@ -143,9 +143,17 @@ Regenerated the README from shared content: no drift in the studies, phases or l
 
 The header now marks the active section with `aria-current="page"` on Case studies and Professional summary, plus a blue underline for sighted readers. A navigation test checks the attribute on a case page, the summary and the home page (where no nav item is current). Suite is 27 E2E tests.
 
-### Next cycle — case index filtering
+### Cycle 26 — phase filter evaluation (declined on evidence)
 
-With five studies the list is short, but phases already partition them. Check whether filtering by phase helps a reader who arrives knowing the theme, and add it only if it earns its space.
+Measured the catalogue on a 390×844 viewport: five rows occupy 1,079 px of a 1,864 px page, and every row already names its phase in the metadata. A filter would add a control row and hide content that is scannable in seconds, so it was not built. Recorded here so the decision is not reopened without new content.
+
+### Cycle 27 — sequential study navigation (done)
+
+Catalogue order is now computed once in `scripts/content.mjs` and shared by the index and by previous/next links at the end of each study, which keep `rel="prev"`/`rel="next"` and are hidden in print. Verified at 1440 and 390 px; a navigation test asserts the order, the edges (no previous on the first, no next on the last) and that the link works. Suite is 28 E2E tests.
+
+### Next cycle — no-JavaScript behaviour
+
+Disable JavaScript in the browser and check that every page still reads: the Observatory should show its static topology instead of an empty stage. Fix only what the inspection proves broken.
 
 
 ### Delivered baseline (before this document)
