@@ -24,11 +24,11 @@ Deliver the approved plan: an evidence-based English portfolio with the Atlas ed
 
 ## Current state
 
-- Repository: `AndersonTavares0/homelab-portfolio` (private), `main` at `f5612c1`; active branch `feat/mobile-nav-targets`, based on `docs/mvp-final-audit`, awaiting PR to `main`.
+- Repository: `AndersonTavares0/homelab-portfolio` (private); `feat/mobile-nav-targets` carries the three verified mobile hit-area fixes and targets `main` through a PR after CI.
 - Stack: Astro static, Svelte island, Three.js, Tailwind 4, daisyUI 5, self-hosted Public Sans.
 - Routes: `/`, `/cases/<id>/` (5), `/profile/`; Observatory deep links use `?phase=&component=#observatory`.
 - All 50 logged evolution cycles are present on `main`; original MVP and requested follow-up work are integrated.
-- Current local verification: 27 unit tests, 48 Chromium E2E tests, a 9-route build, `audit:public`, `git diff --check`, and Gitleaks 8.30.1 (70 commits, no findings). Private CI passed for the feature branch's latest code commit `681a3fd` in run `41872479723`; the updated merge-policy documentation still needs CI.
+- Current local verification: 27 unit tests, 48 Chromium E2E tests, a 9-route build, `audit:public`, `git diff --check`, and Gitleaks 8.30.1 (71 commits, no findings). Private CI passed for the latest code and merge-policy commit `533e803` in run `41873078648`; this status update will receive its own CI before PR creation.
 - Browser verification: navigation targets measure 30 px at 390 and 1440 and 28 px at 320; case-index links measure 24 px at 390; the standalone summary link measures 32 px at 390. Case and profile navigation work, with no horizontal overflow or application errors.
 
 ## Backlog
