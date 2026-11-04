@@ -28,7 +28,7 @@ Deliver the approved plan: an evidence-based English portfolio with the Atlas ed
 - Stack: Astro static, Svelte island, Three.js, Tailwind 4, daisyUI 5, self-hosted Public Sans.
 - Routes: `/`, `/cases/<id>/` (5), `/profile/`; Observatory deep links use `?phase=&component=#observatory`.
 - All 50 logged evolution cycles are present on `main`; original MVP and requested follow-up work are integrated.
-- Checks on this audit: 27 unit tests and 45 Chromium E2E tests, including five axe audits, touch interaction, no-JavaScript, print, document structure, structured data, 320 px and 200% zoom; content validation, static build, `audit:public`, Gitleaks on all 65 commits and authored/generated files, and private CI for `main` commit `f5612c1`.
+- Checks on this audit: 27 unit tests and 45 Chromium E2E tests, including five axe audits, touch interaction, no-JavaScript, print, document structure, structured data, 320 px and 200% zoom; content validation, static build, `audit:public`, Gitleaks over all refs and authored/generated files, and passing private CI on `main` and the final audit branch.
 - Browser checks on this audit: 1440×900 and 390×844, home and GPU Lab case; no horizontal overflow or application runtime errors. Earlier project checks cover 3D, mobile, keyboard, reduced motion, WebGL fallback, and navigation.
 
 ## Backlog
