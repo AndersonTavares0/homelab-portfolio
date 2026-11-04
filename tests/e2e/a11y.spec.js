@@ -20,7 +20,7 @@ async function audit(page, label) {
 }
 
 test('editorial routes pass an automated accessibility audit', async ({ page }) => {
-  for (const path of ['/', '/cases/gpu-lab/', '/profile/']) {
+  for (const path of ['/', '/cases/', '/cases/gpu-lab/', '/profile/']) {
     await page.goto(path);
     await audit(page, path);
   }
@@ -37,6 +37,8 @@ test('mobile home and case page pass the audit', async ({ page }) => {
 test('observatory passes the audit with a component selected', async ({ page }) => {
   await page.goto('/?phase=accelerated&component=gpu#observatory');
   await page.waitForFunction(() => !document.querySelector('astro-island')?.hasAttribute('ssr'));
-  await expect(page.getByRole('button', { name: 'Select GPU lab' })).toBeVisible();
+  const gpu = page.getByRole('button', { name: 'Select GPU lab' });
+  await expect(gpu).toBeVisible();
+  await expect(gpu).toHaveAttribute('aria-pressed', 'true');
   await audit(page, 'observatory with selection');
 });

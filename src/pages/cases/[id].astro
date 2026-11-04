@@ -49,7 +49,7 @@ const documentedState = section ? await marked.parse(section) : null;
 ---
 <Layout title={item.data.title} description={item.data.summary}>
   <article class="reading section-wrap">
-    <a class="back-link" href="/#projects">← All projects</a>
+    <a class="back-link" href="/cases/">← All case studies</a>
     <p class="case-tech">{item.data.technologies.join(' / ')}</p>
     <h1>{item.data.title}</h1>
     <p class="lead">{item.data.summary}</p>
