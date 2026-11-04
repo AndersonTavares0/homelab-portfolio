@@ -474,7 +474,8 @@
   .phase-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; }
   .phase-option { min-width: 0; display: flex; align-items: flex-start; gap: .7rem; padding: .75rem; border: 1px solid #3c4e5a; border-radius: .5rem; color: var(--obs-text); background: #182630; text-align: left; cursor: pointer; }
   .phase-option:hover { border-color: #7899aa; }
-  .phase-option--active { border-color: #7bb6cb; background: #223847; box-shadow: inset 3px 0 #82b9d2; }
+  .phase-option--active { border-color: #9bcfe4; background: #223847; }
+  .phase-option--active strong { color: #eaf4f8; }
   .phase-option__text { display: grid; gap: .3rem; min-width: 0; }
   .phase-option__text strong { font-size: .76rem; line-height: 1.3; }
   .phase-option__text small { color: var(--obs-muted); font-size: .68rem; line-height: 1.4; }

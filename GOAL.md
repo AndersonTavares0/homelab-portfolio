@@ -163,9 +163,15 @@ On a cold load the section showed a floating "Preparing the interactive view…"
 
 Cold load at 1440×900 with cache disabled: CLS 0.0011, LCP 80 ms, fonts loaded before the measurement. The page was already coherent, so the only change was preloading the primary woff2 from the layout; the font request now starts at 27 ms as a single fetch, CLS drops to 0, and no duplicate request appears. Verified again after the change with resource timing and a clean console.
 
-### Next cycle — link and focus polish
+### Cycle 31 — focus walkthrough (done)
 
-Tab through a case page end to end and confirm that focus order matches reading order, that every focus ring is visible on both surfaces, and that no control is skipped or trapped.
+Tabbed through a case page: sixteen stops in reading order (skip link, wordmark, three nav links, back link, five section links, related study, previous study, return button, footer links), each with a visible 3 px ring. Also checked the Observatory strip: first and last component buttons focus with the light ring and are not clipped by the stage's overflow.
+
+The walkthrough exposed a design-floor violation in the same screen: the active phase used a 3 px coloured left bar. It now reads through border colour, background tint and a brighter title, with no side bar. Suite remains 29 E2E tests.
+
+### Next cycle — content audit of the professional summary
+
+Read `/profile/` as a hiring reader would: check that it answers role, scope and evidence without repeating the case summaries verbatim, and adjust only what is demonstrably redundant.
 
 
 ### Delivered baseline (before this document)
