@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { components, phases, validateModel } from '../src/model.js';
-import { caseSection } from '../scripts/content.mjs';
+import { caseSection, lead } from '../scripts/content.mjs';
 
 const caseIds = ['gpu-lab', 'rss-relay', 'alert-relay', 'automation', 'observability'];
 
@@ -89,5 +89,16 @@ describe('case section extraction', () => {
   it('reports a missing required section and its source file', () => {
     expect(() => caseSection('## Context\nBackground.', 'Learning and next step', 'example.md'))
       .toThrow('content/cases/example.md: missing section Learning and next step');
+  });
+});
+
+describe('panel summary', () => {
+  it('keeps whole sentences that fit the budget', () => {
+    expect(lead('First point. Second point. Third point.', 30)).toBe('First point. Second point.');
+  });
+
+  it('always keeps the first sentence and never cuts mid-sentence', () => {
+    const long = 'A very long opening sentence that exceeds the budget on its own. Then more.';
+    expect(lead(long, 10)).toBe('A very long opening sentence that exceeds the budget on its own.');
   });
 });

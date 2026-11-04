@@ -9,6 +9,17 @@ export function caseSection(content, heading, file) {
   return text;
 }
 
+// The Observatory panel summarizes; the case page keeps the full reasoning.
+export function lead(text, maxChars = 220) {
+  const sentences = text.split(/(?<=[.!?])\s+/);
+  const kept = [];
+  for (const sentence of sentences) {
+    if (kept.length && [...kept, sentence].join(' ').length > maxChars) break;
+    kept.push(sentence);
+  }
+  return kept.join(' ');
+}
+
 export function loadContent() {
   const profile = matter(fs.readFileSync('content/profile.md', 'utf8'));
   const files = fs.readdirSync('content/cases').filter(name => name.endsWith('.md'));
@@ -16,8 +27,8 @@ export function loadContent() {
     const item = matter(fs.readFileSync(`content/cases/${file}`, 'utf8'));
     return {
       ...item, file,
-      decision: caseSection(item.content, 'Contribution and decision', file),
-      learning: caseSection(item.content, 'Learning and next step', file)
+      decision: lead(caseSection(item.content, 'Contribution and decision', file).split(/\n\s*\n/)[0]),
+      learning: lead(caseSection(item.content, 'Learning and next step', file).split(/\n\s*\n/)[0])
     };
   });
   const ids = new Set();
