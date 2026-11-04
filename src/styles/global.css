@@ -20,3 +20,11 @@
 @media (max-width: 700px) { .lesson-list a { grid-template-columns: 1fr; gap: .4rem; } }
 .closing { border-top: 1px solid #cbd5d9; margin-top: 2rem; display: grid; gap: .5rem; }
 .closing h2 { max-width: 22ch; }
+
+@media (max-width: 1100px) {
+  .hero-wrap { grid-template-columns: 1fr; gap: 2.5rem; min-height: 0; padding-top: 3.5rem; }
+  .hero-art { max-width: 34rem; }
+  .intro { grid-template-columns: 1fr; gap: 2rem; }
+  .section-heading { display: block; }
+  .section-heading p { margin-top: .8rem; }
+}
