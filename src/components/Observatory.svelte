@@ -197,7 +197,7 @@
         <span class="observatory__stage-hint">Select a node to explore</span>
       </div>
       <div class="observatory__visual">
-        <canvas bind:this={canvas} class="observatory__canvas" aria-label="Interactive homelab topology. Drag to orbit and use the scroll wheel to zoom." role="img"></canvas>
+        <canvas bind:this={canvas} class="observatory__canvas" aria-hidden="true"></canvas>
         {#if sceneLoading && sceneMode !== '3d'}
           <p class="observatory__scene-status" role="status">Preparing the interactive view…</p>
         {/if}

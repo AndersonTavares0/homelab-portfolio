@@ -47,7 +47,7 @@ const { body, section } = takeSection(item.content, 'Documented state');
 const html = await marked.parse(body);
 const documentedState = section ? await marked.parse(section) : null;
 ---
-<Layout title={item.data.title}>
+<Layout title={item.data.title} description={item.data.summary}>
   <article class="reading section-wrap">
     <a class="back-link" href="/#projects">← All projects</a>
     <p class="case-tech">{item.data.technologies.join(' / ')}</p>
