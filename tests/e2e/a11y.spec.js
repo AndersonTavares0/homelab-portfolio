@@ -42,3 +42,17 @@ test('observatory passes the audit with a component selected', async ({ page }) 
   await expect(gpu).toHaveAttribute('aria-pressed', 'true');
   await audit(page, 'observatory with selection');
 });
+
+test('the stacked observatory passes the audit', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/?phase=operations&component=telemetry#observatory');
+  await page.waitForFunction(() => !document.querySelector('astro-island')?.hasAttribute('ssr'));
+  await expect(page.getByRole('button', { name: 'Select Observability' })).toHaveAttribute('aria-pressed', 'true');
+  await audit(page, 'mobile observatory with selection');
+});
+
+test('the not-found page passes the audit', async ({ page }) => {
+  const response = await page.goto('/missing-page/');
+  expect(response?.status()).toBe(404);
+  await audit(page, '404');
+});

@@ -230,9 +230,13 @@ The print fixes from cycle 43 had no automated guard. Added `tests/e2e/print.spe
 
 Measured transfer per route with cache disabled: home 45 kB (HTML, CSS, 1.3 kB Svelte client and the atlas SVG), case, catalogue and summary 39 kB with **zero JavaScript**. Structural checks across the four routes found no duplicate ids, no heading-level jumps, no nested interactive elements, no image without alt and exactly one `h1` on each. No fix was needed, so `tests/e2e/structure.spec.js` now locks those invariants. Suite is 39 E2E tests.
 
+### Cycle 47 — axe coverage for stacked and 404 (done)
+
+The automated audit covered editorial routes and the desktop Observatory but never the stacked Observatory or the not-found page. Both were added: the mobile Observatory with a selected component and `/missing-page/` are clean at WCAG 2 A/AA and 2.1 A/AA. Suite is 41 E2E tests with five accessibility audits.
+
 ### Next cycle
 
-No urgent item remains. The backlog above lists the only open ideas, each waiting on a trigger rather than a fix: a larger Three.js scene, a catalogue past eight studies, or an authorized publication. Any next cycle should start from a new observation in the browser rather than reopening these decisions.
+Compare a case page with the catalogue: the catalogue shows an estimated reading time and the study does not. The backlog above lists the only open ideas, each waiting on a trigger rather than a fix: a larger Three.js scene, a catalogue past eight studies, or an authorized publication. Any next cycle should start from a new observation in the browser rather than reopening these decisions.
 
 
 ### Delivered baseline (before this document)
