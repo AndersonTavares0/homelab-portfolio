@@ -1,9 +1,10 @@
 <script>
   import { onMount, tick } from 'svelte';
-  import { components, overview, phases, selectPhase } from '../model.js';
+  import { components, overview, overviewPhase, phases, selectView, views } from '../model.js';
+  import { sitePath } from '../site-path.js';
 
   let { cases = [] } = $props();
-  let phaseId = $state(phases[0]?.id ?? '');
+  let phaseId = $state(views[0]?.id ?? '');
   let selectedId = $state(null);
   let canvas;
   let scene = null;
@@ -12,8 +13,8 @@
   let sceneLoading = $state(false);
   let copyStatus = $state('');
   const nodeCoordinates = {
-    host: [17, 27], services: [50, 27], alerts: [83, 27],
-    telemetry: [83, 75], automation: [50, 75], gpu: [17, 75]
+    host: [50, 52], services: [76, 22], alerts: [84, 50],
+    telemetry: [76, 78], automation: [23, 78], gpu: [16, 50]
   };
   const edges = [];
   const edgeKeys = new Set();
@@ -27,7 +28,7 @@
       }
     }
   }
-  const activePhase = $derived(phases.find((phase) => phase.id === phaseId) ?? phases[0]);
+  const activePhase = $derived(views.find((phase) => phase.id === phaseId) ?? overviewPhase);
   const activeComponents = $derived(components.filter((component) => activePhase?.components.includes(component.id)));
   const topologyLinks = $derived(edges
     .filter(([from, to]) => activePhase?.components.includes(from) && activePhase.components.includes(to))
@@ -39,7 +40,7 @@
     .filter((edge) => edge.includes(selectedComponent.id))
     .map(([from, to]) => components.find((component) => component.id === (from === selectedComponent.id ? to : from)))
     .filter(Boolean) : []);
-  const defaultPhaseId = phases[0]?.id ?? '';
+  const defaultPhaseId = overviewPhase.id;
 
   // The URL carries the exploration state so a case page can link back to the
   // exact phase and component. Unknown IDs fall back to the overview instead of
@@ -48,23 +49,23 @@
     const params = new URLSearchParams(search);
     const requestedPhase = params.get('phase');
     const requested = params.get('component');
-    const phase = phases.find((item) => item.id === requestedPhase)
+    const phase = views.find((item) => item.id === requestedPhase)
       ?? phases.find((item) => requested && item.components.includes(requested))
-      ?? phases[0];
+      ?? overviewPhase;
     const component = components.find((item) => item.id === requested && phase?.components.includes(item.id));
     return { phaseId: phase?.id ?? '', selectedId: component?.id ?? null };
   }
 
   function searchParamsFor(state, includeDefaultPhase = false) {
     const params = new URLSearchParams();
-    if (state.phaseId && (includeDefaultPhase || state.phaseId !== defaultPhaseId)) params.set('phase', state.phaseId);
+    if (state.phaseId && (includeDefaultPhase || state.phaseId !== defaultPhaseId || state.selectedId)) params.set('phase', state.phaseId);
     if (state.selectedId) params.set('component', state.selectedId);
     return params;
   }
 
   function caseHref(id) {
     const query = searchParamsFor({ phaseId, selectedId }, true).toString();
-    return `/cases/${id}/${query ? `?${query}` : ''}`;
+    return `${sitePath(`/cases/${id}/`)}${query ? `?${query}` : ''}`;
   }
 
   function syncUrl() {
@@ -78,10 +79,10 @@
   }
 
   function choosePhase(id) {
-    const state = selectPhase({ phaseId, selectedId }, id);
+    const state = selectView({ phaseId, selectedId }, id);
     phaseId = state.phaseId;
     selectedId = state.selectedId;
-    scene?.setPhase(phases.find((phase) => phase.id === id)?.components ?? []);
+    scene?.setPhase(views.find((view) => view.id === id)?.components ?? []);
     scene?.setSelected(selectedId);
     syncUrl();
   }
@@ -122,7 +123,7 @@
     const keys = ['ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp', 'Home', 'End'];
     if (!keys.includes(event.key)) return;
     event.preventDefault();
-    const ids = phases.map(phase => phase.id);
+    const ids = views.map(view => view.id);
     if (ids.length < 2) return;
     const current = ids.indexOf(id);
     const last = ids.length - 1;
@@ -153,8 +154,10 @@
   }
 
   function clearSelection() {
-    const state = overview({ phaseId, selectedId });
+    const state = overview(selectView({ phaseId, selectedId }, defaultPhaseId));
+    phaseId = state.phaseId;
     selectedId = state.selectedId;
+    scene?.setPhase(overviewPhase.components);
     scene?.setSelected(null);
     syncUrl();
   }
@@ -186,7 +189,7 @@
         if (!support) throw new Error('WebGL is unavailable');
         const { createObservatory } = await import('./observatory-scene.js');
         if (destroyed || !media.matches) return;
-        scene = createObservatory(canvas, chooseComponent, edges);
+        scene = createObservatory(canvas, chooseComponent, edges, components);
         scene.setPhase(activePhase?.components ?? []);
         scene.setSelected(selectedId);
         const focusedComponent = document.activeElement?.dataset?.componentId;
@@ -250,10 +253,10 @@
   <header class="observatory__header">
     <div>
       <h2 id="observatory-title">The Observatory</h2>
-      <p class="observatory__intro">Follow the connections between systems, decisions and the work behind them.</p>
+      <p class="observatory__intro">Explore how systems connect, why decisions were made and where each case study goes deeper.</p>
     </div>
     <div class="observatory__actions">
-      <button type="button" class="btn btn-sm observatory__overview" onclick={clearSelection} aria-pressed={!selectedId}>
+      <button type="button" class="btn btn-sm observatory__overview" onclick={clearSelection} aria-pressed={phaseId === defaultPhaseId && !selectedId}>
         Overview
       </button>
       <button type="button" class="btn btn-sm observatory__overview" onclick={copyViewLink} data-copy-view>
@@ -265,23 +268,33 @@
 
   <noscript>
     <p class="observatory__noscript">
-      Interactive phase and component selection needs JavaScript. The static map below shows one phase; every study is available in
-      <a href="/cases/">the case studies catalogue</a>.
+      Interactive phase and component selection needs JavaScript. The static map shows every documented system; each study remains available in
+      <a href={sitePath('/cases/')}>the case studies catalogue</a>.
     </p>
   </noscript>
   <div class="observatory__layout">
     <div class="observatory__stage">
       <div class="observatory__stage-title">
-        <span class="observatory__live-dot" aria-hidden="true"></span>
+        <span class="observatory__stage-mark" aria-hidden="true"></span>
         <span>{activePhase?.name ?? 'Infrastructure map'}</span>
         <span class="observatory__stage-hint" role={sceneLoading ? 'status' : undefined}>
-          {sceneLoading && sceneMode !== '3d' ? 'Preparing the interactive view…' : sceneMode === '3d' ? 'Click a model or use the component list' : 'Select a node to explore'}
+          {sceneLoading && sceneMode !== '3d' ? 'Preparing the interactive view…' : sceneMode === '3d' ? 'Drag to orbit · scroll to zoom' : 'Select a station to explore'}
         </span>
       </div>
       {#snippet nodeButton(component)}
-        <button type="button" class="topology-node topology-node--{component.id}" class:is-selected={selectedId === component.id} data-component-id={component.id} aria-label={`Select ${component.name}`} aria-pressed={selectedId === component.id} onclick={() => chooseComponent(component.id)} onkeydown={(event) => moveComponentFocus(event, component.id)}>
-          <span class="topology-node__glyph" aria-hidden="true">{component.type === 'gpu' ? '▰' : component.type === 'switch' ? '⌁' : component.type === 'storage' ? '▤' : '▥'}</span>
-          <span>{component.name}</span>
+        <button type="button" class="topology-node topology-node--{component.id}" class:is-selected={selectedId === component.id} class:is-related={selectedId === component.id || relatedComponents.some((relation) => relation.id === component.id)} class:is-dimmed={selectedId && selectedId !== component.id && !relatedComponents.some((relation) => relation.id === component.id)} data-component-id={component.id} style={`left: ${nodeCoordinates[component.id][0]}%; top: ${nodeCoordinates[component.id][1]}%;`} aria-label={`Select ${component.name}`} aria-pressed={selectedId === component.id} onclick={() => chooseComponent(component.id)} onkeydown={(event) => moveComponentFocus(event, component.id)}>
+          <svg class="topology-node__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            {#if component.type === 'gpu'}
+              <rect x="3" y="6" width="18" height="12" rx="2" /><circle cx="10" cy="12" r="3" /><path d="M10 9v6m-3-3h6M21 10h1m-1 4h1" />
+            {:else if component.type === 'switch'}
+              <path d="M5 12h14M8 8l-3 4 3 4M16 8l3 4-3 4" /><circle cx="12" cy="12" r="1.5" />
+            {:else if component.type === 'storage'}
+              <path d="M5 5h14v4H5zM5 10h14v4H5zM5 15h14v4H5z" /><path d="M8 7h.01M8 12h.01M8 17h.01" />
+            {:else}
+              <rect x="4" y="3" width="16" height="18" rx="2" /><path d="M7 8h7M7 12h7M7 16h10" /><circle cx="17" cy="8" r=".5" />
+            {/if}
+          </svg>
+          <span class="topology-node__name">{component.name}</span>
         </button>
       {/snippet}
       <div class="observatory__visual" class:observatory__visual--3d={sceneMode === '3d'}>
@@ -291,7 +304,7 @@
         {/if}
         <div class="observatory__map" class:observatory__map--overlay={sceneMode !== '3d'} role={sceneMode === '3d' ? undefined : 'group'} aria-label={sceneMode === '3d' ? undefined : 'System topology'} aria-hidden={sceneMode === '3d' ? 'true' : undefined}>
           <svg class="observatory__wires" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" focusable="false">
-            {#each topologyLinks as link}<line data-from={link.fromId} data-to={link.toId} x1={link.from[0]} y1={link.from[1]} x2={link.to[0]} y2={link.to[1]} />{/each}
+            {#each topologyLinks as link}<line class:wire-active={selectedId && (link.fromId === selectedId || link.toId === selectedId)} class:wire-muted={selectedId && link.fromId !== selectedId && link.toId !== selectedId} data-from={link.fromId} data-to={link.toId} x1={link.from[0]} y1={link.from[1]} x2={link.to[0]} y2={link.to[1]} />{/each}
           </svg>
           {#if sceneMode !== '3d'}{#each activeComponents as component (component.id)}{@render nodeButton(component)}{/each}{/if}
         </div>
@@ -310,7 +323,7 @@
     </div>
 
     <p class="sr-only" role="status" data-selection-status>
-      {selectedComponent ? `${selectedComponent.name} selected. ${relatedComponents.length} connected systems.` : `${activePhase?.name} phase shown.`}
+      {selectedComponent ? `${selectedComponent.name} selected. ${relatedComponents.length} connected systems.` : `${activePhase?.name} view shown.`}
     </p>
     <aside class="observatory__detail" aria-labelledby="detail-heading">
       {#if selectedComponent}
@@ -338,7 +351,7 @@
           <a class="btn btn-primary btn-sm detail__case-link" href={caseHref(selectedCase.id)}>Read the case: {selectedCase.title}</a>
         {/if}
       {:else}
-        <div class="detail__topline"><span>Phase briefing</span><span class="detail__id">{activePhase?.id}</span></div>
+        <div class="detail__topline"><span>View briefing</span><span class="detail__id">{activePhase?.id}</span></div>
         <h3 id="detail-heading">{activePhase?.name}</h3>
         <p class="detail__description">{activePhase?.description}</p>
         {#if activePhase}
@@ -355,10 +368,10 @@
 
   <div class="observatory__lower">
     <section class="phase-panel" aria-labelledby="phase-heading">
-      <div class="lower-heading"><div><h3 id="phase-heading">Explore by phase</h3></div><span class="phase-panel__count">{phases.length} phases</span></div>
-      <p class="phase-panel__context">These phases group related work by theme; their order is not a measured chronology.</p>
-      <div class="phase-list" role="group" aria-label="Choose a project phase">
-        {#each phases as phase (phase.id)}
+      <div class="lower-heading"><div><h3 id="phase-heading">Explore the system</h3></div><span class="phase-panel__count">{views.length} views</span></div>
+      <p class="phase-panel__context">Start with every documented system, then focus the map on a theme. Theme order is editorial, not a measured chronology.</p>
+      <div class="phase-list" role="group" aria-label="Choose a project view">
+        {#each views as phase (phase.id)}
           <button type="button" class="phase-option" class:phase-option--active={phaseId === phase.id} data-phase-id={phase.id} aria-pressed={phaseId === phase.id} onclick={() => choosePhase(phase.id)} onkeydown={(event) => movePhaseFocus(event, phase.id)}>
             <span class="phase-option__text"><strong>{phase.name}</strong><small>{phase.description}</small></span><span class="phase-option__arrow" aria-hidden="true">↗</span>
           </button>
@@ -416,29 +429,30 @@
   .observatory__stage, .observatory__detail, .phase-panel, .phase-work { border: 1px solid var(--obs-line); border-radius: .9rem; background: var(--obs-surface); }
   .observatory__stage { min-width: 0; overflow: hidden; }
   .observatory__stage-title { height: 3.4rem; display: flex; align-items: center; gap: .65rem; padding: 0 1rem; color: var(--obs-text); border-bottom: 1px solid var(--obs-line); font-size: .86rem; font-weight: 650; }
-  .observatory__live-dot { width: .55rem; height: .55rem; border-radius: 50%; background: var(--obs-teal); box-shadow: 0 0 0 4px #84bfba1f; }
+  .observatory__stage-mark { position: relative; width: .62rem; height: .62rem; flex: 0 0 .62rem; border: 1px solid var(--obs-blue); border-radius: 50%; }
+  .observatory__stage-mark::after { position: absolute; inset: .16rem; border-radius: 50%; background: var(--obs-blue); content: ''; }
   .observatory__stage-hint { margin-left: auto; color: var(--obs-muted); font-size: .75rem; font-weight: 400; }
-  .observatory__visual { position: relative; min-height: 25rem; background: radial-gradient(ellipse at 53% 44%, #1b2e3a 0%, #131f29 56%, #101922 100%); }
+  .observatory__visual { position: relative; min-height: 28rem; background: radial-gradient(ellipse at 53% 44%, #1b2e3a 0%, #131f29 56%, #101922 100%); }
+  .observatory__map { position: absolute; left: 2%; right: 2%; top: 1rem; bottom: 2.7rem; min-height: 20rem; pointer-events: none; }
+  .observatory__map:not(.observatory__map--overlay) { opacity: 0; }
+  .observatory__nodes { display: flex; flex-wrap: wrap; gap: .5rem; padding: .8rem 1rem; border-top: 1px solid var(--obs-line); }
+  .observatory__nodes .topology-node { position: static; left: auto; top: auto; width: auto; min-height: 2.8rem; padding: .45rem .7rem; transform: none; font-size: .72rem; }
+  .observatory__nodes .topology-node:hover { transform: none; }
+  .observatory__wires { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .observatory__wires line { fill: none; stroke: #638397; stroke-width: .9; stroke-dasharray: 2 2; opacity: .68; vector-effect: non-scaling-stroke; transition: stroke .2s ease, opacity .2s ease; }
+  .observatory__wires .wire-active { stroke: #9bcfe4; opacity: 1; stroke-width: 1.5; }
+  .observatory__wires .wire-muted { opacity: .18; }
+  .topology-node { position: absolute; z-index: 1; width: clamp(7rem, 21%, 10.2rem); min-height: 3.5rem; display: flex; align-items: center; gap: .65rem; padding: .65rem .75rem; border: 1px solid #536977; border-radius: .55rem; color: var(--obs-text); background: #1b2a35; box-shadow: 0 10px 26px #080e1466; font: inherit; font-size: .75rem; line-height: 1.3; text-align: left; cursor: pointer; transform: translate(-50%, -50%); transition: border-color .18s ease, background-color .18s ease, transform .18s ease, opacity .18s ease; }
+  .topology-node { pointer-events: auto; }
+  .topology-node:hover { border-color: #91bbcf; transform: translate(-50%, -53%); }
+  .topology-node.is-selected { border-color: #9bcfe4; background: #274153; box-shadow: 0 0 0 2px #8bbbd733, 0 10px 26px #080e1466; }
+  .topology-node.is-related:not(.is-selected) { border-color: #718c9a; }
+  .topology-node.is-dimmed { opacity: .55; }
+  .topology-node__icon { width: 1.45rem; height: 1.45rem; flex: 0 0 1.45rem; color: #c7dce4; }
+  .topology-node__name { min-width: 0; }
   .observatory__canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; }
   .observatory__canvas:active { cursor: grabbing; }
   [data-scene-mode='topology'] .observatory__canvas { visibility: hidden; }
-  .observatory__map { position: absolute; left: 4%; right: 4%; top: 1rem; bottom: 2.7rem; min-height: 20rem; pointer-events: none; }
-  .observatory__map:not(.observatory__map--overlay) { opacity: 0; }
-  .observatory__nodes { display: flex; flex-wrap: wrap; gap: .5rem; padding: .8rem 1rem; border-top: 1px solid var(--obs-line); }
-  .observatory__nodes .topology-node { position: static; width: auto; min-height: 0; padding: .45rem .7rem; font-size: .72rem; }
-  .observatory__wires { position: absolute; inset: 0; width: 100%; height: 100%; }
-  .observatory__wires line { fill: none; stroke: #638397; stroke-width: 1.1; stroke-dasharray: 4 5; opacity: .7; vector-effect: non-scaling-stroke; }
-  .topology-node { position: absolute; z-index: 1; width: clamp(7.2rem, 24%, 10rem); min-height: 4.25rem; display: flex; align-items: center; gap: .6rem; padding: .65rem .75rem; border: 1px solid #536977; border-radius: .55rem; color: var(--obs-text); background: #1b2a35; box-shadow: 0 8px 22px #080e1466; font: inherit; font-size: .75rem; line-height: 1.3; text-align: left; cursor: pointer; transition: border-color .16s ease, background-color .16s ease, transform .16s ease; }
-  .topology-node { pointer-events: auto; }
-  .topology-node:hover { border-color: #91bbcf; transform: translateY(-2px); }
-  .topology-node.is-selected { border-color: #9bcfe4; background: #274153; box-shadow: 0 0 0 2px #8bbbd733, 0 8px 22px #080e1466; }
-  .topology-node__glyph { width: 1.6rem; height: 1.6rem; flex: 0 0 1.6rem; display: grid; place-items: center; border-radius: .3rem; background: #395568; color: #d7e9ef; font-size: 1rem; }
-  .topology-node--host { left: 3%; top: 19%; }
-  .topology-node--services { left: 35%; top: 19%; }
-  .topology-node--alerts { right: 2%; top: 19%; }
-  .topology-node--telemetry { right: 2%; bottom: 10%; }
-  .topology-node--automation { left: 35%; bottom: 10%; }
-  .topology-node--gpu { left: 3%; bottom: 10%; }
   .observatory__map-caption { position: absolute; bottom: .7rem; left: 1rem; right: 1rem; margin: 0; color: #9cabb5; font-size: .68rem; text-align: center; }
   .observatory__fallback-note { position: absolute; z-index: 2; top: .75rem; left: 1rem; max-width: calc(100% - 2rem); margin: 0; padding: .45rem .7rem; border: 1px solid #566b78; border-radius: .35rem; color: var(--obs-text); background: #17232dee; font-size: .73rem; }
   .observatory__legend { display: flex; flex-wrap: wrap; gap: 1.25rem; padding: .75rem 1rem; border-top: 1px solid var(--obs-line); color: var(--obs-muted); font-size: .7rem; }
@@ -489,32 +503,23 @@
   .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
   @media (max-width: 799px) {
     .observatory__layout, .observatory__lower { grid-template-columns: minmax(0, 1fr); }
-    .observatory__visual { min-height: 22rem; }
-    .observatory__map { left: 1%; right: 1%; }
-    .topology-node { width: clamp(6.6rem, 28%, 9.5rem); min-height: 3.8rem; padding: .5rem; font-size: .68rem; }
-    .topology-node--host, .topology-node--gpu { left: 0; }
-    .topology-node--services, .topology-node--automation { left: 35%; }
-    .topology-node--alerts, .topology-node--telemetry { right: 0; }
-    .observatory__wires line { stroke-dasharray: 3 5; }
+    .observatory__visual { min-height: 26rem; }
+    .observatory__map { left: 0; right: 0; }
+    .topology-node { width: min(6.8rem, 29%); min-height: 3.4rem; padding: .5rem; font-size: .68rem; }
+    .observatory__wires line { stroke-dasharray: 2 2; }
     .observatory__detail { min-height: 0; }
   }
   @media (max-width: 520px) {
     .observatory { padding: 1rem; border-radius: .8rem; }
     .observatory__header { align-items: flex-start; margin-bottom: 1.3rem; }
     .observatory__overview { flex: 0 0 auto; padding-inline: .6rem; }
-    .observatory__stage-title { padding-inline: .75rem; font-size: .76rem; }
-    .observatory__stage-hint { max-width: 7rem; text-align: right; line-height: 1.3; }
+    .observatory__stage-title { height: auto; min-height: 3.4rem; padding-inline: .75rem; font-size: .76rem; }
+    .observatory__stage-hint { max-width: 48%; font-size: .66rem; text-align: right; line-height: 1.3; }
     .observatory__visual { min-height: 25rem; }
-    .observatory__map { top: .7rem; bottom: 2.6rem; }
-    .topology-node { width: 6.8rem; gap: .35rem; font-size: .64rem; }
-    .topology-node__glyph { width: 1.35rem; height: 1.35rem; flex-basis: 1.35rem; }
-    .topology-node--host { top: 15%; }
-    .topology-node--services { left: calc(50% - 3.4rem); top: 15%; }
-    .topology-node--alerts { top: 15%; }
-    .topology-node--gpu { bottom: 13%; }
-    .topology-node--automation { left: calc(50% - 3.4rem); bottom: 13%; }
-    .topology-node--telemetry { bottom: 13%; }
-    .observatory__wires line { stroke-width: 1.4; }
+    .observatory__map { top: .6rem; bottom: 2.4rem; }
+    .topology-node { width: min(6.25rem, 29%); min-height: 3.15rem; gap: .35rem; padding: .45rem; font-size: .64rem; }
+    .topology-node__icon { width: 1.2rem; height: 1.2rem; flex-basis: 1.2rem; }
+    .observatory__wires line { stroke-width: 1.2; }
     .phase-list { grid-template-columns: minmax(0, 1fr); }
     .observatory__legend { gap: .7rem; padding-inline: .7rem; font-size: .64rem; }
     .phase-panel, .phase-work, .observatory__detail { padding: 1rem; }

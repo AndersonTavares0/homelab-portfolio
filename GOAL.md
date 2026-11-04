@@ -243,7 +243,7 @@ Every page now ships JSON-LD: `Person` with the confirmed GitHub profile on edit
 
 ### MVP completion status
 
-The MVP acceptance criteria are met. `npm audit --omit=dev --audit-level=moderate` passes with three low-severity `deepmerge` advisories inherited through the Svelte/Vite adapter; the scanner's suggested `--force` remediation would downgrade `@astrojs/svelte` to a breaking version, so it was not applied. The current explicit user request authorizes further evidence-backed refinements and merges through private PRs after CI passes. Public deployment, publication and visibility changes remain prohibited. GitHub repository homepage metadata is unset, Pages is disabled, and no published portfolio URL is confirmed; do not guess a URL or deploy.
+The MVP acceptance criteria are met. `npm audit --omit=dev --audit-level=moderate` passes with three low-severity `deepmerge` advisories inherited through the Svelte/Vite adapter; the scanner's suggested `--force` remediation would downgrade `@astrojs/svelte` to a breaking version, so it was not applied. The user now authorizes a public GitHub Pages site from the private source repository, conditional on account-plan support. GitHub accepted Pages workflow configuration on 2026-11-04; the source remains private, no deployment has completed, and the repository Website field and README URL must wait for a successful deployment and public browser validation.
 
 
 ### Delivered baseline (before this document)
@@ -270,3 +270,11 @@ The production build warns about a minified chunk above 500 kB. The warned asset
 ### Cycle 56 — README redesign and generated-output guard
 
 Rebuilt the generated README around the portfolio’s intended order: professional identity and skills, five source-linked studies, development themes with their challenges and lessons, the interactive Observatory, printable summary and contact. Added site routes, architecture, local setup, verification steps, privacy and licensing; all claims come from the existing content model and implementation. Updated `scripts/build-readme.mjs` to use catalogue order and added a CI check that fails if generated `README.md` differs from the committed file. Local verification passed: content validation/generation, 27 unit tests, moderate-threshold runtime audit, a 9-route build, public-content audit, 48 Chromium E2E tests, 8 local file links and 6 section anchors. The public-content scan is heuristic, not a security guarantee.
+
+### Cycle 57 — Observatory framing and Pages pipeline (local verification complete)
+
+The desktop “All systems” view previously moved its camera to the selected node, pushing other systems out of frame. It now keeps the complete six-system topology centered while preserving focus in narrower views; the mobile and WebGL-fallback DOM topology remains the same accessible interface. GitHub Pages project-base support now covers navigation, assets, canonical/social metadata and case-return links. The generated README documents the main-branch deployment flow without claiming a live URL.
+
+GitHub confirmed the source repository is still private and accepted Pages workflow configuration. The workflow verifies first, then deploys only on a push to `main` with job-scoped `pages:write` and `id-token:write`; the deploy actions are pinned to verified commits. No site deployment has completed, so the Website field and public URL remain pending.
+
+Local verification: 28 unit tests, 49 Chromium E2E tests, content validation for five cases, moderate-threshold runtime audit (three inherited low-severity `deepmerge` advisories), a nine-route build, public-content heuristic and clean `git diff --check`. A built `/homelab-portfolio` preview returned 200 for home, catalogue and GPU case; the case-return path preserved `phase=overview&component=gpu`. Chromium screenshots confirmed the centered desktop 3D topology and the 390 px DOM topology without overflow or application errors.

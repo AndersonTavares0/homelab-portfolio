@@ -21,10 +21,23 @@ try {
   throw new Error(`content/timeline/phases.md: invalid JSON frontmatter: ${error.message}`);
 }
 export const phases = timeline.phases;
-export function selectPhase(state, phaseId) {
-  const phase = phases.find(item => item.id === phaseId);
-  if (!phase) throw new Error(`Unknown phase: ${phaseId}`);
-  return { phaseId, selectedId: phase.components.includes(state.selectedId) ? state.selectedId : null };
+export const overviewPhase = {
+  id: 'overview',
+  name: 'All systems',
+  description: 'Every documented system and the cases connected to it.',
+  components: components.map(component => component.id),
+  skills: [...new Set(components.flatMap(component => component.technologies))],
+  cases: [...new Set(components.map(component => component.caseId))],
+  challenge: 'Make the documented relationships explorable without implying physical placement or live status.',
+  learning: 'Trace each system to its documented decisions, technologies and related work.',
+  status: 'Illustrative topology; it does not represent live service state or physical placement.',
+  next: 'Select a system to open its decision notes and case study.'
+};
+export const views = [overviewPhase, ...phases];
+export function selectView(state, viewId) {
+  const view = views.find(item => item.id === viewId);
+  if (!view) throw new Error(`Unknown view: ${viewId}`);
+  return { phaseId: viewId, selectedId: view.components.includes(state.selectedId) ? state.selectedId : null };
 }
 export function overview(state) { return { ...state, selectedId: null }; }
 export function validateModel(caseIds) {

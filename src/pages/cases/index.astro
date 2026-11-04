@@ -2,6 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 import { loadContent, orderedCases, readingMinutes } from '../../../scripts/content.mjs';
 import { phases } from '../../model.js';
+import { sitePath } from '../../site-path.js';
 const { cases } = loadContent();
 const items = orderedCases(cases).map(item => ({
   id: item.data.id,
@@ -14,13 +15,13 @@ const items = orderedCases(cases).map(item => ({
 ---
 <Layout title="Case studies" description="Five documented infrastructure studies: the problem, the decision, the evidence and what stayed unproven.">
   <article class="reading section-wrap case-index">
-    <a class="back-link" href="/">← Home</a>
+    <a class="back-link" href={sitePath('/')}>← Home</a>
     <h1>Case studies</h1>
     <p class="lead">Five studies from one environment. Each records the problem, the decision, the observed result and the limit of what the evidence establishes. They follow the same thematic order as the Observatory, from foundation to accelerated computing.</p>
     <ol class="case-list">
       {items.map((item, index) => (
         <li>
-          <a href={`/cases/${item.id}/`}>
+          <a href={sitePath(`/cases/${item.id}/`)}>
             <span class="case-list__index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
             <span class="case-list__body">
               <strong>{item.title}</strong>
@@ -31,7 +32,7 @@ const items = orderedCases(cases).map(item => ({
         </li>
       ))}
     </ol>
-    <p><a href="/#observatory">Explore the same work in the Observatory</a></p>
+    <p><a href={sitePath('/#observatory')}>Explore the same work in the Observatory</a></p>
   </article>
 </Layout>
 

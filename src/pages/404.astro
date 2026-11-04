@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { sitePath } from '../site-path.js';
 ---
 <Layout title="Page not found" description="This page does not exist. Browse the case studies or return home.">
   <article class="reading section-wrap not-found">
@@ -7,8 +8,8 @@ import Layout from '../layouts/Layout.astro';
     <h1>This page is not here</h1>
     <p class="lead">The address may be mistyped, or the page may have moved. Every study is listed in the catalogue.</p>
     <div class="hero-actions">
-      <a class="btn" href="/cases/">Browse case studies</a>
-      <a class="text-link" href="/">Return home</a>
+      <a class="btn" href={sitePath('/cases/')}>Browse case studies</a>
+      <a class="text-link" href={sitePath('/')}>Return home</a>
     </div>
   </article>
 </Layout>
