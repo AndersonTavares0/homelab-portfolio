@@ -1,10 +1,10 @@
 # Homelab Portfolio — operating goal
 
-Persistent execution document for the approved MVP plan and explicitly authorized follow-up work. Record current verified state and evidence. The MVP is complete; continue only with user-authorized, evidence-backed improvements, stopping when remaining issues are marginal or require scope changes.
+Persistent execution document for the portfolio's planned baseline and the user's ongoing mandate to evolve it beyond the initial plan. The MVP is complete; continue with evidence-backed improvements that materially strengthen design, accessibility, responsiveness, performance, content or reliability. Stop when remaining work is marginal or blocked by missing user input.
 
 ## Mission
 
-Deliver the approved plan: an evidence-based English portfolio with the Atlas editorial identity, interactive Observatory, five case studies, documented timeline, 3D topology with complete mobile/WebGL fallback, and printable professional summary. Keep the repository private and do not publish or deploy the site.
+Build a professional, evidence-based English portfolio with the Atlas editorial identity, interactive Observatory, five case studies, documented timeline, 3D topology with complete mobile/WebGL fallback, and printable professional summary. Continue beyond the initial plan where verified opportunities add real value. Keep the repository private; do not publish or deploy the site.
 
 ## Completion workflow
 
@@ -28,12 +28,12 @@ Deliver the approved plan: an evidence-based English portfolio with the Atlas ed
 - Stack: Astro static, Svelte island, Three.js, Tailwind 4, daisyUI 5, self-hosted Public Sans.
 - Routes: `/`, `/cases/<id>/` (5), `/profile/`; Observatory deep links use `?phase=&component=#observatory`.
 - All 50 logged evolution cycles are present on `main`; original MVP and requested follow-up work are integrated.
-- Post-merge local verification on `main` at `2f85b4c`: 27 unit tests, 48 Chromium E2E tests, a 9-route build, `audit:public`, and `git diff --check` passed. Gitleaks 8.30.1 found no findings across 72 commits. Private PR CI passed in run `41874635643`.
+- Post-merge local verification of the code at `2f85b4c`: 27 unit tests, 48 Chromium E2E tests, a 9-route build, `audit:public`, and `git diff --check` passed. Gitleaks 8.30.1 found no findings across 72 commits. PR #7 code CI passed in run `41874635643`; the documentation-only PR #8 merged as `21c4372` after both private CI checks passed (runs `41876114935` and `41876144314`).
 - Browser verification: navigation targets measure 30 px at 390 and 1440 and 28 px at 320; case-index links measure 24 px at 390; the standalone summary link measures 32 px at 390. Case and profile navigation work, with no horizontal overflow or application errors.
 
 ## Backlog
 
-All six original MVP items shipped (accessibility automation, `/cases/` index, Observatory keyboard model, measured performance budget, cross-linking and robustness). No MVP deliverable remains open. Non-MVP ideas are not authorization for additional work; publication or deployment remains explicitly unauthorized.
+All six original MVP items shipped (accessibility automation, `/cases/` index, Observatory keyboard model, measured performance budget, cross-linking and robustness). The current user mandate explicitly authorizes evidence-backed evolution beyond the original plan. Public publication/deployment and visibility changes remain prohibited.
 
 ## Cycle log
 
@@ -263,3 +263,6 @@ The standalone “Read the professional summary” link in the home skills panel
 ### Cycle 54 — merge verification and website metadata (done; URL pending)
 
 PR #7, `fix(mobile): enlarge navigation hit areas`, merged to `main` at `2f85b4c` on 2026-11-04 after private CI passed (run `41874635643`). Verified the merged commit locally: build produced 9 routes; 27 unit and 48 Chromium E2E tests passed; `audit:public` and `git diff --check` passed. Repository metadata confirms it remains private and its existing description is accurate. The GitHub homepage field is unset and Pages is disabled; no confirmed site URL was available in repository or account metadata. Vercel CLI is not installed. No placeholder URL or deployment was created; adding the website field remains pending a confirmed existing URL, with public deployment still disallowed.
+### Cycle 55 — Observatory bundle warning (investigated; no code change)
+
+The production build warns about a minified chunk above 500 kB. The warned asset is the Observatory's Three.js scene (`observatory-scene`): 544,218 bytes uncompressed and 134,007 bytes in a local gzip measurement. The component already imports it dynamically only at desktop widths and waits for an `IntersectionObserver` with a 160 px root margin; below 800 px it keeps the accessible DOM topology and does not initialize the 3D scene. This is a deferred interaction chunk, not evidence that the initial page payload exceeds the warning threshold. No additional split is justified without a measured user-facing regression; the gzip measurement is not a production transfer metric.
