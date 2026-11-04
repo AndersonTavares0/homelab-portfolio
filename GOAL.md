@@ -29,7 +29,7 @@ Deliver the approved plan in full and keep improving the portfolio autonomously 
 - Stack: Astro static, Svelte island, Three.js, Tailwind 4, daisyUI 5, self-hosted Public Sans.
 - Routes: `/`, `/cases/<id>/` (5), `/profile/`. Observatory deep links use `?phase=&component=#observatory`.
 - Evolution HEAD: `feat/evolution`, 41 improvement cycles logged below.
-- Checks: 27 unit tests, 35 Chromium E2E tests (three axe audits, no-JavaScript, print, 320 px and 200% zoom), content validation, static build, `audit:public`, Gitleaks over all refs, private CI on every pushed commit.
+- Checks: 27 unit tests, 39 Chromium E2E tests (three axe audits, no-JavaScript, print, document structure, 320 px and 200% zoom), content validation, static build, `audit:public`, Gitleaks over all refs, private CI on every pushed commit.
 - Browser matrix exercised: 1440×900, 1280, 1024, 900, 844×390, 768, 720 (200% zoom), 390×844, 375 and 320 px.
 
 ## Backlog
@@ -225,6 +225,10 @@ Emulated Windows high-contrast (`forced-colors: active`) on the Observatory. Str
 ### Cycle 45 — print coverage (done)
 
 The print fixes from cycle 43 had no automated guard. Added `tests/e2e/print.spec.js`: the home page must hide the Observatory, both action rows, the header and footer while showing its two print notes; a case must hide its index, related studies, pager and return control but keep the documented state; the summary must hide page chrome and keep five entries. Suite is now 35 E2E tests.
+
+### Cycle 46 — payload and structure audit (done)
+
+Measured transfer per route with cache disabled: home 45 kB (HTML, CSS, 1.3 kB Svelte client and the atlas SVG), case, catalogue and summary 39 kB with **zero JavaScript**. Structural checks across the four routes found no duplicate ids, no heading-level jumps, no nested interactive elements, no image without alt and exactly one `h1` on each. No fix was needed, so `tests/e2e/structure.spec.js` now locks those invariants. Suite is 39 E2E tests.
 
 ### Next cycle
 
