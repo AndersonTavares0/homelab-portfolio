@@ -97,9 +97,13 @@ The lessons section repeated the full learning paragraph already shown in the Ob
 
 Removed the three uppercase eyebrows ("Infrastructure, in context", "Themes from documented work", "Capabilities and evidence"); the design floor treats that pattern as a default and the headings carry the meaning on their own. The capability panel heading now reads "Capabilities and cases" instead of repeating the active phase name for the third time on screen. Headings in the section are now: The Observatory, the selected component or phase, Explore by phase, Capabilities and cases. Verified at 1440 and 390 px; axe and the 26 E2E tests pass.
 
-### Next cycle — final consistency sweep
+### Cycle 15 — consistency sweep (done)
 
-Check the remaining pages against DESIGN.md (colour tokens, states, type scale), regenerate the README, verify the share card matches the current wording, and close the loop with a full local battery plus CI.
+Documented the reading measure (36em, ~72 characters) and the "no labels above headings" rule in `DESIGN.md`, regenerated the README from the shared content, and rebuilt the share card from the current wording. Full local battery: content check, 25 unit tests, static build, 26 E2E tests including three axe audits, and the public-content audit all pass.
+
+### Next cycle — study depth
+
+Review whether any of the five studies still states a decision without the constraint that forced it. Add the missing constraint where the source supports it, not a new claim.
 
 
 ### Delivered baseline (before this document)
