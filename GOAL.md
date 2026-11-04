@@ -28,16 +28,17 @@ Deliver the approved plan in full and keep improving the portfolio autonomously 
 - Evolution branch: `feat/evolution`.
 - Stack: Astro static, Svelte island, Three.js, Tailwind 4, daisyUI 5, self-hosted Public Sans.
 - Routes: `/`, `/cases/<id>/` (5), `/profile/`. Observatory deep links use `?phase=&component=#observatory`.
-- Checks: 25 unit tests, 9 Chromium E2E tests, content validation, static build, `audit:public`, Gitleaks, private CI on every pushed commit.
+- Evolution HEAD: `feat/evolution`, 34 improvement cycles logged below.
+- Checks: 27 unit tests, 32 Chromium E2E tests (including three axe audits, no-JavaScript, 320 px and 200% zoom), content validation, static build, `audit:public`, Gitleaks, private CI on every pushed commit.
+- Browser matrix exercised: 1440×900, 1280, 1024, 900, 844×390, 768, 720 (200% zoom), 390×844, 375 and 320 px.
 
-## Backlog (impact order)
+## Backlog
 
-1. **Accessibility automation** — no automated WCAG pass exists; axe is missing from CI. Add it, fix real findings.
-2. **Case index** — visitors reach studies only through the home list, lessons list or Observatory; a dedicated `/cases/` route gives a stable, linkable catalogue.
-3. **Observatory keyboard model** — arrows within the component strip, predictable focus after phase change.
-4. **Performance budget** — measure initial JS/CSS, font loading and LCP; remove avoidable cost without touching the stack.
-5. **Cross-linking** — related studies inside each case, and phase links back to the Observatory.
-6. **Robustness** — URL-state edge cases and a friendly not-found route.
+All six original items shipped (accessibility automation, `/cases/` index, Observatory keyboard model, performance budget, cross-linking, robustness), plus the later cycles below. Remaining ideas, none urgent:
+
+- Split the Three.js chunk if a future scene grows; today it is lazy and does not block reading.
+- Revisit phase filtering only if the catalogue grows past roughly eight studies (declined on evidence in cycle 26).
+- Any future publication requires the fresh review described in Constraints.
 
 ## Cycle log
 
@@ -181,9 +182,13 @@ At 320 px nothing overflowed or overlapped, but the header consumed 151 px becau
 
 At a 720 px viewport (200% zoom on a 1440 window) a case page keeps a 576 px reading column, the section index wraps to two rows and the pager stays in two columns, with no horizontal scrolling. At 360 px the prose drops to 331 px and still holds. No layout change was needed; a robustness test now locks the zoom case (no overflow, reading column ≤600 px, index and pager visible). Suite is 32 E2E tests.
 
-### Next cycle — final audit and hand-off note
+### Cycle 35 — final audit and hand-off (done)
 
-Re-run the complete battery at the head commit, confirm the repository state (private, no deployment, branches), and update the status block in this file with the cycle count and the current evidence so the project can be handed over without reading this log.
+Full local battery at the head commit: content check, 27 unit tests, 32 E2E tests, build, `audit:public`, and Gitleaks across all refs (48 commits, no findings). Repository confirmed private, default branch `main` at `5be5393`, only `feat/evolution` alongside it, no open pull requests, no deployment or Pages configuration. The status block above now carries the cycle count, the test numbers and the browser matrix so the project can be handed over without reading this log.
+
+### Next cycle — study page metadata
+
+Case pages expose `og:type=article` but no article-specific description for the catalogue card. Check how a shared case link would render and add only what is missing.
 
 
 ### Delivered baseline (before this document)
