@@ -24,12 +24,12 @@ Build a professional, evidence-based English portfolio with the Atlas editorial 
 
 ## Current state
 
-- Repository: `AndersonTavares0/homelab-portfolio` (private); PR #7 was merged to `main` as `2f85b4c`, with all three verified mobile hit-area fixes. Merges remain authorized only through PRs after private CI passes.
+- Repository: `AndersonTavares0/homelab-portfolio` remains private; PR #11 merged as `5228c59` on 2026-11-04. GitHub Pages is deployed from the private source.
 - Stack: Astro static, Svelte island, Three.js, Tailwind 4, daisyUI 5, self-hosted Public Sans.
 - Routes: `/`, `/cases/<id>/` (5), `/profile/`; Observatory deep links use `?phase=&component=#observatory`.
-- All 50 logged evolution cycles are present on `main`; original MVP and requested follow-up work are integrated.
-- Post-merge local verification of the code at `2f85b4c`: 27 unit tests, 48 Chromium E2E tests, a 9-route build, `audit:public`, and `git diff --check` passed. Gitleaks 8.30.1 found no findings across 72 commits. PR #7 code CI passed in run `41874635643`; the documentation-only PR #8 merged as `21c4372` after both private CI checks passed (runs `41876114935` and `41876144314`).
-- Browser verification: navigation targets measure 30 px at 390 and 1440 and 28 px at 320; case-index links measure 24 px at 390; the standalone summary link measures 32 px at 390. Case and profile navigation work, with no horizontal overflow or application errors.
+- All 58 logged evolution cycles are present on `main`; original MVP and requested follow-up work are integrated.
+- Post-merge CI run `41908120943` on `5228c59` passed content validation, 29 unit tests, the moderate-threshold runtime audit, a 9-route build, the public-content audit, 49 Chromium E2E tests and the Pages deployment. Three inherited low-severity `deepmerge` advisories remain; no breaking forced downgrade was applied.
+- Public browser verification: the home and GPU case load anonymously; the GPU return link preserves `phase=accelerated&component=gpu`. Desktop renders 3D; 390 px mobile uses the six-node topology with no overflow or application errors. Canonical URL and social image resolve under the project base path.
 
 ## Backlog
 
@@ -275,6 +275,10 @@ Rebuilt the generated README around the portfolio’s intended order: profession
 
 The desktop “All systems” view previously moved its camera to the selected node, pushing other systems out of frame. It now keeps the complete six-system topology centered while preserving focus in narrower views; the mobile and WebGL-fallback DOM topology remains the same accessible interface. One shared layout model now supplies both 2D and 3D coordinates, and content validation rejects missing, invalid or orphaned component layouts. GitHub Pages project-base support covers navigation, assets, canonical/social metadata and case-return links. The generated README documents the main-branch deployment flow without claiming a live URL.
 
-GitHub confirmed the source repository is still private and accepted Pages workflow configuration. That acceptance does not prove public deployment eligibility or anonymous access. The workflow verifies first, then deploys only on a push to `main` with job-scoped `pages:write` and `id-token:write`; the deploy actions are pinned to verified commits. No site deployment has completed, so the Website field and public URL remain pending.
+At the time of the local verification, deployment and anonymous access had not yet been tested. The follow-up deployment and public validation are recorded in Cycle 58.
 
 Local verification: 29 unit tests, 49 Chromium E2E tests, content validation for five cases, moderate-threshold runtime audit (three inherited low-severity `deepmerge` advisories), a nine-route build, public-content heuristic and clean `git diff --check`. A built `/homelab-portfolio` preview returned 200 for home, catalogue and GPU case; the case-return path preserved `phase=overview&component=gpu`. Chromium screenshots confirmed the centered desktop 3D topology and the 390 px DOM topology without overflow or application errors.
+
+### Cycle 58 — private-source Pages publication (done)
+
+PR #11 merged to `main` as `5228c59` after private CI passed. Workflow run `41908120943` completed both verification and GitHub Pages deployment. The private repository remained private throughout. The published site, `https://andersontavares0.github.io/homelab-portfolio/`, was opened without authentication in a real browser: the home rendered the 3D Observatory at desktop width, the GPU case loaded directly, and its return link restored the accelerated-computing view with GPU selected. At 390 px, the six-node DOM topology remained usable with no horizontal overflow or browser errors. Canonical and Open Graph image URLs resolve under `/homelab-portfolio/`. After that validation, the GitHub Website field was set to the same URL. The generated README now links to the published site and marks it with a live badge.
