@@ -1,0 +1,25 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Observatory from '../components/Observatory.svelte';
+import { loadContent } from '../../scripts/content.mjs';
+const { profile, cases } = loadContent();
+const caseLinks = cases.map(({ data, decision, learning }) => ({ id: data.id, title: data.title, decision, learning }));
+---
+<Layout>
+  <section class="hero-wrap">
+    <div class="hero-copy"><h1>{profile.data.name}</h1><p class="hero-statement">Infrastructure,<br />understood by building.</p><p class="lead">{profile.content.trim()}</p><div class="hero-actions"><a class="btn btn-primary" href="#projects">Explore the projects</a><a class="text-link" href="#observatory">Enter the Observatory</a></div></div>
+    <div class="hero-art"><img src="/atlas.svg" width="640" height="520" alt="Illustration of infrastructure layers connected from services to computation" /><p>One lab, many interconnected decisions.</p></div>
+  </section>
+  <section class="intro section-wrap"><div><h2>Practice across the stack</h2><p class="lead">Virtual machines, services, monitoring and accelerated computing are connected by the same question: how does a system behave when something changes?</p></div><div class="skill-list"><h3>Working with</h3><p>{profile.data.skills.join(' / ')}</p><a href="/profile/">Read the professional summary</a></div></section>
+  <section id="projects" class="section-wrap projects"><div class="section-heading"><h2>Selected projects</h2><p>Five documented decisions, their constraints and the lessons that followed.</p></div><div class="project-list">{cases.map(({ data }) => <a href={`/cases/${data.id}/`}><span><strong>{data.title}</strong><small>{data.technologies.join(' / ')}</small></span><span>{data.summary}</span><span aria-hidden="true">↗</span></a>)}</div></section>
+  <section class="lessons section-wrap" aria-labelledby="lessons-heading">
+    <div class="section-heading"><h2 id="lessons-heading">What the work taught me</h2><p>Each project ended with a rule I apply before the next change.</p></div>
+    <ol class="lesson-list">{cases.map(({ data, learning }) => <li><a href={`/cases/${data.id}/`}><span class="lesson-list__source">{data.title}</span><span>{learning}</span></a></li>)}</ol>
+  </section>
+  <Observatory cases={caseLinks} client:load />
+  <section class="closing section-wrap" aria-labelledby="closing-heading">
+    <h2 id="closing-heading">Read the summary, or follow the work</h2>
+    <p class="lead">The professional summary condenses these projects into one printable page. The GitHub profile holds the code that builds this site.</p>
+    <div class="hero-actions"><a class="btn" href="/profile/">Open the professional summary</a><a class="text-link" href={profile.data.github}>GitHub profile</a></div>
+  </section>
+</Layout>
