@@ -128,6 +128,7 @@ test('mobile topology exposes phase and component selection without horizontal o
   await services.click();
   await expect(services).toHaveAttribute('aria-pressed', 'true');
   await expect(page).toHaveURL(/\/\?phase=services&component=services#observatory$/);
+  await expect(page.locator('.observatory__detail')).toBeInViewport();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   assertNoExternalRequests();
 });

@@ -91,6 +91,14 @@
     selectedId = selectedId === id ? null : id;
     scene?.setSelected(selectedId);
     syncUrl();
+    revealDetail(selectedId !== null);
+  }
+
+  // On stacked layouts the panel sits below the stage, so bring it into view after a selection.
+  function revealDetail(selected) {
+    if (!selected || !window.matchMedia('(max-width: 799px)').matches) return;
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    document.querySelector('.observatory__detail')?.scrollIntoView({ block: 'start', behavior: reduced ? 'auto' : 'smooth' });
   }
 
   function moveComponentFocus(event, id) {
@@ -276,7 +284,7 @@
         {#if sceneError}
           <p class="observatory__fallback-note" data-webgl-fallback role="status">Interactive 3D is unavailable. The complete topology remains available below.</p>
         {/if}
-        <div class="observatory__map" aria-label="System topology" class:observatory__map--overlay={sceneMode !== '3d'}>
+        <div class="observatory__map" class:observatory__map--overlay={sceneMode !== '3d'} role={sceneMode === '3d' ? undefined : 'group'} aria-label={sceneMode === '3d' ? undefined : 'System topology'} aria-hidden={sceneMode === '3d' ? 'true' : undefined}>
           <svg class="observatory__wires" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" focusable="false">
             {#each topologyLinks as link}<line data-from={link.fromId} data-to={link.toId} x1={link.from[0]} y1={link.from[1]} x2={link.to[0]} y2={link.to[1]} />{/each}
           </svg>
@@ -441,6 +449,7 @@
   .detail__tags li, .phase-work__skills span { padding: .28rem .5rem; border: 1px solid #435663; border-radius: .3rem; color: #d5e0e4; background: #1b2a34; font-size: .69rem; }
   .detail__relations { display: flex; flex-wrap: wrap; gap: .35rem .75rem; }
   .detail__relations button { border: 0; padding: .1rem 0; color: var(--obs-blue); background: transparent; font: inherit; font-size: .78rem; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+  .detail__relations span { padding: .1rem 0; color: var(--obs-muted); font-size: .78rem; }
   .detail__quiet { margin: 0; color: var(--obs-muted); font-size: .78rem; }
   .detail__case-link { width: 100%; margin-top: 1.2rem; white-space: normal; }
   .phase-facts { margin: 1.2rem 0 0; }

@@ -109,6 +109,14 @@ Documented the reading measure (36em, ~72 characters) and the "no labels above h
 
 Printing a study produced a page with the section index flattened into the lead, related links and the Observatory button. Print CSS now hides the index, related studies and the return control, removes the reading max-width and keeps the documented state from splitting across pages. Verified by exporting a two-page A4 PDF with only content, learning and documented state.
 
+### Cycle 18 — mobile reveal (done)
+
+On stacked layouts a tap selected a component but left its detail panel below the fold. Selection now scrolls the panel into view, honouring reduced motion; the mobile test asserts the panel is in the viewport after a selection.
+
+### Cycle 19 — ARIA and relation typography (done)
+
+Found the cause of the intermittent axe failure: `.observatory__map` carried `aria-label` on a generic `div`, which is prohibited. In 3D mode the map is now `aria-hidden`, and in topology mode it is a named group. Also aligned the "outside this phase" relation text with the relation links (same size, muted colour) instead of rendering at body size. Evidence: four consecutive full-suite runs pass with Playwright managing its own preview server; previously the axe audit failed roughly one run in three.
+
 ### Next cycle — study depth
 
 Review whether any of the five studies states a decision without the constraint that forced it, and add the missing constraint only where the source supports it.
