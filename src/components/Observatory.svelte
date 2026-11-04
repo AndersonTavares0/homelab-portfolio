@@ -512,6 +512,11 @@
     .observatory__legend { gap: .7rem; padding-inline: .7rem; font-size: .64rem; }
     .phase-panel, .phase-work, .observatory__detail { padding: 1rem; }
   }
+  @media (max-height: 520px) {
+    .observatory__visual { min-height: 16rem; }
+    .observatory__map { min-height: 12rem; }
+    .observatory__stage-title { height: 2.8rem; }
+  }
   @media (prefers-reduced-motion: reduce) {
     .observatory *, .observatory *::before, .observatory *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
   }

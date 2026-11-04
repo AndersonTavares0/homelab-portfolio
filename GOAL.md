@@ -131,9 +131,13 @@ The index listed studies in file order, which read as arbitrary. It now sorts by
 
 `astro preview` enforces one instance per project, so the manual preview and Playwright's web server kept colliding; runs failed with "port already used" and manual inspection was killed mid-check. Playwright now serves `dist` through `scripts/serve-dist.mjs`, a tiny static server on port 4327 with correct MIME types and the real 404 page. Two consecutive full-suite runs pass while a manual preview stays on 4321.
 
-### Next cycle — review the Observatory on a real touch device profile
+### Cycle 23 — short viewports (done)
 
-Check the stacked layout with a coarse pointer and reduced viewport height, where the strip and the detail panel compete for the first screen.
+On a landscape phone (844×390) the stage kept a 400 px minimum height, so the scene and strip pushed everything else off-screen. A height-based rule now drops the stage to 256 px and the strip to a compact title row, verified in a fresh tab at 844×390 with the 3D scene and five component controls visible without overflow. Portrait at 600 px height keeps the taller stage, which is correct for that space.
+
+### Next cycle — content freshness check
+
+Confirm that the README, share card and page copy still match the studies after fifteen cycles of edits, and rebuild any generated artefact that drifted.
 
 
 ### Delivered baseline (before this document)
