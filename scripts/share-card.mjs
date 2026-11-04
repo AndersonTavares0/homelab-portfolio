@@ -1,6 +1,6 @@
 // Renders the social share card from the site's own design tokens.
 // Run: node scripts/share-card.mjs — writes public/og.png (1200×630).
-import { chromium } from 'playwright-core';
+import { chromium } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';

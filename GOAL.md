@@ -202,9 +202,13 @@ Two equal columns hold 139 px each at 320 px; labels stay aligned to their edges
 
 Audited every tracked path: twelve root files, five scripts, six E2E specs, two unit specs, five studies and four public assets, all of them used by a route, a test or the build. Nothing was stale enough to delete. Two gaps closed instead: `package.json` now declares the Node range the README already stated (`>=22.23.4`) and the MIT licence, with the lockfile kept in sync; `.gitignore` covers `coverage/`, logs and `.DS_Store`.
 
-### Next cycle — dependency review
+### Cycle 40 — dependency review (done)
 
-Re-check direct dependencies for unused packages and confirm the lockfile matches `package.json`, since several features landed after the initial install.
+All twelve direct dependencies are used by the build, a route or a test. One real problem surfaced: `scripts/share-card.mjs` imported `playwright-core`, which is not a declared dependency — it worked only because the Playwright package hoists it. It now imports `chromium` from `@playwright/test`, and regenerating the card produced a byte-identical `og.png`, so the asset stays deterministic. Lockfile still matches `package.json`.
+
+### Next cycle — README accuracy after the cycle work
+
+Read the generated README as a newcomer: commands, licence pointers and the phase summary must still describe the current repository, not an earlier state.
 
 
 ### Delivered baseline (before this document)
