@@ -198,9 +198,13 @@ At 320 px each catalogue row carried a decorative index column inside a 2.2 rem 
 
 Two equal columns hold 139 px each at 320 px; labels stay aligned to their edges and the longest title wraps to three lines without touching the other side. No layout change was needed, so the 320 px test now also asserts both pager links exist and stay under 200 px, guarding the pattern against future title growth.
 
-### Next cycle — repository hygiene check
+### Cycle 39 — repository hygiene (done)
 
-Confirm the ignored paths, scripts and root files are still what they should be after 38 cycles, and remove anything that no longer earns its place.
+Audited every tracked path: twelve root files, five scripts, six E2E specs, two unit specs, five studies and four public assets, all of them used by a route, a test or the build. Nothing was stale enough to delete. Two gaps closed instead: `package.json` now declares the Node range the README already stated (`>=22.23.4`) and the MIT licence, with the lockfile kept in sync; `.gitignore` covers `coverage/`, logs and `.DS_Store`.
+
+### Next cycle — dependency review
+
+Re-check direct dependencies for unused packages and confirm the lockfile matches `package.json`, since several features landed after the initial install.
 
 
 ### Delivered baseline (before this document)
