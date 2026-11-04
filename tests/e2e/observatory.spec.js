@@ -205,12 +205,14 @@ test('3D stage exposes a survey HUD and a non-destructive reset view control', a
   await enterObservatory(page);
   await expect(page.locator('[data-scene-hud]')).toBeVisible();
   await expect(page.locator('[data-scene-readout]')).toContainText(/stations|topology/);
+  await expect(page.getByRole('button', { name: 'Zoom in 3D view' })).toBeEnabled();
+  await expect(page.getByRole('button', { name: 'Zoom out 3D view' })).toBeEnabled();
 
   await page.getByRole('button', phaseButton('Accelerated computing')).click();
   const gpu = page.getByRole('button', componentButton('GPU lab'));
   await gpu.click();
   await expect(gpu).toHaveAttribute('aria-pressed', 'true');
-  await page.getByRole('button', { name: 'Reset 3D view' }).click();
+  await page.getByRole('button', { name: 'Recenter 3D view' }).click();
   await expect(gpu).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('[data-scene-hud]')).toContainText('GPU lab');
   assertNoExternalRequests();

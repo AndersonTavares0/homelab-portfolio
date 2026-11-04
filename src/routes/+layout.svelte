@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { onNavigate } from '$app/navigation';
   import { page } from '$app/state';
   import { resolve } from '$app/paths';
   import '../styles/global.css';
@@ -9,9 +10,14 @@
   const themeKey = 'homelab-portfolio-theme';
   let theme = $state('light');
   let mounted = $state(false);
-  const resolvedBase = resolve('/');
-  const base = resolvedBase === '.' || resolvedBase === './' ? '' : resolvedBase.replace(/\/+$/, '');
-
+  const siteOrigin = (import.meta.env.PUBLIC_SITE_URL ?? '').replace(/\/+$/, '');
+  const canonicalUrl = `${siteOrigin}${page.url.pathname}`;
+  const homePath = resolve('/');
+  const casesPath = resolve('/cases/');
+  const profilePath = resolve('/profile/');
+  const observatoryPath = `${homePath}#observatory`;
+  const iconPath = resolve('/favicon.svg');
+  const shareImagePath = resolve('/og.png');
   function applyTheme(next: 'light' | 'dark') {
     theme = next;
     document.documentElement.dataset.theme = next;
@@ -43,6 +49,15 @@
   const structuredData = $derived(shareType === 'article'
     ? { '@context': 'https://schema.org', '@type': 'Article', headline: pageTitle, description: pageDescription, author: { '@type': 'Person', name: data.profile.data.name, sameAs: [data.profile.data.github] }, ...(routeData.relatedPhase?.name ? { articleSection: routeData.relatedPhase.name } : {}) }
     : { '@context': 'https://schema.org', '@type': 'Person', name: data.profile.data.name, description: data.profile.content, sameAs: [data.profile.data.github] });
+  onNavigate((navigation) => {
+    if (typeof document.startViewTransition !== 'function' || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    return new Promise((resolve) => {
+      document.startViewTransition(async () => {
+        resolve();
+        await navigation.complete;
+      });
+    });
+  });
 </script>
 
 <svelte:head>
@@ -53,24 +68,64 @@
   <meta property="og:title" content={pageTitle} />
   <meta property="og:description" content={pageDescription} />
   <meta property="og:site_name" content={data.profile.data.name} />
-  <meta property="og:url" content={page.url.pathname} />
-  <meta property="og:image" content={`${base}/og.png`} />
+  <meta property="og:url" content={canonicalUrl} />
+  <meta property="og:image" content={`${siteOrigin}${shareImagePath}`} />
   <meta name="twitter:card" content="summary_large_image" />
-  <link rel="canonical" href={page.url.pathname} />
-  <link rel="icon" href={`${base}/favicon.svg`} type="image/svg+xml" />
+  <link rel="canonical" href={canonicalUrl} />
+  <link rel="icon" href={iconPath} type="image/svg+xml" />
   <title>{pageTitle} | {data.profile.data.name}</title>
   {@html `<script type="application/ld+json">${JSON.stringify(structuredData)}</script>`}
 </svelte:head>
 
 <a class="skip" href="#main">Skip to content</a>
 <header class="site-header">
-  <a class="wordmark" href={`${base}/`}>{data.profile.data.name}<span>.</span></a>
-  <nav aria-label="Main navigation">
-    <a class="py-1" href={`${base}/cases/`} aria-current={section === 'cases' ? 'page' : undefined}>Case studies</a>
-    <a class="py-1" href={`${base}/#observatory`}>Observatory</a>
-    <a class="py-1" href={`${base}/profile/`} aria-current={section === 'profile' ? 'page' : undefined}>Professional summary</a>
-  </nav>
-  <button type="button" class="theme-toggle" hidden={!mounted} aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`} onclick={toggleTheme}>Switch to {theme === 'dark' ? 'light' : 'dark'} theme</button>
+  <div class="site-header__inner">
+    <a class="wordmark" href={homePath} aria-label="A Atlas.">
+      <span class="wordmark__mark" aria-hidden="true">A</span>
+      <span class="wordmark__label">Atlas<span>.</span></span>
+    </a>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a class="site-nav__link" href={casesPath} aria-current={section === 'cases' ? 'page' : undefined}>
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3.5 4.5h13v11h-13zM3.5 8h13M7 4.5v3.4M13 4.5v3.4" /></svg>
+        <span>Case studies</span>
+      </a>
+      <a class="site-nav__link" href={observatoryPath}>
+        <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="6.5" /><circle cx="10" cy="10" r="1.5" /><path d="M10 1.5v2M10 16.5v2M1.5 10h2M16.5 10h2" /></svg>
+        <span>Observatory</span>
+      </a>
+      <a class="site-nav__link" href={profilePath} aria-current={section === 'profile' ? 'page' : undefined}>
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 3.5h12v13H4zM7 7h6M7 10h6M7 13h3" /></svg>
+        <span aria-label="Professional summary">Summary</span>
+      </a>
+    </nav>
+    <div class="site-header__actions">
+      <span class="site-header__status"><i></i> documented / open</span>
+      <button type="button" class:theme-toggle--pending={!mounted} class="theme-toggle" aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`} onclick={toggleTheme}>
+        <svg viewBox="0 0 20 20" aria-hidden="true">{#if theme === 'dark'}<circle cx="10" cy="10" r="3.2" /><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.3 4.3l1.4 1.4M14.3 14.3l1.4 1.4M15.7 4.3l-1.4 1.4M5.7 14.3l-1.4 1.4" />{:else}<path d="M15.5 12.6A5.8 5.8 0 0 1 7.4 4.5 6.2 6.2 0 1 0 15.5 12.6Z" />{/if}</svg>
+        <span>{theme === 'dark' ? 'Light' : 'Dark'}</span>
+      </button>
+    </div>
+  </div>
 </header>
 <main id="main" tabindex="-1">{@render children()}</main>
-<footer class="site-footer"><span>Built from documented work.</span><a href={data.profile.data.github}>GitHub profile</a><a href="#main">Back to top</a></footer>
+<footer class="site-footer">
+  <div class="site-footer__lead">
+    <a class="site-footer__wordmark" href={homePath} aria-label="Atlas.">Atlas<span>.</span></a>
+    <p>Documented infrastructure, made legible.</p>
+  </div>
+  <nav class="site-footer__nav" aria-label="Footer navigation">
+    <a href={casesPath}>Work</a>
+    <a href={observatoryPath}>Observatory</a>
+    <a href={profilePath}>Summary</a>
+  </nav>
+  <div class="site-footer__actions">
+    <a class="site-footer__icon-link" href={data.profile.data.github} aria-label="Open GitHub profile">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5a9.5 9.5 0 0 0-3 18.51c.48.09.66-.2.66-.46v-1.67c-2.69.59-3.26-1.14-3.26-1.14-.44-1.12-1.08-1.42-1.08-1.42-.88-.6.07-.59.07-.59.97.07 1.48 1 1.48 1 .87 1.48 2.28 1.05 2.84.8.09-.63.34-1.05.62-1.29-2.15-.24-4.41-1.08-4.41-4.78 0-1.06.38-1.93 1-2.61-.1-.24-.43-1.23.1-2.57 0 0 .82-.26 2.68.99a9.3 9.3 0 0 1 4.88 0c1.86-1.25 2.68-.99 2.68-.99.53 1.34.2 2.33.1 2.57.62.68 1 1.55 1 2.61 0 3.71-2.26 4.54-4.42 4.78.35.31.66.91.66 1.83v2.72c0 .27.18.56.67.46A9.5 9.5 0 0 0 12 2.5Z" /></svg>
+      <span>GitHub</span>
+    </a>
+    <a class="site-footer__icon-link" href="#main" aria-label="Back to top">
+      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m4 12 6-6 6 6M10 6v10" /></svg>
+      <span>Top</span>
+    </a>
+  </div>
+</footer>

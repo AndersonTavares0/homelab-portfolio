@@ -1,15 +1,15 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { resolve } from '$app/paths';
+  const homePath = resolve('/');
+  const casesPath = resolve('/cases/');
   let { data } = $props();
-  const resolvedBase = resolve('/');
-  const base = resolvedBase === '.' || resolvedBase === './' ? '' : resolvedBase.replace(/\/+$/, '');
-  const initialObservatoryHref = $derived(`${base}/${data.observatoryQuery ? `?${data.observatoryQuery}` : ''}#observatory`);
+  const initialObservatoryHref = $derived(`${homePath}${data.observatoryQuery ? `?${data.observatoryQuery}` : ''}#observatory`);
   let observatoryHref = $state('');
   onMount(() => {
     const incoming = new URLSearchParams(window.location.search);
     const query = incoming.toString() || data.observatoryQuery;
-    observatoryHref = `${base}/${query ? `?${query}` : ''}#observatory`;
+    observatoryHref = `${homePath}${query ? `?${query}` : ''}#observatory`;
   });
 </script>
 
@@ -20,7 +20,7 @@
 </svelte:head>
 
 <article class="reading section-wrap">
-  <a class="back-link" href={`${base}/cases/`}>← All case studies</a>
+  <a class="back-link" href={casesPath}>← All case studies</a>
   <p class="case-tech">{data.item.technologies.join(' / ')} · About {data.item.minutes} min read</p>
   <h1>{data.item.title}</h1>
   <p class="lead">{data.item.summary}</p>
@@ -28,9 +28,9 @@
   <nav class="case-toc" aria-label="In this study"><p>In this study</p><ol>{#each data.sections as entry}<li><a class="py-1" href={`#${entry.id}`}>{entry.label}</a></li>{/each}</ol></nav>
   <div class="prose">{@html data.html}</div>
   {#if data.documentedState}<section class="prose case-state" aria-labelledby="case-state-heading" data-case-state><h2 id="case-state-heading">Documented state</h2><div>{@html data.documentedState}</div></section>{/if}
-  {#if data.relatedStudies.length}<section class="case-related" aria-labelledby="case-related-heading" data-case-related><h2 id="case-related-heading">Related studies</h2><ul>{#each data.relatedStudies as study}<li><a href={`${base}/cases/${study.id}/`}><strong>{study.title}</strong><span>{study.summary}</span></a></li>{/each}</ul></section>{/if}
+  {#if data.relatedStudies.length}<section class="case-related" aria-labelledby="case-related-heading" data-case-related><h2 id="case-related-heading">Related studies</h2><ul>{#each data.relatedStudies as study}<li><a href={resolve(`/cases/${study.id}/`)}><strong>{study.title}</strong><span>{study.summary}</span></a></li>{/each}</ul></section>{/if}
   <div class="case-return">{#if data.relatedPhase}<p class="case-tech">Observatory context: {data.relatedPhase.name}{data.relatedComponent ? ` · ${data.relatedComponent.name}` : ''}</p>{/if}<p><a class="btn" href={observatoryHref || initialObservatoryHref}>Return to the Observatory</a></p><p>Continue exploring the documented relationships and decisions.</p></div>
-  <nav class="case-pager" aria-label="Case studies">{#if data.previous}<a rel="prev" href={`${base}/cases/${data.previous.id}/`}><span>Previous study</span><strong>{data.previous.title}</strong></a>{/if}{#if data.next}<a rel="next" href={`${base}/cases/${data.next.id}/`}><span>Next study</span><strong>{data.next.title}</strong></a>{/if}</nav>
+  <nav class="case-pager" aria-label="Case studies">{#if data.previous}<a rel="prev" href={resolve(`/cases/${data.previous.id}/`)}><span>Previous study</span><strong>{data.previous.title}</strong></a>{/if}{#if data.next}<a rel="next" href={resolve(`/cases/${data.next.id}/`)}><span>Next study</span><strong>{data.next.title}</strong></a>{/if}</nav>
 </article>
 
 <style>

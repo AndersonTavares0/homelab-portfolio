@@ -3,9 +3,7 @@
   import { gsap } from 'gsap';
   import { resolve } from '$app/paths';
   import { components, observatoryLayout, overview, overviewPhase, phases, selectView, views } from '../model.js';
-  const resolvedBase = resolve('/');
-  const base = resolvedBase === '.' || resolvedBase === './' ? '' : resolvedBase.replace(/\/+$/, '');
-  const sitePath = (path: string) => `${base}${path.startsWith('/') ? path : `/${path}`}`;
+  const sitePath = (path: string) => resolve(path);
 
   let { cases = [] } = $props();
   let phaseId = $state(views[0]?.id ?? '');
@@ -151,6 +149,10 @@
     hoveredId = id;
   }
 
+  function zoomView(direction) {
+    scene?.zoom(direction);
+  }
+
   function resetView() {
     scene?.resetCamera();
   }
@@ -276,8 +278,14 @@
       <button type="button" class="btn btn-sm observatory__overview" onclick={clearSelection} aria-pressed={phaseId === defaultPhaseId && !selectedId}>
         Overview
       </button>
-      <button type="button" class="btn btn-sm observatory__overview" onclick={resetView} data-reset-view>
-        Reset 3D view
+      <button type="button" class="btn btn-sm observatory__overview" onclick={() => zoomView(-1)} disabled={sceneMode !== '3d'} aria-label="Zoom out 3D view">
+        −
+      </button>
+      <button type="button" class="btn btn-sm observatory__overview" onclick={() => zoomView(1)} disabled={sceneMode !== '3d'} aria-label="Zoom in 3D view">
+        +
+      </button>
+      <button type="button" class="btn btn-sm observatory__overview" onclick={resetView} disabled={sceneMode !== '3d'} data-reset-view>
+        Recenter 3D view
       </button>
       <button type="button" class="btn btn-sm observatory__overview" onclick={copyViewLink} data-copy-view>
         Copy link
@@ -296,10 +304,10 @@
     <div class="observatory__stage">
       <div class="observatory__stage-title">
         <span class="observatory__stage-mark" aria-hidden="true"></span>
-        <span class="observatory__stage-code" aria-hidden="true">REL / 06</span>
-        <span>{activePhase?.name ?? 'Infrastructure map'}</span>
+        <span class="observatory__stage-code" aria-hidden="true">REL MAP / 06</span>
+        <span>{activePhase?.name ?? 'Relationship map'}</span>
         <span class="observatory__stage-hint" role={sceneLoading ? 'status' : undefined}>
-          {sceneLoading && sceneMode !== '3d' ? 'Preparing the interactive view…' : sceneMode === '3d' ? 'Drag to orbit · scroll to zoom' : 'Select a station to explore'}
+          {sceneLoading && sceneMode !== '3d' ? 'Preparing the interactive view…' : sceneMode === '3d' ? 'Drag to orbit · Ctrl/⌘ + scroll to zoom' : 'Select a station to explore'}
         </span>
         <span class="observatory__stage-readout" data-scene-readout>{sceneMode === '3d' ? `${activeComponents.length} stations · ${topologyLinks.length} links` : `DOM topology · ${activeComponents.length} stations`}</span>
       </div>
@@ -322,7 +330,7 @@
       <div class="observatory__visual" class:observatory__visual--3d={sceneMode === '3d'}>
         <canvas bind:this={canvas} class="observatory__canvas" aria-hidden="true"></canvas>
         <div class="observatory__scene-hud" data-scene-hud aria-live="polite">
-          <span class="scene-hud__mode">{sceneMode === '3d' ? '3D / ORBIT' : '2D / DOM MAP'}</span>
+          <span class="scene-hud__mode">{sceneMode === '3d' ? '3D / RELATIONSHIPS' : '2D / RELATIONSHIPS'}</span>
           <span>{selectedComponent ? `Focus · ${selectedComponent.name}` : hoveredComponent ? `Inspecting · ${hoveredComponent.name}` : `${activeComponents.length} stations · ${topologyLinks.length} documented links`}</span>
         </div>
         {#if sceneError}
@@ -334,7 +342,7 @@
           </svg>
           {#if sceneMode !== '3d'}{#each activeComponents as component (component.id)}{@render nodeButton(component)}{/each}{/if}
         </div>
-        <p class="observatory__map-caption">Illustrative topology · relationships, not physical placement</p>
+        <p class="observatory__map-caption">Conceptual map · relationships, not physical placement or live state</p>
       </div>
       {#if sceneMode === '3d'}
         <div class="observatory__nodes" role="group" aria-label="Choose a component">
@@ -456,6 +464,8 @@
   .observatory__noscript a { color: var(--obs-blue); }
   .observatory__actions { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: .4rem; }
   .observatory__actions .btn { white-space: nowrap; }
+  .observatory__actions .btn:disabled { opacity: .42; cursor: not-allowed; }
+  .observatory__actions .btn[aria-label^='Zoom'] { width: 2.25rem; padding-inline: 0; font-size: 1.1rem; }
   .observatory__copy-status { width: 100%; margin: 0; min-height: 1rem; color: var(--obs-muted); font-size: .72rem; text-align: right; }
   .observatory__layout { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(17rem, .8fr); gap: 1rem; align-items: start; }
   .observatory__stage, .observatory__detail, .phase-panel, .phase-work { border: 1px solid var(--obs-line); border-radius: .9rem; background: var(--obs-surface); }
