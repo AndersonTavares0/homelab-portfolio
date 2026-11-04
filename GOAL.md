@@ -61,9 +61,13 @@ Cold load of `/`: HTML 21 kB, CSS 27 kB, initial JS 1.3 kB, atlas 1.2 kB, font 2
 
 Each case now derives "Related studies" from the shared model: neighbouring components' cases plus cases sharing a phase. GPU Lab links to Automation, for example, and the block sits between Documented state and the Observatory return. Covered by `tests/e2e/related.spec.js`; full suite is 19 E2E tests.
 
-### Next cycle — robustness
+### Cycle 6 — robustness (done)
 
-Not-found route, URL-state edge cases (unknown component with valid phase, pasted malformed params) and a check that every internal link still resolves after the index and related-studies additions.
+Added `/404` with the editorial layout, `tests/e2e/robustness.spec.js` covering the not-found response, a crawl that requests every internal link collected from four routes, and Observatory URL edge cases (unknown phase, unknown component, component outside the selected phase). 22 E2E tests pass.
+
+### Next cycle — case reading navigation
+
+The studies are now long; add an "In this study" section index so a reader can jump to context, decision, result, learning or documented state.
 
 
 ### Delivered baseline (before this document)
