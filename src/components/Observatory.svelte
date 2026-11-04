@@ -194,9 +194,15 @@
       <div class="observatory__stage-title">
         <span class="observatory__live-dot" aria-hidden="true"></span>
         <span>{activePhase?.name ?? 'Infrastructure map'}</span>
-        <span class="observatory__stage-hint">Select a node to explore</span>
+        <span class="observatory__stage-hint">{sceneMode === '3d' ? 'Click a model or use the component list' : 'Select a node to explore'}</span>
       </div>
-      <div class="observatory__visual">
+      {#snippet nodeButton(component)}
+        <button type="button" class="topology-node topology-node--{component.id}" class:is-selected={selectedId === component.id} data-component-id={component.id} aria-label={`Select ${component.name}`} aria-pressed={selectedId === component.id} onclick={() => chooseComponent(component.id)}>
+          <span class="topology-node__glyph" aria-hidden="true">{component.type === 'gpu' ? '▰' : component.type === 'switch' ? '⌁' : component.type === 'storage' ? '▤' : '▥'}</span>
+          <span>{component.name}</span>
+        </button>
+      {/snippet}
+      <div class="observatory__visual" class:observatory__visual--3d={sceneMode === '3d'}>
         <canvas bind:this={canvas} class="observatory__canvas" aria-hidden="true"></canvas>
         {#if sceneLoading && sceneMode !== '3d'}
           <p class="observatory__scene-status" role="status">Preparing the interactive view…</p>
@@ -204,19 +210,19 @@
         {#if sceneError}
           <p class="observatory__fallback-note" data-webgl-fallback role="status">Interactive 3D is unavailable. The complete topology remains available below.</p>
         {/if}
-        <div class="observatory__map" aria-label="System topology">
+        <div class="observatory__map" aria-label="System topology" class:observatory__map--overlay={sceneMode !== '3d'}>
           <svg class="observatory__wires" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" focusable="false">
             {#each topologyLinks as link}<line data-from={link.fromId} data-to={link.toId} x1={link.from[0]} y1={link.from[1]} x2={link.to[0]} y2={link.to[1]} />{/each}
           </svg>
-          {#each activeComponents as component (component.id)}
-            <button type="button" class="topology-node" class:is-selected={selectedId === component.id} class:topology-node--host={component.id === 'host'} class:topology-node--services={component.id === 'services'} class:topology-node--alerts={component.id === 'alerts'} class:topology-node--telemetry={component.id === 'telemetry'} class:topology-node--automation={component.id === 'automation'} class:topology-node--gpu={component.id === 'gpu'} data-component-id={component.id} aria-label={`Select ${component.name}`} aria-pressed={selectedId === component.id} onclick={() => chooseComponent(component.id)}>
-              <span class="topology-node__glyph" aria-hidden="true">{component.type === 'gpu' ? '▰' : component.type === 'switch' ? '⌁' : component.type === 'storage' ? '▤' : '▥'}</span>
-              <span>{component.name}</span>
-            </button>
-          {/each}
+          {#if sceneMode !== '3d'}{#each activeComponents as component (component.id)}{@render nodeButton(component)}{/each}{/if}
         </div>
         <p class="observatory__map-caption">Illustrative topology · relationships, not physical placement</p>
       </div>
+      {#if sceneMode === '3d'}
+        <div class="observatory__nodes" role="group" aria-label="Choose a component">
+          {#each activeComponents as component (component.id)}{@render nodeButton(component)}{/each}
+        </div>
+      {/if}
       <div class="observatory__legend" aria-label="Topology legend">
         <span><i class="legend-mark legend-mark--host"></i>Compute</span>
         <span><i class="legend-mark legend-mark--service"></i>Services</span>
@@ -320,7 +326,7 @@
   .observatory .btn-primary { color: #101922; background: var(--obs-blue); border-color: var(--obs-blue); }
   .observatory .btn-primary:hover { background: #a1cfe1; }
   .observatory button:focus-visible, .observatory a:focus-visible { outline: 3px solid #acd7e9; outline-offset: 3px; }
-  .observatory__layout { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(17rem, .8fr); gap: 1rem; align-items: stretch; }
+  .observatory__layout { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(17rem, .8fr); gap: 1rem; align-items: start; }
   .observatory__stage, .observatory__detail, .phase-panel, .phase-work { border: 1px solid var(--obs-line); border-radius: .9rem; background: var(--obs-surface); }
   .observatory__stage { min-width: 0; overflow: hidden; }
   .observatory__stage-title { height: 3.4rem; display: flex; align-items: center; gap: .65rem; padding: 0 1rem; color: var(--obs-text); border-bottom: 1px solid var(--obs-line); font-size: .86rem; font-weight: 650; }
@@ -331,6 +337,9 @@
   .observatory__canvas:active { cursor: grabbing; }
   [data-scene-mode='topology'] .observatory__canvas { visibility: hidden; }
   .observatory__map { position: absolute; left: 4%; right: 4%; top: 1rem; bottom: 2.7rem; min-height: 20rem; pointer-events: none; }
+  .observatory__map:not(.observatory__map--overlay) { opacity: 0; }
+  .observatory__nodes { display: flex; flex-wrap: wrap; gap: .5rem; padding: .8rem 1rem; border-top: 1px solid var(--obs-line); }
+  .observatory__nodes .topology-node { position: static; width: auto; min-height: 0; padding: .45rem .7rem; font-size: .72rem; }
   .observatory__wires { position: absolute; inset: 0; width: 100%; height: 100%; }
   .observatory__wires line { fill: none; stroke: #638397; stroke-width: 1.1; stroke-dasharray: 4 5; opacity: .7; vector-effect: non-scaling-stroke; }
   .topology-node { position: absolute; z-index: 1; width: clamp(7.2rem, 24%, 10rem); min-height: 4.25rem; display: flex; align-items: center; gap: .6rem; padding: .65rem .75rem; border: 1px solid #536977; border-radius: .55rem; color: var(--obs-text); background: #1b2a35; box-shadow: 0 8px 22px #080e1466; font: inherit; font-size: .75rem; line-height: 1.3; text-align: left; cursor: pointer; transition: border-color .16s ease, background-color .16s ease, transform .16s ease; }

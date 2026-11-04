@@ -136,7 +136,7 @@ export function createObservatory(canvas, onSelect, edges) {
   let pointerMoved = false;
   let yaw = 0;
   let pitch = 0;
-  let distance = 10.7;
+  let distance = 9.4;
   const target = new THREE.Vector3(-0.8, 0.1, 0.5);
   let focusFrame = 0;
   function focus(id) {
