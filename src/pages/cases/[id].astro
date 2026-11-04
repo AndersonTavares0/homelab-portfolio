@@ -92,7 +92,7 @@ const relatedStudies = [...relatedIds]
       <p>In this study</p>
       <ol>
         {sections.map(entry => (
-          <li><a href={`#${entry.id}`}>{entry.label}</a></li>
+          <li><a class="py-1" href={`#${entry.id}`}>{entry.label}</a></li>
         ))}
       </ol>
     </nav>

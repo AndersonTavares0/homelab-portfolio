@@ -31,3 +31,16 @@ test('a case offers an index of its own sections', async ({ page }) => {
   await expect(page).toHaveURL(/#case-state-heading$/);
   await expect(page.locator('h2#case-state-heading')).toBeInViewport();
 });
+
+test('the case section index has comfortable hit targets on mobile', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/cases/observability/');
+
+  const toc = page.getByRole('navigation', { name: 'In this study' });
+  const heights = await toc.getByRole('link').evaluateAll(links =>
+    links.map(link => link.getBoundingClientRect().height)
+  );
+
+  expect(heights).toHaveLength(5);
+  expect(heights.every(height => height >= 24)).toBe(true);
+});
