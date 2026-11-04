@@ -1,13 +1,27 @@
 ---
 import '../styles/global.css';
+import fontUrl from '@fontsource-variable/public-sans/files/public-sans-latin-wght-normal.woff2?url';
 import { loadContent } from '../../scripts/content.mjs';
 const { profile } = loadContent();
+const path = Astro.url.pathname;
+const onCases = path === '/cases/' || path.startsWith('/cases/');
+const onProfile = path === '/profile/';
 const summary = profile.content.trim().split(/(?<=[.!?])\s+/)[0];
 const {
   title = 'Infrastructure in practice',
   description = summary,
-  type = 'website'
+  type = 'website',
+  image = '/og.png'
 } = Astro.props;
+
+// Share previews need absolute URLs. Set PUBLIC_SITE_URL at build time when the site has a real origin.
+const siteUrl = import.meta.env.PUBLIC_SITE_URL;
+const absolute = value => {
+  if (!siteUrl) return value;
+  try { return new URL(value, siteUrl).href; } catch { return value; }
+};
+const shareImage = absolute(image);
+const shareUrl = absolute(Astro.url.pathname);
 ---
 <!doctype html>
 <html lang="en" data-theme="light">
@@ -21,13 +35,22 @@ const {
   <meta property="og:title" content={title} />
   <meta property="og:description" content={description} />
   <meta property="og:site_name" content={profile.data.name} />
-  <meta name="twitter:card" content="summary" />
+  <meta property="og:url" content={shareUrl} />
+  <meta property="og:image" content={shareImage} />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content={`${profile.data.name}: infrastructure case studies and an interactive Observatory`} />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={shareImage} />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="preload" href={fontUrl} as="font" type="font/woff2" crossorigin />
   <title>{title} | {profile.data.name}</title>
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
-  <header class="site-header"><a class="wordmark" href="/">{profile.data.name}<span>.</span></a><nav aria-label="Main navigation"><a href="/#projects">Projects</a><a href="/#observatory">Observatory</a><a href="/profile/">Professional summary</a></nav></header>
+  <header class="site-header"><a class="wordmark" href="/">{profile.data.name}<span>.</span></a><nav aria-label="Main navigation"><a href="/cases/" aria-current={onCases ? 'page' : undefined}>Case studies</a><a href="/#observatory">Observatory</a><a href="/profile/" aria-current={onProfile ? 'page' : undefined}>Professional summary</a></nav></header>
   <main id="main" tabindex="-1"><slot /></main>
   <footer class="site-footer"><span>Built from documented work.</span><a href={profile.data.github}>GitHub profile</a><a href="#main">Back to top</a></footer>
 </body>

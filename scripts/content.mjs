@@ -9,6 +9,18 @@ export function caseSection(content, heading, file) {
   return text;
 }
 
+export const REQUIRED_SECTIONS = [
+  'Context',
+  'Contribution and decision',
+  'Observed result',
+  'Learning and next step',
+  'Documented state'
+];
+
+export function validateCaseSections(content, file) {
+  for (const heading of REQUIRED_SECTIONS) caseSection(content, heading, file);
+}
+
 // The Observatory panel summarizes; the case page keeps the full reasoning.
 export function lead(text, maxChars = 220) {
   const sentences = text.split(/(?<=[.!?])\s+/);
@@ -20,11 +32,26 @@ export function lead(text, maxChars = 220) {
   return kept.join(' ');
 }
 
+// Estimated reading time, used by the catalogue and by each study header.
+export function readingMinutes(text, wordsPerMinute = 200) {
+  return Math.max(1, Math.round(text.trim().split(/\s+/).length / wordsPerMinute));
+}
+
+// Catalogue order shared by the index and by previous/next navigation.
+export function orderedCases(cases) {
+  const rank = id => {
+    const index = phases.findIndex(phase => phase.cases.includes(id));
+    return index === -1 ? phases.length : index;
+  };
+  return [...cases].sort((a, b) => rank(a.data.id) - rank(b.data.id) || a.data.title.localeCompare(b.data.title));
+}
+
 export function loadContent() {
   const profile = matter(fs.readFileSync('content/profile.md', 'utf8'));
   const files = fs.readdirSync('content/cases').filter(name => name.endsWith('.md'));
   const cases = files.map(file => {
     const item = matter(fs.readFileSync(`content/cases/${file}`, 'utf8'));
+    validateCaseSections(item.content, file);
     return {
       ...item, file,
       decision: lead(caseSection(item.content, 'Contribution and decision', file).split(/\n\s*\n/)[0]),

@@ -1,0 +1,19 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout title="Page not found" description="This page does not exist. Browse the case studies or return home.">
+  <article class="reading section-wrap not-found">
+    <p class="case-tech">404</p>
+    <h1>This page is not here</h1>
+    <p class="lead">The address may be mistyped, or the page may have moved. Every study is listed in the catalogue.</p>
+    <div class="hero-actions">
+      <a class="btn" href="/cases/">Browse case studies</a>
+      <a class="text-link" href="/">Return home</a>
+    </div>
+  </article>
+</Layout>
+
+<style>
+  .not-found { padding-bottom: 6rem; }
+  .not-found .lead { margin-bottom: 2rem; }
+</style>

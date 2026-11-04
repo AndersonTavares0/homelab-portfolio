@@ -1,5 +1,5 @@
 <script>
-  import { onMount } from 'svelte';
+  import { onMount, tick } from 'svelte';
   import { components, overview, phases, selectPhase } from '../model.js';
 
   let { cases = [] } = $props();
@@ -10,6 +10,7 @@
   let sceneMode = $state('topology');
   let sceneError = $state(false);
   let sceneLoading = $state(false);
+  let copyStatus = $state('');
   const nodeCoordinates = {
     host: [17, 27], services: [50, 27], alerts: [83, 27],
     telemetry: [83, 75], automation: [50, 75], gpu: [17, 75]
@@ -90,6 +91,65 @@
     selectedId = selectedId === id ? null : id;
     scene?.setSelected(selectedId);
     syncUrl();
+    revealDetail(selectedId !== null);
+  }
+
+  // On stacked layouts the panel sits below the stage, so bring it into view after a selection.
+  function revealDetail(selected) {
+    if (!selected || !window.matchMedia('(max-width: 799px)').matches) return;
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    document.querySelector('.observatory__detail')?.scrollIntoView({ block: 'start', behavior: reduced ? 'auto' : 'smooth' });
+  }
+
+  function moveComponentFocus(event, id) {
+    const keys = ['ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp', 'Home', 'End'];
+    if (!keys.includes(event.key)) return;
+    event.preventDefault();
+    const ids = activeComponents.map(component => component.id);
+    if (ids.length < 2) return;
+    const current = ids.indexOf(id);
+    const last = ids.length - 1;
+    const next = event.key === 'Home' ? 0
+      : event.key === 'End' ? last
+        : event.key === 'ArrowRight' || event.key === 'ArrowDown' ? (current === last ? 0 : current + 1)
+          : (current <= 0 ? last : current - 1);
+    const targetId = ids[next];
+    selectComponent(targetId);
+    document.querySelector(`[data-component-id="${targetId}"]`)?.focus();
+  }
+
+  function movePhaseFocus(event, id) {
+    const keys = ['ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp', 'Home', 'End'];
+    if (!keys.includes(event.key)) return;
+    event.preventDefault();
+    const ids = phases.map(phase => phase.id);
+    if (ids.length < 2) return;
+    const current = ids.indexOf(id);
+    const last = ids.length - 1;
+    const next = event.key === 'Home' ? 0
+      : event.key === 'End' ? last
+        : event.key === 'ArrowRight' || event.key === 'ArrowDown' ? (current === last ? 0 : current + 1)
+          : (current <= 0 ? last : current - 1);
+    const targetId = ids[next];
+    choosePhase(targetId);
+    document.querySelector(`[data-phase-id="${targetId}"]`)?.focus();
+  }
+
+  function selectComponent(id) {
+    if (!activePhase?.components.includes(id)) return;
+    selectedId = id;
+    scene?.setSelected(id);
+    syncUrl();
+  }
+
+  async function copyViewLink() {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      copyStatus = 'Link copied';
+    } catch {
+      copyStatus = 'Copy failed; use the address bar';
+    }
+    setTimeout(() => { copyStatus = ''; }, 3000);
   }
 
   function clearSelection() {
@@ -129,8 +189,13 @@
         scene = createObservatory(canvas, chooseComponent, edges);
         scene.setPhase(activePhase?.components ?? []);
         scene.setSelected(selectedId);
+        const focusedComponent = document.activeElement?.dataset?.componentId;
         sceneMode = '3d';
         sceneError = false;
+        if (focusedComponent) {
+          await tick();
+          document.querySelector(`[data-component-id="${focusedComponent}"]`)?.focus();
+        }
       } catch {
         sceneError = true;
         sceneMode = 'topology';
@@ -140,9 +205,13 @@
     }
     function updateMode() {
       if (!media.matches) {
+        const focusedComponent = document.activeElement?.dataset?.componentId;
         scene?.destroy();
         scene = null;
         sceneMode = 'topology';
+        if (focusedComponent) {
+          tick().then(() => document.querySelector(`[data-component-id="${focusedComponent}"]`)?.focus());
+        }
       } else if (host && 'IntersectionObserver' in window) {
         observer?.disconnect();
         observer = new IntersectionObserver((entries) => {
@@ -180,37 +249,47 @@
 <section class="observatory" id="observatory" data-scene-mode={sceneMode} aria-labelledby="observatory-title" tabindex="-1">
   <header class="observatory__header">
     <div>
-      <p class="observatory__eyebrow">Infrastructure, in context</p>
       <h2 id="observatory-title">The Observatory</h2>
       <p class="observatory__intro">Follow the connections between systems, decisions and the work behind them.</p>
     </div>
-    <button type="button" class="btn btn-sm observatory__overview" onclick={clearSelection} aria-pressed={!selectedId}>
-      Overview
-    </button>
+    <div class="observatory__actions">
+      <button type="button" class="btn btn-sm observatory__overview" onclick={clearSelection} aria-pressed={!selectedId}>
+        Overview
+      </button>
+      <button type="button" class="btn btn-sm observatory__overview" onclick={copyViewLink} data-copy-view>
+        Copy link
+      </button>
+      <p class="observatory__copy-status" role="status" aria-live="polite">{copyStatus}</p>
+    </div>
   </header>
 
+  <noscript>
+    <p class="observatory__noscript">
+      Interactive phase and component selection needs JavaScript. The static map below shows one phase; every study is available in
+      <a href="/cases/">the case studies catalogue</a>.
+    </p>
+  </noscript>
   <div class="observatory__layout">
     <div class="observatory__stage">
       <div class="observatory__stage-title">
         <span class="observatory__live-dot" aria-hidden="true"></span>
         <span>{activePhase?.name ?? 'Infrastructure map'}</span>
-        <span class="observatory__stage-hint">{sceneMode === '3d' ? 'Click a model or use the component list' : 'Select a node to explore'}</span>
+        <span class="observatory__stage-hint" role={sceneLoading ? 'status' : undefined}>
+          {sceneLoading && sceneMode !== '3d' ? 'Preparing the interactive view…' : sceneMode === '3d' ? 'Click a model or use the component list' : 'Select a node to explore'}
+        </span>
       </div>
       {#snippet nodeButton(component)}
-        <button type="button" class="topology-node topology-node--{component.id}" class:is-selected={selectedId === component.id} data-component-id={component.id} aria-label={`Select ${component.name}`} aria-pressed={selectedId === component.id} onclick={() => chooseComponent(component.id)}>
+        <button type="button" class="topology-node topology-node--{component.id}" class:is-selected={selectedId === component.id} data-component-id={component.id} aria-label={`Select ${component.name}`} aria-pressed={selectedId === component.id} onclick={() => chooseComponent(component.id)} onkeydown={(event) => moveComponentFocus(event, component.id)}>
           <span class="topology-node__glyph" aria-hidden="true">{component.type === 'gpu' ? '▰' : component.type === 'switch' ? '⌁' : component.type === 'storage' ? '▤' : '▥'}</span>
           <span>{component.name}</span>
         </button>
       {/snippet}
       <div class="observatory__visual" class:observatory__visual--3d={sceneMode === '3d'}>
         <canvas bind:this={canvas} class="observatory__canvas" aria-hidden="true"></canvas>
-        {#if sceneLoading && sceneMode !== '3d'}
-          <p class="observatory__scene-status" role="status">Preparing the interactive view…</p>
-        {/if}
         {#if sceneError}
           <p class="observatory__fallback-note" data-webgl-fallback role="status">Interactive 3D is unavailable. The complete topology remains available below.</p>
         {/if}
-        <div class="observatory__map" aria-label="System topology" class:observatory__map--overlay={sceneMode !== '3d'}>
+        <div class="observatory__map" class:observatory__map--overlay={sceneMode !== '3d'} role={sceneMode === '3d' ? undefined : 'group'} aria-label={sceneMode === '3d' ? undefined : 'System topology'} aria-hidden={sceneMode === '3d' ? 'true' : undefined}>
           <svg class="observatory__wires" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" focusable="false">
             {#each topologyLinks as link}<line data-from={link.fromId} data-to={link.toId} x1={link.from[0]} y1={link.from[1]} x2={link.to[0]} y2={link.to[1]} />{/each}
           </svg>
@@ -230,10 +309,13 @@
       </div>
     </div>
 
-    <aside class="observatory__detail" aria-live="polite" aria-atomic="true">
+    <p class="sr-only" role="status" data-selection-status>
+      {selectedComponent ? `${selectedComponent.name} selected. ${relatedComponents.length} connected systems.` : `${activePhase?.name} phase shown.`}
+    </p>
+    <aside class="observatory__detail" aria-labelledby="detail-heading">
       {#if selectedComponent}
         <div class="detail__topline"><span>Selected system</span><span class="detail__id">{selectedComponent.id}</span></div>
-        <h3>{selectedComponent.name}</h3>
+        <h3 id="detail-heading">{selectedComponent.name}</h3>
         <p class="detail__description">{selectedComponent.description}</p>
         <div class="detail__section">
           <h4>Technologies</h4>
@@ -257,7 +339,7 @@
         {/if}
       {:else}
         <div class="detail__topline"><span>Phase briefing</span><span class="detail__id">{activePhase?.id}</span></div>
-        <h3>{activePhase?.name}</h3>
+        <h3 id="detail-heading">{activePhase?.name}</h3>
         <p class="detail__description">{activePhase?.description}</p>
         {#if activePhase}
           <dl class="phase-facts">
@@ -273,11 +355,11 @@
 
   <div class="observatory__lower">
     <section class="phase-panel" aria-labelledby="phase-heading">
-      <div class="lower-heading"><div><p class="observatory__eyebrow">Themes from documented work</p><h3 id="phase-heading">Explore by phase</h3></div><span class="phase-panel__count">{phases.length} phases</span></div>
+      <div class="lower-heading"><div><h3 id="phase-heading">Explore by phase</h3></div><span class="phase-panel__count">{phases.length} phases</span></div>
       <p class="phase-panel__context">These phases group related work by theme; their order is not a measured chronology.</p>
       <div class="phase-list" role="group" aria-label="Choose a project phase">
         {#each phases as phase (phase.id)}
-          <button type="button" class="phase-option" class:phase-option--active={phaseId === phase.id} data-phase-id={phase.id} aria-pressed={phaseId === phase.id} onclick={() => choosePhase(phase.id)}>
+          <button type="button" class="phase-option" class:phase-option--active={phaseId === phase.id} data-phase-id={phase.id} aria-pressed={phaseId === phase.id} onclick={() => choosePhase(phase.id)} onkeydown={(event) => movePhaseFocus(event, phase.id)}>
             <span class="phase-option__text"><strong>{phase.name}</strong><small>{phase.description}</small></span><span class="phase-option__arrow" aria-hidden="true">↗</span>
           </button>
         {/each}
@@ -285,7 +367,7 @@
     </section>
 
     <section class="phase-work" aria-labelledby="phase-work-heading">
-      <div class="lower-heading"><div><p class="observatory__eyebrow">Capabilities & evidence</p><h3 id="phase-work-heading">{activePhase?.name}</h3></div></div>
+      <div class="lower-heading"><div><h3 id="phase-work-heading">Capabilities and cases</h3></div></div>
       <div class="phase-work__skills" aria-label="Related technologies">
         {#each activePhase?.skills ?? [] as skill}<span>{skill}</span>{/each}
       </div>
@@ -318,7 +400,6 @@
   .observatory * { box-sizing: border-box; }
   .observatory__header, .lower-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; }
   .observatory__header { margin-bottom: 2rem; }
-  .observatory__eyebrow { margin: 0 0 .55rem; color: var(--obs-teal); font-size: .72rem; font-weight: 700; letter-spacing: .105em; text-transform: uppercase; }
   .observatory h2 { margin: 0; font-size: clamp(2rem, 4vw, 3.2rem); letter-spacing: -.045em; line-height: 1.02; }
   .observatory__intro { margin: .8rem 0 0; color: var(--obs-muted); max-width: 36rem; line-height: 1.6; }
   .observatory .btn { min-height: 2.55rem; border-color: #4b6270; color: var(--obs-text); background: #1c2a34; border-radius: .45rem; text-transform: none; font-weight: 600; }
@@ -326,6 +407,11 @@
   .observatory .btn-primary { color: #101922; background: var(--obs-blue); border-color: var(--obs-blue); }
   .observatory .btn-primary:hover { background: #a1cfe1; }
   .observatory button:focus-visible, .observatory a:focus-visible { outline: 3px solid #acd7e9; outline-offset: 3px; }
+  .observatory__noscript { margin: 0 0 1rem; padding: .75rem 1rem; border: 1px solid var(--obs-line); border-radius: .5rem; color: var(--obs-text); background: var(--obs-raised); font-size: .85rem; line-height: 1.5; }
+  .observatory__noscript a { color: var(--obs-blue); }
+  .observatory__actions { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: .4rem; }
+  .observatory__actions .btn { white-space: nowrap; }
+  .observatory__copy-status { width: 100%; margin: 0; min-height: 1rem; color: var(--obs-muted); font-size: .72rem; text-align: right; }
   .observatory__layout { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(17rem, .8fr); gap: 1rem; align-items: start; }
   .observatory__stage, .observatory__detail, .phase-panel, .phase-work { border: 1px solid var(--obs-line); border-radius: .9rem; background: var(--obs-surface); }
   .observatory__stage { min-width: 0; overflow: hidden; }
@@ -354,16 +440,15 @@
   .topology-node--automation { left: 35%; bottom: 10%; }
   .topology-node--gpu { left: 3%; bottom: 10%; }
   .observatory__map-caption { position: absolute; bottom: .7rem; left: 1rem; right: 1rem; margin: 0; color: #9cabb5; font-size: .68rem; text-align: center; }
-  .observatory__fallback-note, .observatory__scene-status { position: absolute; z-index: 2; top: .75rem; left: 1rem; max-width: calc(100% - 2rem); margin: 0; padding: .45rem .7rem; border: 1px solid #566b78; border-radius: .35rem; color: var(--obs-text); background: #17232dee; font-size: .73rem; }
-  .observatory__scene-status { left: auto; right: .75rem; }
+  .observatory__fallback-note { position: absolute; z-index: 2; top: .75rem; left: 1rem; max-width: calc(100% - 2rem); margin: 0; padding: .45rem .7rem; border: 1px solid #566b78; border-radius: .35rem; color: var(--obs-text); background: #17232dee; font-size: .73rem; }
   .observatory__legend { display: flex; flex-wrap: wrap; gap: 1.25rem; padding: .75rem 1rem; border-top: 1px solid var(--obs-line); color: var(--obs-muted); font-size: .7rem; }
   .observatory__legend span { display: flex; align-items: center; gap: .45rem; }
   .legend-mark { width: .52rem; height: .52rem; border-radius: 2px; background: #8197a5; }
   .legend-mark--service { background: #82b9ae; }
   .legend-mark--link { width: .8rem; height: 1px; border-radius: 0; background: #82b9d2; }
   .observatory__detail { padding: 1.3rem; min-height: 18rem; }
-  .detail__topline { display: flex; align-items: center; justify-content: space-between; gap: .7rem; color: var(--obs-teal); font-size: .68rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
-  .detail__id { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .65rem; letter-spacing: .04em; color: #99aab3; }
+  .detail__topline { display: flex; align-items: center; justify-content: space-between; gap: .7rem; color: var(--obs-teal); font-size: .76rem; font-weight: 600; }
+  .detail__id { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .68rem; color: #99aab3; }
   .observatory h3 { margin: .9rem 0 .55rem; font-size: 1.32rem; line-height: 1.2; letter-spacing: -.02em; }
   .detail__description { margin: 0; color: var(--obs-muted); font-size: .86rem; line-height: 1.6; }
   .detail__section { padding-top: 1.05rem; margin-top: 1rem; border-top: 1px solid var(--obs-line); }
@@ -373,6 +458,7 @@
   .detail__tags li, .phase-work__skills span { padding: .28rem .5rem; border: 1px solid #435663; border-radius: .3rem; color: #d5e0e4; background: #1b2a34; font-size: .69rem; }
   .detail__relations { display: flex; flex-wrap: wrap; gap: .35rem .75rem; }
   .detail__relations button { border: 0; padding: .1rem 0; color: var(--obs-blue); background: transparent; font: inherit; font-size: .78rem; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+  .detail__relations span { padding: .1rem 0; color: var(--obs-muted); font-size: .78rem; }
   .detail__quiet { margin: 0; color: var(--obs-muted); font-size: .78rem; }
   .detail__case-link { width: 100%; margin-top: 1.2rem; white-space: normal; }
   .phase-facts { margin: 1.2rem 0 0; }
@@ -383,13 +469,13 @@
   .phase-panel, .phase-work { padding: 1.2rem; }
   .lower-heading { align-items: flex-start; min-height: 3.4rem; margin-bottom: .95rem; }
   .lower-heading h3 { margin: 0; font-size: 1.14rem; }
-  .lower-heading .observatory__eyebrow { font-size: .63rem; }
   .phase-panel__count { color: var(--obs-muted); font-size: .7rem; padding-top: .2rem; }
   .phase-panel__context { margin: 0 0 1rem; color: var(--obs-muted); font-size: .75rem; line-height: 1.5; }
   .phase-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; }
   .phase-option { min-width: 0; display: flex; align-items: flex-start; gap: .7rem; padding: .75rem; border: 1px solid #3c4e5a; border-radius: .5rem; color: var(--obs-text); background: #182630; text-align: left; cursor: pointer; }
   .phase-option:hover { border-color: #7899aa; }
-  .phase-option--active { border-color: #7bb6cb; background: #223847; box-shadow: inset 3px 0 #82b9d2; }
+  .phase-option--active { border-color: #9bcfe4; background: #223847; }
+  .phase-option--active strong { color: #eaf4f8; }
   .phase-option__text { display: grid; gap: .3rem; min-width: 0; }
   .phase-option__text strong { font-size: .76rem; line-height: 1.3; }
   .phase-option__text small { color: var(--obs-muted); font-size: .68rem; line-height: 1.4; }
@@ -432,6 +518,14 @@
     .phase-list { grid-template-columns: minmax(0, 1fr); }
     .observatory__legend { gap: .7rem; padding-inline: .7rem; font-size: .64rem; }
     .phase-panel, .phase-work, .observatory__detail { padding: 1rem; }
+  }
+  @media (forced-colors: active) {
+    .observatory__map-caption { width: fit-content; margin-inline: auto; left: 0; right: 0; color: CanvasText; background: Canvas; border: 1px solid CanvasText; padding: .2rem .5rem; }
+  }
+  @media (max-height: 520px) {
+    .observatory__visual { min-height: 16rem; }
+    .observatory__map { min-height: 12rem; }
+    .observatory__stage-title { height: 2.8rem; }
   }
   @media (prefers-reduced-motion: reduce) {
     .observatory *, .observatory *::before, .observatory *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }

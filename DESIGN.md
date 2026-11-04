@@ -29,6 +29,10 @@ Atlas reads as a technical editorial page: a two-column first viewport pairing a
 
 The DOM topology is the accessible source of truth; the canvas is a stylized view of the same nodes and edges. Equipment models show roles, not the real installation.
 
+### Reading and naming
+
+Body copy is capped at 36em, roughly 72 characters on desktop and tablet. Headings carry their own meaning: there are no uppercase labels above them on the catalogue, phase panel or capability panel.
+
 ## States
 
 Selected, pressed, hover, focus-visible and unavailable-WebGL are explicit. The 3D view loads lazily on desktop, falls back to the topology on mobile, when WebGL is unavailable and when the context is lost. Motion responds to phase and component selection; `prefers-reduced-motion` removes camera travel while keeping navigation intact.

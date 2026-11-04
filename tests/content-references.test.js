@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { components, phases, validateModel } from '../src/model.js';
-import { caseSection, lead } from '../scripts/content.mjs';
+import { caseSection, lead, validateCaseSections } from '../scripts/content.mjs';
 
 const caseIds = ['gpu-lab', 'rss-relay', 'alert-relay', 'automation', 'observability'];
 
@@ -100,5 +100,33 @@ describe('panel summary', () => {
   it('always keeps the first sentence and never cuts mid-sentence', () => {
     const long = 'A very long opening sentence that exceeds the budget on its own. Then more.';
     expect(lead(long, 10)).toBe('A very long opening sentence that exceeds the budget on its own.');
+  });
+});
+
+describe('case section requirements', () => {
+  const complete = `## Context
+c
+
+## Contribution and decision
+d
+
+## Observed result
+r
+
+## Learning and next step
+l
+
+## Documented state
+s
+`;
+
+  it('accepts a case that carries every required section', () => {
+    expect(() => validateCaseSections(complete, 'example.md')).not.toThrow();
+  });
+
+  it('names the source file and the missing section', () => {
+    const withoutState = complete.replace(/## Documented state[\s\S]*$/, '');
+    expect(() => validateCaseSections(withoutState, 'example.md'))
+      .toThrow('content/cases/example.md: missing section Documented state');
   });
 });
