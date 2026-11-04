@@ -135,9 +135,17 @@ The index listed studies in file order, which read as arbitrary. It now sorts by
 
 On a landscape phone (844×390) the stage kept a 400 px minimum height, so the scene and strip pushed everything else off-screen. A height-based rule now drops the stage to 256 px and the strip to a compact title row, verified in a fresh tab at 844×390 with the 3D scene and five component controls visible without overflow. Portrait at 600 px height keeps the taller stage, which is correct for that space.
 
-### Next cycle — content freshness check
+### Cycle 24 — content freshness (done)
 
-Confirm that the README, share card and page copy still match the studies after fifteen cycles of edits, and rebuild any generated artefact that drifted.
+Regenerated the README from shared content: no drift in the studies, phases or licensing text. One stale line corrected — the E2E comment still said "against preview" after the static test server replaced it. The share card wording ("five documented case studies…") and the catalogue lead still match the current content.
+
+### Cycle 25 — current-section navigation (done)
+
+The header now marks the active section with `aria-current="page"` on Case studies and Professional summary, plus a blue underline for sighted readers. A navigation test checks the attribute on a case page, the summary and the home page (where no nav item is current). Suite is 27 E2E tests.
+
+### Next cycle — case index filtering
+
+With five studies the list is short, but phases already partition them. Check whether filtering by phase helps a reader who arrives knowing the theme, and add it only if it earns its space.
 
 
 ### Delivered baseline (before this document)

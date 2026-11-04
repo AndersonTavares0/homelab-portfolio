@@ -48,3 +48,14 @@ test('the index keeps its order and metadata on mobile', async ({ page }) => {
   await expect(page.locator('.case-list a')).toHaveCount(5);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 });
+
+test('the navigation marks the current section', async ({ page }) => {
+  await page.goto('/cases/gpu-lab/');
+  await expect(page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link', { name: 'Case studies' })).toHaveAttribute('aria-current', 'page');
+
+  await page.goto('/profile/');
+  await expect(page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link', { name: 'Professional summary' })).toHaveAttribute('aria-current', 'page');
+
+  await page.goto('/');
+  await expect(page.locator('header nav a[aria-current="page"]')).toHaveCount(0);
+});

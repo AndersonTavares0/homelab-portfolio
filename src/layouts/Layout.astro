@@ -2,6 +2,9 @@
 import '../styles/global.css';
 import { loadContent } from '../../scripts/content.mjs';
 const { profile } = loadContent();
+const path = Astro.url.pathname;
+const onCases = path === '/cases/' || path.startsWith('/cases/');
+const onProfile = path === '/profile/';
 const summary = profile.content.trim().split(/(?<=[.!?])\s+/)[0];
 const {
   title = 'Infrastructure in practice',
@@ -35,7 +38,7 @@ const {
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
-  <header class="site-header"><a class="wordmark" href="/">{profile.data.name}<span>.</span></a><nav aria-label="Main navigation"><a href="/cases/">Case studies</a><a href="/#observatory">Observatory</a><a href="/profile/">Professional summary</a></nav></header>
+  <header class="site-header"><a class="wordmark" href="/">{profile.data.name}<span>.</span></a><nav aria-label="Main navigation"><a href="/cases/" aria-current={onCases ? 'page' : undefined}>Case studies</a><a href="/#observatory">Observatory</a><a href="/profile/" aria-current={onProfile ? 'page' : undefined}>Professional summary</a></nav></header>
   <main id="main" tabindex="-1"><slot /></main>
   <footer class="site-footer"><span>Built from documented work.</span><a href={profile.data.github}>GitHub profile</a><a href="#main">Back to top</a></footer>
 </body>

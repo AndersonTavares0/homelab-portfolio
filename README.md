@@ -66,7 +66,7 @@ npm run dev        # local development
 npm run build      # static build into dist/
 npm run preview    # serve the built site on 127.0.0.1:4321
 npm test           # model and content unit tests
-npm run test:e2e   # Chromium end-to-end tests against preview
+npm run test:e2e   # Chromium end-to-end tests against the built site
 npm run content:check
 npm run content:build  # regenerate this README
 npm run audit:public   # heuristic scan of authored and built files
