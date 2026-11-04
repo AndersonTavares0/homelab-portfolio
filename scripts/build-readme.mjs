@@ -2,6 +2,63 @@ import fs from 'node:fs';
 import { loadContent } from './content.mjs';
 
 const { profile, cases, timeline, phases } = loadContent();
-const text = `# ${profile.data.name}\n\n${profile.content.trim()}\n\n[GitHub profile](${profile.data.github})\n\n![Illustrative infrastructure topology showing virtualization, services, alerting, automation, observation and GPU computing](public/topology.svg)\n\n## Skills\n\n${profile.data.skills.join(' · ')}\n\n## Projects\n\n${cases.map(c => `- **${c.data.title}** — ${c.data.summary}`).join('\n')}\n\n## ${timeline.data.title}\n\n${timeline.content.trim()}\n\n${phases.map(phase => `- **${phase.name}**: ${phase.description} ${phase.status} ${phase.learning} Next: ${phase.next}`).join('\n')}\n\n## Development\n\nRun npm ci, npm run dev, or npm run build. Generate this README with npm run content:build.\n\nOriginal code is MIT licensed; original text and diagrams are CC BY 4.0.\n`;
-fs.writeFileSync('README.md', text);
+
+const lines = [
+  `# ${profile.data.name}`,
+  '',
+  profile.content.trim(),
+  '',
+  `[GitHub profile](${profile.data.github})`,
+  '',
+  '![Illustrative infrastructure topology showing virtualization, services, alerting, automation, observation and GPU computing](public/topology.svg)',
+  '',
+  '## Skills',
+  '',
+  profile.data.skills.join(' · '),
+  '',
+  '## Projects',
+  '',
+  ...cases.map(item => `- **[${item.data.title}](content/cases/${item.file})** — ${item.data.summary}`),
+  '',
+  `## ${timeline.data.title}`,
+  '',
+  timeline.content.trim(),
+  '',
+  ...phases.flatMap(phase => [
+    `### ${phase.name}`,
+    '',
+    phase.description,
+    '',
+    `Documented state: ${phase.status}`,
+    '',
+    `Next: ${phase.next}`,
+    ''
+  ]),
+  'Each case separates the documented state from the next step; see the studies above for sources and limits.',
+  '',
+  '## Development',
+  '',
+  'Requires Node.js 22.23.4 or newer.',
+  '',
+  '```sh',
+  'npm ci',
+  'npm run dev        # local development',
+  'npm run build      # static build into dist/',
+  'npm run preview    # serve the built site on 127.0.0.1:4321',
+  'npm test           # model and content unit tests',
+  'npm run test:e2e   # Chromium end-to-end tests against preview',
+  'npm run content:check',
+  'npm run content:build  # regenerate this README',
+  'npm run audit:public   # heuristic scan of authored and built files',
+  '```',
+  '',
+  'The Observatory state is deep-linkable, for example `/?phase=accelerated&component=gpu#observatory`.',
+  '',
+  '## Licensing',
+  '',
+  'Original code is [MIT licensed](LICENSE). Original text and diagrams are [CC BY 4.0](CONTENT-LICENSE.md). Third-party dependencies and fonts keep their own licenses.',
+  ''
+];
+
+fs.writeFileSync('README.md', lines.join('\n'));
 console.log(`Validated ${cases.length} cases and their relationships; generated README.md.`);
