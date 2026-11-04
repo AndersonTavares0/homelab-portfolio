@@ -5,9 +5,8 @@ import { loadContent } from '../../scripts/content.mjs';
 import { sitePath } from '../site-path.js';
 const { profile } = loadContent();
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
-const path = Astro.url.pathname.startsWith(`${basePath}/`)
-  ? Astro.url.pathname.slice(basePath.length)
-  : Astro.url.pathname;
+const isBasePrefixed = basePath !== '' && Astro.url.pathname.startsWith(`${basePath}/`);
+const path = isBasePrefixed ? Astro.url.pathname.slice(basePath.length) : Astro.url.pathname;
 const onCases = path === '/cases/' || path.startsWith('/cases/');
 const onProfile = path === '/profile/';
 const summary = profile.content.trim().split(/(?<=[.!?])\s+/)[0];
@@ -26,9 +25,7 @@ const absolute = value => {
   try { return new URL(value, siteUrl).href; } catch { return value; }
 };
 const shareImage = absolute(image.startsWith('http') ? image : sitePath(image));
-const currentPath = Astro.url.pathname.startsWith(`${basePath}/`)
-  ? Astro.url.pathname
-  : sitePath(Astro.url.pathname);
+const currentPath = isBasePrefixed ? Astro.url.pathname : sitePath(Astro.url.pathname);
 const shareUrl = absolute(currentPath);
 const author = { '@type': 'Person', name: profile.data.name, sameAs: [profile.data.github] };
 const structuredData = type === 'article'
