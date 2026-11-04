@@ -93,9 +93,13 @@ Measured the case pages at 1440, 1024, 768 and 390 px: the prose column was 685 
 
 The lessons section repeated the full learning paragraph already shown in the Observatory panel. It now uses a dedicated excerpt of the first sentence (83–162 characters), so the row scans as a rule rather than a paragraph. Also removed the double bottom padding that left a 170 px void between the project index and the lessons heading; the gap is now a deliberate 32 px. Verified at 1440 and 390 px; suite still 26 E2E tests.
 
-### Next cycle — Observatory first impression
+### Cycle 14 — Observatory headings (done)
 
-The Observatory header explains what the section is, but a first-time visitor sees controls before understanding the model. Review the first 200 px of that section and tighten the introduction without adding copy that repeats the heading.
+Removed the three uppercase eyebrows ("Infrastructure, in context", "Themes from documented work", "Capabilities and evidence"); the design floor treats that pattern as a default and the headings carry the meaning on their own. The capability panel heading now reads "Capabilities and cases" instead of repeating the active phase name for the third time on screen. Headings in the section are now: The Observatory, the selected component or phase, Explore by phase, Capabilities and cases. Verified at 1440 and 390 px; axe and the 26 E2E tests pass.
+
+### Next cycle — final consistency sweep
+
+Check the remaining pages against DESIGN.md (colour tokens, states, type scale), regenerate the README, verify the share card matches the current wording, and close the loop with a full local battery plus CI.
 
 
 ### Delivered baseline (before this document)

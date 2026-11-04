@@ -241,7 +241,6 @@
 <section class="observatory" id="observatory" data-scene-mode={sceneMode} aria-labelledby="observatory-title" tabindex="-1">
   <header class="observatory__header">
     <div>
-      <p class="observatory__eyebrow">Infrastructure, in context</p>
       <h2 id="observatory-title">The Observatory</h2>
       <p class="observatory__intro">Follow the connections between systems, decisions and the work behind them.</p>
     </div>
@@ -340,7 +339,7 @@
 
   <div class="observatory__lower">
     <section class="phase-panel" aria-labelledby="phase-heading">
-      <div class="lower-heading"><div><p class="observatory__eyebrow">Themes from documented work</p><h3 id="phase-heading">Explore by phase</h3></div><span class="phase-panel__count">{phases.length} phases</span></div>
+      <div class="lower-heading"><div><h3 id="phase-heading">Explore by phase</h3></div><span class="phase-panel__count">{phases.length} phases</span></div>
       <p class="phase-panel__context">These phases group related work by theme; their order is not a measured chronology.</p>
       <div class="phase-list" role="group" aria-label="Choose a project phase">
         {#each phases as phase (phase.id)}
@@ -352,7 +351,7 @@
     </section>
 
     <section class="phase-work" aria-labelledby="phase-work-heading">
-      <div class="lower-heading"><div><p class="observatory__eyebrow">Capabilities & evidence</p><h3 id="phase-work-heading">{activePhase?.name}</h3></div></div>
+      <div class="lower-heading"><div><h3 id="phase-work-heading">Capabilities and cases</h3></div></div>
       <div class="phase-work__skills" aria-label="Related technologies">
         {#each activePhase?.skills ?? [] as skill}<span>{skill}</span>{/each}
       </div>
@@ -385,7 +384,6 @@
   .observatory * { box-sizing: border-box; }
   .observatory__header, .lower-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; }
   .observatory__header { margin-bottom: 2rem; }
-  .observatory__eyebrow { margin: 0 0 .55rem; color: var(--obs-teal); font-size: .72rem; font-weight: 700; letter-spacing: .105em; text-transform: uppercase; }
   .observatory h2 { margin: 0; font-size: clamp(2rem, 4vw, 3.2rem); letter-spacing: -.045em; line-height: 1.02; }
   .observatory__intro { margin: .8rem 0 0; color: var(--obs-muted); max-width: 36rem; line-height: 1.6; }
   .observatory .btn { min-height: 2.55rem; border-color: #4b6270; color: var(--obs-text); background: #1c2a34; border-radius: .45rem; text-transform: none; font-weight: 600; }
@@ -453,7 +451,6 @@
   .phase-panel, .phase-work { padding: 1.2rem; }
   .lower-heading { align-items: flex-start; min-height: 3.4rem; margin-bottom: .95rem; }
   .lower-heading h3 { margin: 0; font-size: 1.14rem; }
-  .lower-heading .observatory__eyebrow { font-size: .63rem; }
   .phase-panel__count { color: var(--obs-muted); font-size: .7rem; padding-top: .2rem; }
   .phase-panel__context { margin: 0 0 1rem; color: var(--obs-muted); font-size: .75rem; line-height: 1.5; }
   .phase-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; }
