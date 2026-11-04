@@ -3,19 +3,27 @@ import Layout from '../../layouts/Layout.astro';
 import { loadContent } from '../../../scripts/content.mjs';
 import { phases } from '../../model.js';
 const { cases } = loadContent();
-const items = cases.map(item => ({
-  id: item.data.id,
-  title: item.data.title,
-  summary: item.data.summary,
-  technologies: item.data.technologies,
-  phase: phases.find(phase => phase.cases.includes(item.data.id))?.name ?? null
-}));
+const phaseOrder = id => {
+  const index = phases.findIndex(phase => phase.cases.includes(id));
+  return index === -1 ? phases.length : index;
+};
+const minutes = item => Math.max(1, Math.round(item.content.trim().split(/\s+/).length / 200));
+const items = cases
+  .map(item => ({
+    id: item.data.id,
+    title: item.data.title,
+    summary: item.data.summary,
+    technologies: item.data.technologies,
+    phase: phases.find(phase => phase.cases.includes(item.data.id))?.name ?? null,
+    minutes: minutes(item)
+  }))
+  .sort((a, b) => phaseOrder(a.id) - phaseOrder(b.id) || a.title.localeCompare(b.title));
 ---
 <Layout title="Case studies" description="Five documented infrastructure studies: the problem, the decision, the evidence and what stayed unproven.">
   <article class="reading section-wrap case-index">
     <a class="back-link" href="/">← Home</a>
     <h1>Case studies</h1>
-    <p class="lead">Five studies from one environment. Each records the problem, the decision, the observed result and the limit of what the evidence establishes.</p>
+    <p class="lead">Five studies from one environment. Each records the problem, the decision, the observed result and the limit of what the evidence establishes. They follow the same thematic order as the Observatory, from foundation to accelerated computing.</p>
     <ol class="case-list">
       {items.map((item, index) => (
         <li>
@@ -24,7 +32,7 @@ const items = cases.map(item => ({
             <span class="case-list__body">
               <strong>{item.title}</strong>
               <span class="case-list__summary">{item.summary}</span>
-              <span class="case-list__meta">{item.technologies.join(' / ')}{item.phase ? ` · ${item.phase}` : ''}</span>
+              <span class="case-list__meta">{item.technologies.join(' / ')}{item.phase ? ` · ${item.phase}` : ''} · About {item.minutes} min read</span>
             </span>
           </a>
         </li>

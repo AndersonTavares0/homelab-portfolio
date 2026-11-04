@@ -123,9 +123,17 @@ The detail panel was `aria-live="polite" aria-atomic="true"`, so every selection
 
 Study-depth review: read all five studies looking for a decision stated without the constraint that forced it. Each already pairs the decision with its constraint and tradeoff (plugin error path, mixed operations, hidden delivery failure, exclusive GPU lease), so no text was changed — inventing a stronger constraint would have broken the evidence rule.
 
-### Next cycle — catalogue discoverability
+### Cycle 21 — catalogue orientation (done)
 
-The `/cases/` index lists five studies in one order. Check whether a first-time reader can tell which study to start with, and add orientation if the screen does not answer that.
+The index listed studies in file order, which read as arbitrary. It now sorts by the same phase order as the Observatory (foundation → services → operations → accelerated), states that order in the lead, and shows an estimated reading time per study. A navigation test asserts the exact order and the presence of the reading-time label. Verified at 1440 and 390 px with no overflow.
+
+### Cycle 22 — test server isolation (done)
+
+`astro preview` enforces one instance per project, so the manual preview and Playwright's web server kept colliding; runs failed with "port already used" and manual inspection was killed mid-check. Playwright now serves `dist` through `scripts/serve-dist.mjs`, a tiny static server on port 4327 with correct MIME types and the real 404 page. Two consecutive full-suite runs pass while a manual preview stays on 4321.
+
+### Next cycle — review the Observatory on a real touch device profile
+
+Check the stacked layout with a coarse pointer and reduced viewport height, where the strip and the detail panel compete for the first screen.
 
 
 ### Delivered baseline (before this document)
