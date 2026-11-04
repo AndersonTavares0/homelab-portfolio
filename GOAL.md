@@ -89,9 +89,13 @@ Added a 1200×630 share card generated from the design tokens by `scripts/share-
 
 Measured the case pages at 1440, 1024, 768 and 390 px: the prose column was 685 px, about 86 characters per line, above the 65–75 target. Capped it at 36em, which yields 72 characters at desktop and tablet and 44 on mobile, with no horizontal overflow and the section index still aligned. The Observatory at 900 px was inspected too (stage 547 px, detail 272 px) and kept as is: the scene stays usable and the strip wraps cleanly.
 
-### Next cycle — home narrative tightening
+### Cycle 13 — home narrative (done)
 
-The home page carries hero, intro, project index, lessons and closing. Review whether any of those repeats the same idea and cut what does not earn its place.
+The lessons section repeated the full learning paragraph already shown in the Observatory panel. It now uses a dedicated excerpt of the first sentence (83–162 characters), so the row scans as a rule rather than a paragraph. Also removed the double bottom padding that left a 170 px void between the project index and the lessons heading; the gap is now a deliberate 32 px. Verified at 1440 and 390 px; suite still 26 E2E tests.
+
+### Next cycle — Observatory first impression
+
+The Observatory header explains what the section is, but a first-time visitor sees controls before understanding the model. Review the first 200 px of that section and tighten the introduction without adding copy that repeats the heading.
 
 
 ### Delivered baseline (before this document)
