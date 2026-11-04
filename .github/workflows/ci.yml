@@ -27,6 +27,7 @@ jobs:
         run: |
           npm run content:check
           npm run content:build
+          git diff --exit-code -- README.md
 
       - name: Run model and content tests
         run: npm test
