@@ -159,9 +159,13 @@ With JavaScript disabled, all four routes keep their text and the hero still ren
 
 On a cold load the section showed a floating "Preparing the interactive view…" box over the empty stage. The message now lives in the stage title row as a polite status, replacing the hint until the scene arrives, and the box is gone. Captured with the scene chunk delayed by 2.5 s: the topology, phase briefing and strip are readable immediately and the status reads "Preparing the interactive view…" inline. Suite stays at 29 E2E tests.
 
-### Next cycle — first-load perception
+### Cycle 30 — first-load perception (done)
 
-Measure what a cold visitor sees in the first second at 1440×900 (hero, nav, illustration, fonts) and fix any flash of unstyled text or layout shift that the capture shows.
+Cold load at 1440×900 with cache disabled: CLS 0.0011, LCP 80 ms, fonts loaded before the measurement. The page was already coherent, so the only change was preloading the primary woff2 from the layout; the font request now starts at 27 ms as a single fetch, CLS drops to 0, and no duplicate request appears. Verified again after the change with resource timing and a clean console.
+
+### Next cycle — link and focus polish
+
+Tab through a case page end to end and confirm that focus order matches reading order, that every focus ring is visible on both surfaces, and that no control is skipped or trapped.
 
 
 ### Delivered baseline (before this document)

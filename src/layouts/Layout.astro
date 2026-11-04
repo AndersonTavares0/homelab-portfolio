@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import fontUrl from '@fontsource-variable/public-sans/files/public-sans-latin-wght-normal.woff2?url';
 import { loadContent } from '../../scripts/content.mjs';
 const { profile } = loadContent();
 const path = Astro.url.pathname;
@@ -34,6 +35,7 @@ const {
   <meta name="twitter:description" content={description} />
   <meta name="twitter:image" content={image} />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="preload" href={fontUrl} as="font" type="font/woff2" crossorigin />
   <title>{title} | {profile.data.name}</title>
 </head>
 <body>
