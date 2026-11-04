@@ -19,7 +19,7 @@ export function loadContent() {
 if (process.argv[1]?.replaceAll('\\', '/').endsWith('/scripts/content.mjs')) {
   const { profile, cases } = loadContent();
   if (process.argv.includes('--build')) {
-    const text = `# ${profile.data.title}\n\n${profile.content.trim()}\n\n## Skills\n\n${profile.data.skills.join(' · ')}\n\n## Projects\n\n${cases.map(c => `- **${c.data.title}** — ${c.data.summary}`).join('\n')}\n\n## Development\n\nThe timeline groups work thematically, not chronologically.\n\nRun npm ci, npm run dev, or npm run build. Generate this README with npm run content:build.\n\nOriginal code is MIT licensed; original text and diagrams are CC BY 4.0.\n`;
+    const text = `# ${profile.data.title}\n\n${profile.content.trim()}\n\n![Illustrative infrastructure topology showing virtualization, services, alerting, automation, observation and GPU computing](public/topology.svg)\n\n## Skills\n\n${profile.data.skills.join(' · ')}\n\n## Projects\n\n${cases.map(c => `- **${c.data.title}** — ${c.data.summary}`).join('\n')}\n\n## Development\n\nThe timeline groups work thematically, not chronologically.\n\nRun npm ci, npm run dev, or npm run build. Generate this README with npm run content:build.\n\nOriginal code is MIT licensed; original text and diagrams are CC BY 4.0.\n`;
     fs.writeFileSync('README.md', text);
   }
   console.log(`Validated ${cases.length} cases and their relationships.`);

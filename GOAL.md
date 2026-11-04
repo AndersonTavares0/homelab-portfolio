@@ -24,4 +24,5 @@ A light editorial Atlas leads to a dark Observatory. A local open-license sans, 
 - Local verification: content generation/check, 8 unit tests, static build, heuristic public-content audit and 5 Chromium end-to-end tests passed. Build warns that the lazy Three.js chunk exceeds 500 kB.
 - Desktop 1440×900: observed 3D rendering and selected an alert component by clicking its model. Mobile 390×844: observed topology with no horizontal overflow. Browser recorded no runtime errors in the exercised views.
 - Gitleaks 8.30.1, verified against the official release checksum, found no secrets in the initial Git history or the inspected authored files and generated site. Scanning is not proof of absence; repeat on the exact candidate and all refs before any publication.
-- Private CI has not yet been observed. No site publication, visibility change or merge is authorized.
+- Private CI passed for reviewed commit `82d1575` (run 41758349650), including Linux build and Chromium E2E. Subsequent changes require their own CI and history scan.
+- No site publication, visibility change or merge is authorized.
