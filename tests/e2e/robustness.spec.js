@@ -66,3 +66,19 @@ test('share metadata points at a real image on every route', async ({ page, requ
     expect((await request.get(meta.image)).status(), route).toBe(200);
   }
 });
+
+test.describe('without JavaScript', () => {
+  test.use({ javaScriptEnabled: false });
+
+  test('every page keeps its text and the observatory explains the limit', async ({ page }) => {
+    await page.goto('/cases/gpu-lab/');
+    await expect(page.getByRole('heading', { level: 1, name: 'Sharing a GPU safely' })).toBeVisible();
+    await expect(page.locator('.prose').first()).toContainText('root-owned controller');
+
+    await page.goto('/#observatory');
+    await expect(page.locator('.observatory__noscript')).toBeVisible();
+    await expect(page.locator('.observatory__noscript')).toContainText('needs JavaScript');
+    await expect(page.getByRole('link', { name: 'the case studies catalogue' })).toHaveAttribute('href', '/cases/');
+    expect(await page.evaluate(() => document.querySelectorAll('.observatory__wires line').length)).toBeGreaterThanOrEqual(0);
+  });
+});

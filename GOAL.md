@@ -151,9 +151,13 @@ Measured the catalogue on a 390×844 viewport: five rows occupy 1,079 px of a 1,
 
 Catalogue order is now computed once in `scripts/content.mjs` and shared by the index and by previous/next links at the end of each study, which keep `rel="prev"`/`rel="next"` and are hidden in print. Verified at 1440 and 390 px; a navigation test asserts the order, the edges (no previous on the first, no next on the last) and that the link works. Suite is 28 E2E tests.
 
-### Next cycle — no-JavaScript behaviour
+### Cycle 28 — no-JavaScript behaviour (done)
 
-Disable JavaScript in the browser and check that every page still reads: the Observatory should show its static topology instead of an empty stage. Fix only what the inspection proves broken.
+With JavaScript disabled, all four routes keep their text and the hero still renders; the Observatory shows the Foundation phase with its host node, the phase briefing and the legends, but its phase and component controls are inert. A `<noscript>` notice now says exactly that and links to the catalogue. A Playwright context with `javaScriptEnabled: false` asserts the case text, the notice and its link. Suite is 29 E2E tests. Also removed the last uppercase label in the detail panel ("Selected system" now reads in sentence case).
+
+### Next cycle — Observatory loading state
+
+The "Preparing the interactive view…" badge is more prominent than the content it describes. Review the first seconds of the section on a cold load and make the transition quieter.
 
 
 ### Delivered baseline (before this document)

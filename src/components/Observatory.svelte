@@ -263,6 +263,12 @@
     </div>
   </header>
 
+  <noscript>
+    <p class="observatory__noscript">
+      Interactive phase and component selection needs JavaScript. The static map below shows one phase; every study is available in
+      <a href="/cases/">the case studies catalogue</a>.
+    </p>
+  </noscript>
   <div class="observatory__layout">
     <div class="observatory__stage">
       <div class="observatory__stage-title">
@@ -402,6 +408,8 @@
   .observatory .btn-primary { color: #101922; background: var(--obs-blue); border-color: var(--obs-blue); }
   .observatory .btn-primary:hover { background: #a1cfe1; }
   .observatory button:focus-visible, .observatory a:focus-visible { outline: 3px solid #acd7e9; outline-offset: 3px; }
+  .observatory__noscript { margin: 0 0 1rem; padding: .75rem 1rem; border: 1px solid var(--obs-line); border-radius: .5rem; color: var(--obs-text); background: var(--obs-raised); font-size: .85rem; line-height: 1.5; }
+  .observatory__noscript a { color: var(--obs-blue); }
   .observatory__actions { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: .4rem; }
   .observatory__actions .btn { white-space: nowrap; }
   .observatory__copy-status { width: 100%; margin: 0; min-height: 1rem; color: var(--obs-muted); font-size: .72rem; text-align: right; }
@@ -441,8 +449,8 @@
   .legend-mark--service { background: #82b9ae; }
   .legend-mark--link { width: .8rem; height: 1px; border-radius: 0; background: #82b9d2; }
   .observatory__detail { padding: 1.3rem; min-height: 18rem; }
-  .detail__topline { display: flex; align-items: center; justify-content: space-between; gap: .7rem; color: var(--obs-teal); font-size: .68rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
-  .detail__id { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .65rem; letter-spacing: .04em; color: #99aab3; }
+  .detail__topline { display: flex; align-items: center; justify-content: space-between; gap: .7rem; color: var(--obs-teal); font-size: .76rem; font-weight: 600; }
+  .detail__id { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .68rem; color: #99aab3; }
   .observatory h3 { margin: .9rem 0 .55rem; font-size: 1.32rem; line-height: 1.2; letter-spacing: -.02em; }
   .detail__description { margin: 0; color: var(--obs-muted); font-size: .86rem; line-height: 1.6; }
   .detail__section { padding-top: 1.05rem; margin-top: 1rem; border-top: 1px solid var(--obs-line); }
