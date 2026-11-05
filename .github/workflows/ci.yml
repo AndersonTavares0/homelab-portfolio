@@ -1,4 +1,4 @@
-name: CI
+name: Archive checks
 
 on:
   push:
@@ -10,7 +10,7 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 10
     steps:
       - name: Check out source
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2, verified release commit
@@ -23,82 +23,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Validate and generate content
+      - name: Validate and generate archive README
         run: |
           npm run content:check
           npm run content:build
           git diff --exit-code -- README.md
 
-      - name: Run model and content tests
+      - name: Run documentation tests
         run: npm test
 
-      - name: Audit all dependencies
+      - name: Audit dependencies
         run: npm audit --audit-level=low
-
-      - name: Build static site
-        env:
-          SITE_BASE_PATH: /homelab-portfolio
-          PUBLIC_SITE_URL: https://andersontavares0.github.io
-        run: npm run build
-
-      - name: Audit authored and generated public artifacts
-        run: npm run audit:public
-
-      - name: Install Chromium for Playwright
-        run: npx playwright install --with-deps chromium
-
-      - name: Run preview browser tests
-        env:
-          SITE_BASE_PATH: /homelab-portfolio
-        run: npm run test:e2e
-
-  deploy:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: verify
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-    concurrency:
-      group: github-pages
-      cancel-in-progress: true
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Check out source
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-
-      - name: Set up Node.js 24 LTS
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
-        with:
-          node-version: 24
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Validate generated content
-        run: |
-          npm run content:check
-          npm run content:build
-          git diff --exit-code -- README.md
-
-      - name: Build GitHub Pages site
-        env:
-          SITE_BASE_PATH: /homelab-portfolio
-          PUBLIC_SITE_URL: https://andersontavares0.github.io
-        run: npm run build
-
-      - name: Audit public artifacts
-        run: npm run audit:public
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
-        with:
-          path: out
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5
