@@ -36,11 +36,11 @@
     };
   });
 
-  const canonicalUrl = `${siteOrigin}${page.url.pathname}`;
+  const canonicalUrl = $derived(`${siteOrigin}${page.url.pathname}`);
   const homePath = resolve('/');
   const casesPath = resolve('/cases/');
   const profilePath = resolve('/profile/');
-  const observatoryPath = `${homePath}#observatory`;
+  const explorerPath = `${homePath}#homelab-explorer`;
   const iconPath = resolve('/favicon.svg');
   const shareImagePath = resolve('/og.png');
   function applyTheme(next: 'light' | 'dark') {
@@ -65,12 +65,24 @@
   const structuredData = $derived(shareType === 'article'
     ? { '@context': 'https://schema.org', '@type': 'Article', headline: pageTitle, description: pageDescription, author: { '@type': 'Person', name: data.profile.data.name, sameAs: [data.profile.data.github] }, ...(routeData.relatedPhase?.name ? { articleSection: routeData.relatedPhase.name } : {}) }
     : { '@context': 'https://schema.org', '@type': 'Person', name: data.profile.data.name, description: data.profile.content, sameAs: [data.profile.data.github] });
+  let activeTransition: ViewTransition | undefined;
   onNavigate((navigation) => {
-    if (typeof document.startViewTransition !== 'function' || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    return new Promise((resolve) => {
-      document.startViewTransition(async () => {
-        resolve();
+    if (navigation.from?.url.pathname === navigation.to?.url.pathname ||
+      typeof document.startViewTransition !== 'function' ||
+      matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    activeTransition?.skipTransition();
+    document.documentElement.dataset.routeTransition = 'true';
+    return new Promise<void>((resume) => {
+      const transition = document.startViewTransition(async () => {
+        resume();
         await navigation.complete;
+      });
+      activeTransition = transition;
+      transition.finished.catch(() => {}).finally(() => {
+        if (activeTransition === transition) {
+          delete document.documentElement.dataset.routeTransition;
+          activeTransition = undefined;
+        }
       });
     });
   });
@@ -105,9 +117,9 @@
         <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3.5 4.5h13v11h-13zM3.5 8h13M7 4.5v3.4M13 4.5v3.4" /></svg>
         <span>Case studies</span>
       </a>
-      <a class="site-nav__link" href={observatoryPath}>
-        <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="6.5" /><circle cx="10" cy="10" r="1.5" /><path d="M10 1.5v2M10 16.5v2M1.5 10h2M16.5 10h2" /></svg>
-        <span>Observatory</span>
+      <a class="site-nav__link" href={explorerPath}>
+        <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="5" cy="6" r="2" /><circle cx="15" cy="5" r="2" /><circle cx="10" cy="15" r="2" /><path d="m6.7 6.4 6.6-.8M6.4 7.8l2.6 5.4M13.4 6.9l-2.5 5.9" /></svg>
+        <span>Homelab Explorer</span>
       </a>
       <a class="site-nav__link" href={profilePath} aria-current={section === 'profile' ? 'page' : undefined}>
         <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 3.5h12v13H4zM7 7h6M7 10h6M7 13h3" /></svg>
@@ -132,7 +144,7 @@
   </div>
   <nav class="site-footer__nav" aria-label="Footer navigation">
     <a href={casesPath}>Work</a>
-    <a href={observatoryPath}>Observatory</a>
+    <a href={explorerPath}>Homelab Explorer</a>
     <a href={profilePath}>Summary</a>
   </nav>
   <div class="site-footer__actions">

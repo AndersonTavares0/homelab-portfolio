@@ -34,21 +34,20 @@ test('mobile home and case page pass the audit', async ({ page }) => {
   }
 });
 
-test('observatory passes the audit with a component selected', async ({ page }) => {
-  await page.goto('/?phase=accelerated&component=gpu#observatory');
-  await page.waitForFunction(() => !document.querySelector('astro-island')?.hasAttribute('ssr'));
-  const gpu = page.getByRole('button', { name: 'Select GPU lab' });
-  await expect(gpu).toBeVisible();
-  await expect(gpu).toHaveAttribute('aria-pressed', 'true');
-  await audit(page, 'observatory with selection');
+test('the explorer passes the audit with a service selected', async ({ page }) => {
+  await page.goto('/?category=compute&service=gpu-controller#homelab-explorer');
+  const service = page.getByRole('button', { name: 'Select GPU lifecycle controller' });
+  await expect(service).toBeVisible();
+  await expect(service).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('.explorer-detail')).toContainText('GPU lifecycle controller');
+  await audit(page, 'explorer with selection');
 });
 
-test('the stacked observatory passes the audit', async ({ page }) => {
+test('the stacked explorer passes the audit', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/?phase=operations&component=telemetry#observatory');
-  await page.waitForFunction(() => !document.querySelector('astro-island')?.hasAttribute('ssr'));
-  await expect(page.getByRole('button', { name: 'Select Observability' })).toHaveAttribute('aria-pressed', 'true');
-  await audit(page, 'mobile observatory with selection');
+  await page.goto('/?category=observability&service=grafana#homelab-explorer');
+  await expect(page.getByRole('button', { name: 'Select Grafana' })).toHaveAttribute('aria-pressed', 'true');
+  await audit(page, 'mobile explorer with selection');
 });
 
 test('the not-found page passes the audit', async ({ page }) => {

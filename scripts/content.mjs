@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import matter from 'gray-matter';
-import { phases, validateModel } from '../src/model.js';
+import { phases } from '../src/model.js';
+import { validateExplorer } from '../src/explorer.js';
 
 export function caseSection(content, heading, file) {
   const match = content.match(new RegExp(`(?:^|\\r?\\n)## ${heading}[ \\t]*\\r?\\n([\\s\\S]*?)(?=\\r?\\n## |$)`));
@@ -21,7 +22,7 @@ export function validateCaseSections(content, file) {
   for (const heading of REQUIRED_SECTIONS) caseSection(content, heading, file);
 }
 
-// The Observatory panel summarizes; the case page keeps the full reasoning.
+// The explorer panel summarizes; the case page keeps the full reasoning.
 export function lead(text, maxChars = 220) {
   const sentences = text.split(/(?<=[.!?])\s+/);
   const kept = [];
@@ -64,7 +65,12 @@ export function loadContent() {
     if (!id || !title || !summary || !Array.isArray(technologies) || !technologies.length || typeof technologyContext !== 'string' || !technologyContext.trim() || ids.has(id)) throw new Error(`content/cases/${item.file}: missing fields or duplicate ID ${id}`);
     ids.add(id);
   }
-  validateModel([...ids]);
+  validateExplorer([...ids]);
+  for (const phase of phases) {
+    if (!phase.id?.trim() || !phase.name?.trim() || !phase.description?.trim()) throw new Error('content/timeline/phases.md: phase needs id, name and description');
+    if (!Array.isArray(phase.cases) || !phase.cases.length || !phase.cases.every(id => ids.has(id))) throw new Error(`content/timeline/phases.md: phase ${phase.id} has an unknown case`);
+    if (!Array.isArray(phase.skills) || !phase.skills.length) throw new Error(`content/timeline/phases.md: phase ${phase.id} needs skills`);
+  }
   if (!profile.data.title || !profile.data.name || !profile.data.github || !profile.data.skills?.length || !profile.content.trim()) throw new Error('content/profile.md: missing profile fields');
   const timeline = matter(fs.readFileSync('content/timeline/phases.md', 'utf8'));
   if (!timeline.data.title || !timeline.content.trim()) throw new Error('content/timeline/phases.md: missing title or editorial context');

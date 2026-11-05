@@ -1,15 +1,16 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { resolve } from '$app/paths';
+  import WorkflowDiagram from '../../../components/WorkflowDiagram.svelte';
   const homePath = resolve('/');
   const casesPath = resolve('/cases/');
   let { data } = $props();
-  const initialObservatoryHref = $derived(`${homePath}${data.observatoryQuery ? `?${data.observatoryQuery}` : ''}#observatory`);
-  let observatoryHref = $state('');
+  const initialExplorerHref = $derived(`${homePath}${data.explorerQuery ? `?${data.explorerQuery}` : ''}#homelab-explorer`);
+  let explorerHref = $state('');
   onMount(() => {
     const incoming = new URLSearchParams(window.location.search);
-    const query = incoming.toString() || data.observatoryQuery;
-    observatoryHref = `${homePath}${query ? `?${query}` : ''}#observatory`;
+    const query = incoming.toString() || data.explorerQuery;
+    explorerHref = `${homePath}${query ? `?${query}` : ''}#homelab-explorer`;
   });
 </script>
 
@@ -25,11 +26,12 @@
   <h1>{data.item.title}</h1>
   <p class="lead">{data.item.summary}</p>
   <section class="case-technology-context" aria-labelledby="technology-context-heading"><h2 id="technology-context-heading">Technology in practice</h2><p>{data.item.technologyContext}</p></section>
+  <WorkflowDiagram caseId={data.item.id} />
   <nav class="case-toc" aria-label="In this study"><p>In this study</p><ol>{#each data.sections as entry}<li><a class="py-1" href={`#${entry.id}`}>{entry.label}</a></li>{/each}</ol></nav>
   <div class="prose">{@html data.html}</div>
   {#if data.documentedState}<section class="prose case-state" aria-labelledby="case-state-heading" data-case-state><h2 id="case-state-heading">Documented state</h2><div>{@html data.documentedState}</div></section>{/if}
-  {#if data.relatedStudies.length}<section class="case-related" aria-labelledby="case-related-heading" data-case-related><h2 id="case-related-heading">Related studies</h2><ul>{#each data.relatedStudies as study}<li><a href={resolve(`/cases/${study.id}/`)}><strong>{study.title}</strong><span>{study.summary}</span></a></li>{/each}</ul></section>{/if}
-  <div class="case-return">{#if data.relatedPhase}<p class="case-tech">Observatory context: {data.relatedPhase.name}{data.relatedComponent ? ` · ${data.relatedComponent.name}` : ''}</p>{/if}<p><a class="btn" href={observatoryHref || initialObservatoryHref}>Return to the Observatory</a></p><p>Continue exploring the documented relationships and decisions.</p></div>
+  {#if data.relatedStudies.length}<section class="case-related" aria-labelledby="case-related-heading" data-case-related><h2 id="case-related-heading">Related studies</h2><p class="case-related__note">Grouped by a shared area of work in the service map, not by a direct system dependency.</p><ul>{#each data.relatedStudies as study}<li><a href={resolve(`/cases/${study.id}/`)}><strong>{study.title}</strong><span>{study.summary}</span></a></li>{/each}</ul></section>{/if}
+  <div class="case-return">{#if data.relatedService}<p class="case-tech">Homelab Explorer context: {data.relatedCategory?.name ?? data.relatedService.category} · {data.relatedService.name}</p>{/if}<p><a class="btn" href={explorerHref || initialExplorerHref}>Return to the Homelab Explorer</a></p><p>Continue exploring the documented relationships and decisions.</p></div>
   <nav class="case-pager" aria-label="Case studies">{#if data.previous}<a rel="prev" href={resolve(`/cases/${data.previous.id}/`)}><span>Previous study</span><strong>{data.previous.title}</strong></a>{/if}{#if data.next}<a rel="next" href={resolve(`/cases/${data.next.id}/`)}><span>Next study</span><strong>{data.next.title}</strong></a>{/if}</nav>
 </article>
 
@@ -50,7 +52,8 @@
   .case-toc a { font-size: .88rem; }
   [id] { scroll-margin-top: 1.5rem; }
   .case-related { margin-top: 3rem; border-top: 1px solid var(--page-line); padding-top: 1.5rem; }
-  .case-related h2 { font-size: 1.35rem; margin: 0 0 1rem; }
+  .case-related h2 { font-size: 1.35rem; margin: 0 0 .6rem; }
+  .case-related__note { margin: 0 0 1.2rem; color: var(--page-subtle); font-size: .9rem; }
   .case-related ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 1rem; }
   .case-related a { display: grid; gap: .3rem; text-decoration: none; }
   .case-related a:hover strong { text-decoration: underline; text-decoration-color: var(--page-accent); text-underline-offset: .22em; }

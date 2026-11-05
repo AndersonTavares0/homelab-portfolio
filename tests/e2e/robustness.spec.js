@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { relations, services } from '../../src/explorer.js';
 
 test('a missing route returns the editorial not-found page', async ({ page }) => {
   const response = await page.goto('/missing-page/');
@@ -26,30 +27,35 @@ test('every internal link resolves to a document', async ({ page, request }) => 
   }
 });
 
-test('malformed Observatory parameters fall back without breaking the page', async ({ page }) => {
-  await page.goto('/?phase=nope&component=nope#observatory');
-  await page.waitForFunction(() => !document.querySelector('astro-island')?.hasAttribute('ssr'));
-  await expect(page.getByRole('button', { name: 'All systems' })).toHaveAttribute('aria-pressed', 'true');
-  await expect(page.locator('[data-component-id][aria-pressed="true"]')).toHaveCount(0);
+test('malformed explorer parameters fall back without breaking the map', async ({ page }) => {
+  await page.goto('/?category=nope&service=nope#homelab-explorer');
+  await expect(page.getByRole('button', { name: 'All services' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('[data-service-id][aria-pressed="true"]')).toHaveCount(0);
+  await expect(page.locator('[data-service-id]:visible')).toHaveCount(services.length);
+  await expect.poll(() => new URL(page.url()).searchParams.get('service')).toBe(null);
+  await expect.poll(() => new URL(page.url()).searchParams.get('category')).toBe(null);
 
-  await page.goto('/?phase=accelerated&component=services#observatory');
-  await page.waitForFunction(() => !document.querySelector('astro-island')?.hasAttribute('ssr'));
-  await expect(page.getByRole('button', { name: 'Accelerated computing' })).toHaveAttribute('aria-pressed', 'true');
-  await expect(page.locator('[data-component-id][aria-pressed="true"]')).toHaveCount(0);
-  await expect(page.getByRole('button', { name: 'Select GPU lab' })).toBeVisible();
+  await page.goto('/?category=accelerated&component=services#homelab-explorer');
+  await expect(page.getByRole('button', { name: 'All services' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('[data-service-id][aria-pressed="true"]')).toHaveCount(0);
+
+  await page.goto('/?category=compute&service=grafana#homelab-explorer');
+  await expect(page.getByRole('button', { name: 'Compute' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('[data-service-id][aria-pressed="true"]')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Select Grafana' })).toHaveCount(0);
 });
 
-test('the observatory can copy the current deep link', async ({ page, context }) => {
+test('the explorer can copy the current deep link', async ({ page, context }) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write']);
-  await page.goto('/?phase=operations&component=telemetry#observatory');
-  await page.waitForFunction(() => !document.querySelector('astro-island')?.hasAttribute('ssr'));
+  await page.goto('/?category=observability&service=collector#homelab-explorer');
+  await expect(page.getByRole('button', { name: 'Select Telemetry collector' })).toHaveAttribute('aria-pressed', 'true');
 
   await page.getByRole('button', { name: 'Copy link' }).click();
-  await expect(page.getByRole('status').filter({ hasText: 'Link copied' })).toBeVisible();
+  await expect(page.locator('.explorer-status')).toContainText('Link copied');
   const copied = await page.evaluate(() => navigator.clipboard.readText());
-  expect(copied).toContain('phase=operations');
-  expect(copied).toContain('component=telemetry');
-  expect(copied).toContain('#observatory');
+  expect(copied).toContain('service=collector');
+  expect(copied).toContain('category=observability');
+  expect(copied).toContain('#homelab-explorer');
 });
 
 test('share metadata points at a real image on every route', async ({ page, request }) => {
@@ -73,17 +79,19 @@ test('share metadata points at a real image on every route', async ({ page, requ
 test.describe('without JavaScript', () => {
   test.use({ javaScriptEnabled: false });
 
-  test('every page keeps its text and the observatory explains the limit', async ({ page }) => {
+  test('every page keeps its text and the explorer shows a readable static map', async ({ page }) => {
     await page.goto('/cases/gpu-lab/');
     await expect(page.getByRole('heading', { level: 1, name: 'Sharing a GPU safely' })).toBeVisible();
     await expect(page.locator('.prose').first()).toContainText('root-owned controller');
 
-    await page.goto('/#observatory');
-    await expect(page.locator('.observatory__noscript')).toBeVisible();
-    await expect(page.locator('.observatory__noscript')).toContainText('needs JavaScript');
+    await page.goto('/#homelab-explorer');
+    await expect(page.locator('.explorer-map .explorer-connections')).toBeVisible();
+    await expect(page.locator('.explorer-map path[data-relation-id]')).toHaveCount(relations.length);
+    await expect(page.locator('[data-service-id]')).toHaveCount(services.length);
+    await expect(page.locator('.explorer-noscript')).toBeVisible();
+    await expect(page.locator('.explorer-noscript')).toContainText('need JavaScript');
     const catalogueHref = await page.getByRole('link', { name: 'the case studies catalogue' }).getAttribute('href');
     expect(new URL(catalogueHref ?? '', page.url()).pathname).toBe('/cases/');
-    expect(await page.evaluate(() => document.querySelectorAll('.observatory__wires line').length)).toBeGreaterThanOrEqual(0);
   });
 });
 

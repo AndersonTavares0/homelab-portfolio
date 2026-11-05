@@ -3,13 +3,13 @@ import { expect, test } from '@playwright/test';
 test('the home page prints as a document', async ({ page }) => {
   await page.goto('/');
   await page.emulateMedia({ media: 'print' });
-  await expect(page.locator('#observatory')).toBeHidden();
+  await expect(page.locator('#homelab-explorer')).toBeHidden();
   for (const actions of await page.locator('.hero-actions').all()) await expect(actions).toBeHidden();
   await expect(page.locator('.site-header')).toBeHidden();
   await expect(page.locator('.site-footer')).toBeHidden();
   await expect(page.locator('.print-only')).toHaveCount(2);
   await expect(page.locator('.print-only').first()).toBeVisible();
-  await expect(page.getByText('open /#observatory in a browser')).toBeVisible();
+  await expect(page.getByText('open /#homelab-explorer in a browser')).toBeVisible();
 });
 
 test('a case study prints without navigation and controls', async ({ page }) => {

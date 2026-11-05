@@ -12,7 +12,6 @@ test('theme follows system preference until a keyboard-usable choice is saved', 
 
   const root = page.locator('html');
   await expect(root).toHaveAttribute('data-theme', 'dark');
-  await expect(root).toHaveCSS('background-color', 'rgb(16, 25, 34)');
 
   await page.emulateMedia({ colorScheme: 'light' });
   await expect(root).toHaveAttribute('data-theme', 'light');

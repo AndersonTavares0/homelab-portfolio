@@ -1,21 +1,22 @@
 import { expect, test } from '@playwright/test';
 
-test('a case lists related studies drawn from the shared model', async ({ page }) => {
-  await page.goto('/cases/gpu-lab/');
+test('a case lists related studies drawn from the shared categories', async ({ page }) => {
+  await page.goto('/cases/rss-relay/');
   const related = page.locator('[data-case-related]');
   await expect(related).toBeVisible();
   const links = related.getByRole('link');
   await expect(links).toHaveCount(1);
-  await expect(links.first()).toContainText('Automation with a review boundary');
+  await expect(links.first()).toContainText('Safer alert delivery');
 
   await links.first().click();
-  await expect(page).toHaveURL(/\/cases\/automation\/?$/);
-  await expect(page.locator('[data-case-related]').getByRole('link').first()).toBeVisible();
+  await expect(page).toHaveURL(/\/cases\/alert-relay\/?$/);
+  await expect(page.locator('[data-case-related]').getByRole('link').first()).toContainText('Decoupling an RSS relay from inference');
 });
 
-test('each case links back to its own Observatory context', async ({ page }) => {
+test('each case links back to its own Homelab Explorer service', async ({ page }) => {
   await page.goto('/cases/observability/');
-  await expect(page.getByRole('link', { name: 'Return to the Observatory' })).toHaveAttribute('href', /\?phase=operations&component=telemetry#observatory$/);
+  const link = page.getByRole('link', { name: 'Return to the Homelab Explorer' });
+  await expect(link).toHaveAttribute('href', /\/\?service=collector#homelab-explorer$/);
 });
 
 test('a case offers an index of its own sections', async ({ page }) => {
