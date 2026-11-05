@@ -125,3 +125,16 @@ test('a study header shows the same reading estimate as the catalogue', async ({
   const headerMinutes = header.match(/About (\d+) min read/)[1];
   expect(catalogue).toContain(`About ${headerMinutes} min read`);
 });
+
+test('the navigation and home entry reach the Homelab Explorer', async ({ page }) => {
+  await page.goto('/');
+  const nav = page.getByRole('navigation', { name: 'Main navigation' });
+  const navLink = nav.getByRole('link', { name: 'Homelab Explorer' });
+  await expect(navLink).toHaveAttribute('href', '/#homelab-explorer');
+
+  const entry = page.getByRole('link', { name: 'Explore the homelab' });
+  await expect(entry).toHaveAttribute('href', '/#homelab-explorer');
+  await entry.click();
+  await expect(page).toHaveURL(/#homelab-explorer$/);
+  await expect(page.locator('#homelab-explorer')).toBeVisible();
+});

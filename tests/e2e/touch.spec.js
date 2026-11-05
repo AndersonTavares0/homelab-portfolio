@@ -2,36 +2,36 @@ import { expect, test } from '@playwright/test';
 
 test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
 
-test('a touch device can select a phase and a component, then clear it', async ({ page }) => {
-  await page.goto('/#observatory');
-  await page.waitForFunction(() => !document.querySelector('astro-island')?.hasAttribute('ssr'));
+test('a touch device selects a category and a service, then clears the detail', async ({ page }) => {
+  await page.goto('/#homelab-explorer');
+  await expect(page.locator('#homelab-explorer')).toBeVisible();
 
-  const phases = page.getByRole('group', { name: 'Choose a project view' });
-  await phases.getByRole('button', { name: /^Services/ }).tap();
-  await expect(phases.getByRole('button', { name: /^Services/ })).toHaveAttribute('aria-pressed', 'true');
+  const categories = page.getByRole('group', { name: 'Service categories' });
+  await categories.getByRole('button', { name: 'Compute' }).tap();
+  await expect(categories.getByRole('button', { name: 'Compute' })).toHaveAttribute('aria-pressed', 'true');
 
-  const services = page.getByRole('button', { name: 'Select Container services' });
-  await services.tap();
-  await expect(services).toHaveAttribute('aria-pressed', 'true');
-  await expect(page.locator('.observatory__detail')).toBeInViewport();
-  await expect(page.locator('[data-selection-status]')).toContainText('Container services selected');
+  const service = page.getByRole('button', { name: 'Select GPU lifecycle controller' });
+  await service.tap();
+  await expect(service).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('.explorer-detail')).toBeInViewport();
+  await expect(page.locator('.explorer-status')).toContainText('GPU lifecycle controller selected');
 
-  await page.getByRole('button', { name: 'Overview' }).tap();
-  await expect(page.getByRole('button', { name: 'Overview' })).toHaveAttribute('aria-pressed', 'true');
-  await expect(page.locator('[data-component-id][aria-pressed="true"]')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Clear selected service' }).tap();
+  await expect(page.locator('[data-service-id][aria-pressed="true"]')).toHaveCount(0);
+  expect(new URL(page.url()).searchParams.get('service')).toBe(null);
 });
 
 test('touch targets stay large enough on the stacked layout', async ({ page }) => {
-  await page.goto('/#observatory');
-  await page.waitForFunction(() => !document.querySelector('astro-island')?.hasAttribute('ssr'));
+  await page.goto('/#homelab-explorer');
+  await expect(page.locator('#homelab-explorer')).toBeVisible();
 
   const controls = [
-    page.getByRole('button', { name: 'Overview' }),
-    page.getByRole('group', { name: 'Choose a project view' }).getByRole('button', { name: 'All systems' }),
-    page.getByRole('button', { name: 'Select Virtualization host' })
+    page.getByRole('button', { name: 'All services' }),
+    page.getByRole('button', { name: 'Select Proxmox' }),
+    page.getByRole('button', { name: 'Select Uptime Kuma' })
   ];
   for (const control of controls) {
     const box = await control.boundingBox();
-    expect(box.height, await control.getAttribute('aria-label') ?? 'control').toBeGreaterThanOrEqual(24);
+    expect(box.height).toBeGreaterThanOrEqual(24);
   }
 });

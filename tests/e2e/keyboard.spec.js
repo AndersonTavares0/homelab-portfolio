@@ -1,69 +1,65 @@
 import { expect, test } from '@playwright/test';
+import { filterServices } from '../../src/explorer.js';
 
-const component = name => ({ role: 'button', name: `Select ${name}` });
+const serviceButton = name => ({ role: 'button', name: `Select ${name}` });
 
-test('arrow keys move focus and selection across components', async ({ page }) => {
-  await page.goto('/?phase=operations#observatory');
-  await page.waitForFunction(() => !document.querySelector('astro-island')?.hasAttribute('ssr'));
+async function openExplorer(page, search = '') {
+  await page.goto(`/${search}#homelab-explorer`);
+  await expect(page.locator('#homelab-explorer')).toBeVisible();
+}
 
-  const host = page.getByRole('button', component('Virtualization host'));
-  await host.focus();
+const namesIn = page => page.locator('[data-service-id]:visible').evaluateAll(buttons =>
+  buttons.map(button => button.querySelector('strong').textContent)
+);
+
+test('arrow, Home and End move focus and selection across the visible services', async ({ page }) => {
+  await openExplorer(page, '?category=compute');
+  const names = await namesIn(page);
+  expect(names).toEqual(filterServices('compute').map(service => service.name));
+
+  const first = page.getByRole('button', serviceButton(names[0]));
+  await first.focus();
   await page.keyboard.press('Enter');
-  await expect(host).toHaveAttribute('aria-pressed', 'true');
+  await expect(first).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('.explorer-detail').getByRole('heading', { name: names[0] })).toBeVisible();
 
   await page.keyboard.press('ArrowRight');
-  const services = page.getByRole('button', component('Container services'));
-  await expect(services).toBeFocused();
-  await expect(services).toHaveAttribute('aria-pressed', 'true');
-  await expect(host).toHaveAttribute('aria-pressed', 'false');
+  const second = page.getByRole('button', serviceButton(names[1]));
+  await expect(second).toBeFocused();
+  await expect(second).toHaveAttribute('aria-pressed', 'true');
+  await expect(first).toHaveAttribute('aria-pressed', 'false');
+  await expect(page.locator('.explorer-detail').getByRole('heading', { name: names[1] })).toBeVisible();
 
   await page.keyboard.press('End');
-  const automation = page.getByRole('button', component('Automation'));
-  await expect(automation).toBeFocused();
-  await expect(automation).toHaveAttribute('aria-pressed', 'true');
+  const last = page.getByRole('button', serviceButton(names.at(-1)));
+  await expect(last).toBeFocused();
+  await expect(last).toHaveAttribute('aria-pressed', 'true');
 
   await page.keyboard.press('ArrowRight');
-  await expect(host).toBeFocused();
-  await expect(host).toHaveAttribute('aria-pressed', 'true');
+  await expect(first).toBeFocused();
+  await expect(first).toHaveAttribute('aria-pressed', 'true');
 
   await page.keyboard.press('Home');
-  await expect(host).toBeFocused();
+  await expect(first).toBeFocused();
+  await expect(first).toHaveAttribute('aria-pressed', 'true');
 });
 
-test('arrow navigation follows the selected phase', async ({ page }) => {
-  await page.goto('/?phase=accelerated#observatory');
-  await page.waitForFunction(() => !document.querySelector('astro-island')?.hasAttribute('ssr'));
+test('arrow navigation follows the active category and search', async ({ page }) => {
+  await openExplorer(page, '?category=delivery');
+  await page.getByLabel('Search services').fill('relay');
+  const names = await namesIn(page);
+  expect(names).toEqual(filterServices('delivery', 'relay').map(service => service.name));
+  expect(names.length).toBeGreaterThan(1);
 
-  const gpu = page.getByRole('button', component('GPU lab'));
-  await gpu.focus();
-  await page.keyboard.press('Enter');
-  await expect(gpu).toHaveAttribute('aria-pressed', 'true');
-
-  await page.keyboard.press('ArrowLeft');
-  const host = page.getByRole('button', component('Virtualization host'));
-  await expect(host).toBeFocused();
-  await expect(host).toHaveAttribute('aria-pressed', 'true');
-  await expect(page.getByRole('button', component('Automation'))).toHaveCount(0);
-});
-
-test('arrow keys move through the project views and wrap to the full map', async ({ page }) => {
-  await page.goto('/#observatory');
-  await page.waitForFunction(() => !document.querySelector('astro-island')?.hasAttribute('ssr'));
-
-  const group = page.getByRole('group', { name: 'Choose a project view' });
-  const allSystems = group.getByRole('button', { name: 'All systems' });
-  await allSystems.focus();
-  await page.keyboard.press('ArrowRight');
-  const foundation = group.getByRole('button', { name: 'Foundation' });
-  await expect(foundation).toBeFocused();
-  await expect(foundation).toHaveAttribute('aria-pressed', 'true');
-
+  const first = page.getByRole('button', serviceButton(names[0]));
+  await first.focus();
   await page.keyboard.press('End');
-  const accelerated = group.getByRole('button', { name: 'Accelerated computing' });
-  await expect(accelerated).toBeFocused();
-  await expect(accelerated).toHaveAttribute('aria-pressed', 'true');
+  const last = page.getByRole('button', serviceButton(names.at(-1)));
+  await expect(last).toBeFocused();
+  await expect(last).toHaveAttribute('aria-pressed', 'true');
 
   await page.keyboard.press('ArrowRight');
-  await expect(allSystems).toBeFocused();
-  await expect(allSystems).toHaveAttribute('aria-pressed', 'true');
+  await expect(first).toBeFocused();
+  await expect(first).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('button', serviceButton('Loki'))).toHaveCount(0);
 });

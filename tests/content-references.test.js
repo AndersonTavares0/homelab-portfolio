@@ -1,82 +1,17 @@
 import { describe, expect, it } from 'vitest';
-import { components, phases, validateModel } from '../src/model.js';
-import { caseSection, lead, validateCaseSections } from '../scripts/content.mjs';
+import { caseSection, lead, loadContent, validateCaseSections } from '../scripts/content.mjs';
 
-const caseIds = ['gpu-lab', 'rss-relay', 'alert-relay', 'automation', 'observability'];
-
-describe('content relationship validation', () => {
-  it('reports an unknown component case with component path and case ID', () => {
-    expect(() => validateModel(caseIds.filter(id => id !== 'automation')))
-      .toThrow('component/host: unknown case automation');
-  });
-
-  it('reports an unknown component relation with component path and relation ID', () => {
-    const component = components.find(item => item.id === 'services');
-    const original = component.relations;
-    component.relations = [...original, 'missing-component'];
-    try {
-      expect(() => validateModel(caseIds))
-        .toThrow('component/services: unknown relation missing-component');
-    } finally {
-      component.relations = original;
+describe('content catalogue', () => {
+  it('loads the five documented studies with valid references', () => {
+    const { cases } = loadContent();
+    expect(cases.map(item => item.data.id).sort()).toEqual([
+      'alert-relay', 'automation', 'gpu-lab', 'observability', 'rss-relay'
+    ]);
+    for (const item of cases) {
+      expect(item.data.title.length).toBeGreaterThan(0);
+      expect(item.data.technologyContext.length).toBeGreaterThan(0);
     }
   });
-
-  it('reports an unknown phase component with phase path and component ID', () => {
-    const phase = phases.find(item => item.id === 'services');
-    const original = phase.components;
-    phase.components = [...original, 'missing-component'];
-    try {
-      expect(() => validateModel(caseIds))
-        .toThrow('phase/services: unknown component missing-component');
-    } finally {
-      phase.components = original;
-    }
-  });
-
-  it('reports an unknown phase case with phase path and case ID', () => {
-    const phase = phases.find(item => item.id === 'services');
-    const original = phase.cases;
-    phase.cases = [...original, 'missing-case'];
-    try {
-      expect(() => validateModel(caseIds))
-        .toThrow('phase/services: unknown case missing-case');
-    } finally {
-      phase.cases = original;
-    }
-  });
-});
-
-describe('required model fields', () => {
-  it.each([
-    ['description', ''],
-    ['type', ''],
-    ['technologies', []],
-    ['relations', null],
-    ['caseId', '']
-  ])('reports an invalid component %s at its field path', (field, value) => {
-    const component = components[0];
-    const original = component[field];
-    component[field] = value;
-    try {
-      expect(() => validateModel(caseIds)).toThrow(`component/host.${field}`);
-    } finally {
-      component[field] = original;
-    }
-  });
-
-  it.each(['description', 'challenge', 'learning', 'status', 'next', 'components', 'skills', 'cases'])(
-    'reports an invalid phase %s at its field path', field => {
-      const phase = phases[0];
-      const original = phase[field];
-      phase[field] = Array.isArray(original) ? [] : '';
-      try {
-        expect(() => validateModel(caseIds)).toThrow(`phase/foundation.${field}`);
-      } finally {
-        phase[field] = original;
-      }
-    }
-  );
 });
 
 describe('case section extraction', () => {

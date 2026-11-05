@@ -27,7 +27,7 @@ const html = `<!doctype html>
     <h1>Infrastructure, understood by building.</h1>
     <p>Five documented case studies in Linux, virtualization, automation, observability and shared GPU computing.</p>
   </div>
-  <div class="bottom"><span>Case studies</span><span>Observatory</span><span>Professional summary</span></div>
+  <div class="bottom"><span>Case studies</span><span>Homelab Explorer</span><span>Professional summary</span></div>
 </body></html>`;
 
 const browser = await chromium.launch();

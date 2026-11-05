@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { services, technologies } from '../../src/explorer.js';
 
 const studies = [
   {
@@ -46,7 +47,14 @@ test('project index explains how the technologies work in each documented case',
   }
 });
 
-test('the Observatory relates a selected system to its technology decision', async ({ page }) => {
-  await page.goto('/?phase=accelerated&component=gpu#observatory');
-  await expect(page.locator('.observatory__detail')).toContainText('A root-owned controller and transient systemd service bind the rootless Podman container inside the verified cgroup before sharing the GPU.');
+test('the Homelab Explorer relates a selected service to its technology decision', async ({ page }) => {
+  await page.goto('/?service=gpu-controller#homelab-explorer');
+  const service = services.find(item => item.id === 'gpu-controller');
+  const detail = page.locator('.explorer-detail');
+  await expect(detail).toContainText(service.decision);
+  await expect(detail.getByRole('heading', { name: 'Implementation technologies' })).toBeVisible();
+  for (const id of service.technologyIds) {
+    const technology = technologies.find(item => item.id === id);
+    await expect(detail.locator('.explorer-tags')).toContainText(technology.name);
+  }
 });

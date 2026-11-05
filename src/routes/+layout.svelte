@@ -10,12 +10,37 @@
   const themeKey = 'homelab-portfolio-theme';
   let theme = $state('light');
   let mounted = $state(false);
+  let scrolled = $state(false);
+  let scrollProgress = $state(0);
   const siteOrigin = (import.meta.env.PUBLIC_SITE_URL ?? '').replace(/\/+$/, '');
-  const canonicalUrl = `${siteOrigin}${page.url.pathname}`;
+
+  onMount(() => {
+    const stored = localStorage.getItem(themeKey);
+    const media = matchMedia('(prefers-color-scheme: dark)');
+    applyTheme(stored === 'light' || stored === 'dark' ? stored : media.matches ? 'dark' : 'light');
+    mounted = true;
+    const sync = () => { if (!localStorage.getItem(themeKey)) applyTheme(media.matches ? 'dark' : 'light'); };
+    const syncScroll = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      scrolled = window.scrollY > 12;
+      scrollProgress = max > 0 ? Math.min(1, window.scrollY / max) : 0;
+    };
+    syncScroll();
+    media.addEventListener('change', sync);
+    window.addEventListener('scroll', syncScroll, { passive: true });
+    window.addEventListener('resize', syncScroll);
+    return () => {
+      media.removeEventListener('change', sync);
+      window.removeEventListener('scroll', syncScroll);
+      window.removeEventListener('resize', syncScroll);
+    };
+  });
+
+  const canonicalUrl = $derived(`${siteOrigin}${page.url.pathname}`);
   const homePath = resolve('/');
   const casesPath = resolve('/cases/');
   const profilePath = resolve('/profile/');
-  const observatoryPath = `${homePath}#observatory`;
+  const explorerPath = `${homePath}#homelab-explorer`;
   const iconPath = resolve('/favicon.svg');
   const shareImagePath = resolve('/og.png');
   function applyTheme(next: 'light' | 'dark') {
@@ -25,15 +50,6 @@
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', next === 'dark' ? '#101922' : '#f4f6f5');
   }
 
-  onMount(() => {
-    const stored = localStorage.getItem(themeKey);
-    const media = matchMedia('(prefers-color-scheme: dark)');
-    applyTheme(stored === 'light' || stored === 'dark' ? stored : media.matches ? 'dark' : 'light');
-    mounted = true;
-    const sync = () => { if (!localStorage.getItem(themeKey)) applyTheme(media.matches ? 'dark' : 'light'); };
-    media.addEventListener('change', sync);
-    return () => media.removeEventListener('change', sync);
-  });
 
   function toggleTheme() {
     const next = theme === 'dark' ? 'light' : 'dark';
@@ -49,12 +65,24 @@
   const structuredData = $derived(shareType === 'article'
     ? { '@context': 'https://schema.org', '@type': 'Article', headline: pageTitle, description: pageDescription, author: { '@type': 'Person', name: data.profile.data.name, sameAs: [data.profile.data.github] }, ...(routeData.relatedPhase?.name ? { articleSection: routeData.relatedPhase.name } : {}) }
     : { '@context': 'https://schema.org', '@type': 'Person', name: data.profile.data.name, description: data.profile.content, sameAs: [data.profile.data.github] });
+  let activeTransition: ViewTransition | undefined;
   onNavigate((navigation) => {
-    if (typeof document.startViewTransition !== 'function' || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    return new Promise((resolve) => {
-      document.startViewTransition(async () => {
-        resolve();
+    if (navigation.from?.url.pathname === navigation.to?.url.pathname ||
+      typeof document.startViewTransition !== 'function' ||
+      matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    activeTransition?.skipTransition();
+    document.documentElement.dataset.routeTransition = 'true';
+    return new Promise<void>((resume) => {
+      const transition = document.startViewTransition(async () => {
+        resume();
         await navigation.complete;
+      });
+      activeTransition = transition;
+      transition.finished.catch(() => {}).finally(() => {
+        if (activeTransition === transition) {
+          delete document.documentElement.dataset.routeTransition;
+          activeTransition = undefined;
+        }
       });
     });
   });
@@ -78,7 +106,7 @@
 </svelte:head>
 
 <a class="skip" href="#main">Skip to content</a>
-<header class="site-header">
+<header class="site-header" class:site-header--scrolled={scrolled}>
   <div class="site-header__inner">
     <a class="wordmark" href={homePath} aria-label="A Atlas.">
       <span class="wordmark__mark" aria-hidden="true">A</span>
@@ -89,9 +117,9 @@
         <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3.5 4.5h13v11h-13zM3.5 8h13M7 4.5v3.4M13 4.5v3.4" /></svg>
         <span>Case studies</span>
       </a>
-      <a class="site-nav__link" href={observatoryPath}>
-        <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="6.5" /><circle cx="10" cy="10" r="1.5" /><path d="M10 1.5v2M10 16.5v2M1.5 10h2M16.5 10h2" /></svg>
-        <span>Observatory</span>
+      <a class="site-nav__link" href={explorerPath}>
+        <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="5" cy="6" r="2" /><circle cx="15" cy="5" r="2" /><circle cx="10" cy="15" r="2" /><path d="m6.7 6.4 6.6-.8M6.4 7.8l2.6 5.4M13.4 6.9l-2.5 5.9" /></svg>
+        <span>Homelab Explorer</span>
       </a>
       <a class="site-nav__link" href={profilePath} aria-current={section === 'profile' ? 'page' : undefined}>
         <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 3.5h12v13H4zM7 7h6M7 10h6M7 13h3" /></svg>
@@ -106,6 +134,7 @@
       </button>
     </div>
   </div>
+  <div class="site-header__progress" aria-hidden="true"><span style={`transform: scaleX(${scrollProgress})`}></span></div>
 </header>
 <main id="main" tabindex="-1">{@render children()}</main>
 <footer class="site-footer">
@@ -115,7 +144,7 @@
   </div>
   <nav class="site-footer__nav" aria-label="Footer navigation">
     <a href={casesPath}>Work</a>
-    <a href={observatoryPath}>Observatory</a>
+    <a href={explorerPath}>Homelab Explorer</a>
     <a href={profilePath}>Summary</a>
   </nav>
   <div class="site-footer__actions">
