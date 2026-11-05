@@ -3,7 +3,7 @@ import path from 'node:path';
 
 const root = process.cwd();
 const excludedDirectories = new Set([
-  '.git', '.astro', '.vercel', 'node_modules', 'coverage', 'playwright-report', 'test-results'
+  '.git', '.next', '.astro', '.vercel', 'node_modules', 'coverage', 'playwright-report', 'test-results'
 ]);
 const excludedFiles = new Set([
   'package-lock.json', 'npm-shrinkwrap.json', 'yarn.lock', 'pnpm-lock.yaml', 'bun.lock', 'bun.lockb'
@@ -11,7 +11,7 @@ const excludedFiles = new Set([
 const rules = [
   ['private-key', /-----BEGIN (?:RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----/i],
   ['credential', /\b(?:AKIA|ASIA)[A-Z0-9]{16}\b|\bgh[pousr]_[A-Za-z0-9]{20,}\b|\bxox[baprs]-[A-Za-z0-9-]{10,}\b/],
-  ['credential', /\b(?:api[_-]?key|access[_-]?token|client[_-]?secret|password|passwd|secret)\s*[:=]\s*["']?[A-Za-z0-9/+=._-]{8,}/i],
+  ['credential', /(?<![\w$.])(?:api[_-]?key|access[_-]?token|client[_-]?secret|password|passwd|secret)\s*[:=]\s*["']?[A-Za-z0-9/+=._-]{8,}/i],
   ['authenticated-url', /\bhttps?:\/\/[^\s/@:]+:[^\s/@]+@[^\s/]+/i],
   ['authenticated-url', /[?&](?:access_token|auth|api_key|token|password)=([^&#\s]{8,})/i],
   ['internal-address', /(?<![\w.])(?:10\.(?:\d{1,3}\.){2}\d{1,3}|192\.168\.(?:\d{1,3}\.)\d{1,3}|172\.(?:1[6-9]|2\d|3[01])\.(?:\d{1,3}\.)\d{1,3})(?![\w.])/],

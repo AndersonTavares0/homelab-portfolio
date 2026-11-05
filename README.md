@@ -2,7 +2,7 @@
 
 <h1>Homelab portfolio</h1>
 
-<p><a href="https://andersontavares0.github.io/homelab-portfolio/"><img alt="Live portfolio website" src="https://img.shields.io/badge/site-live-2A9D8F?logo=githubpages&logoColor=white"></a> <img alt="SvelteKit" src="https://img.shields.io/badge/SvelteKit-app-FF3E00?logo=svelte&logoColor=white"> <img alt="Svelte 5" src="https://img.shields.io/badge/Svelte-5-FF3E00?logo=svelte&logoColor=white"> <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white"> <img alt="Tailwind CSS 4" src="https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss&logoColor=white"> <img alt="Accessible HTML" src="https://img.shields.io/badge/accessible-HTML-0f766e"> <img alt="Inline SVG service map" src="https://img.shields.io/badge/service_map-SVG-2459b7"></p>
+<p><a href="https://andersontavares0.github.io/homelab-portfolio/"><img alt="Live portfolio website" src="https://img.shields.io/badge/site-live-2A9D8F?logo=githubpages&logoColor=white"></a> <img alt="Next.js" src="https://img.shields.io/badge/Next.js-static_export-000000?logo=nextdotjs&logoColor=white"> <img alt="React" src="https://img.shields.io/badge/React-19-087EA4?logo=react&logoColor=white"> <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white"> <img alt="Tailwind CSS 4" src="https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss&logoColor=white"> <img alt="React Flow service map" src="https://img.shields.io/badge/service_map-React_Flow-2459b7"></p>
 
 <p><strong>Infrastructure, understood by building.</strong></p>
 
@@ -53,9 +53,9 @@ flowchart TB
   Ansible --> Proxmox["Proxmox<br/>read-only facts"]
 ```
 
-The Homelab Explorer presents the same work as five documented flow lanes drawn with HTML and inline SVG: automation, alert delivery, feed delivery, observability and compute. Its 15 services are positioned for reading rather than mapped to physical machines. Selecting a service shows its purpose, the decision behind it, the evidence available, its technologies and the case that documents it. Visitors can also trace a documented study through its services. Proxmox is shown at its documented role in the automation study; it does not expose a guest inventory here.
+The service map presents the same work as an interactive React Flow diagram with a readable service list on small screens. Its 15 services sit in 4 editorial areas (automation, delivery, observability, compute), positioned for reading rather than mapped to physical machines. Selecting a service shows its purpose, the decision behind it, the evidence available and documented relationships. Proxmox is shown at its documented role in the automation study; it does not expose a guest inventory here.
 
-The map explains relationships and decisions. It never reports health, uptime, current deployment state or an inventory of the real environment, and it makes no requests to the homelab. Because the map is ordinary HTML and SVG, it needs no WebGL: keyboard, touch, browser history, reduced-motion preferences and URLs such as `?service=alert-relay&category=delivery#homelab-explorer` or `?trace=alert-relay#homelab-explorer` reach the same content.
+The map explains documented relationships and decisions. It never reports health, uptime, current deployment state or an inventory of the real environment, and it makes no requests to the homelab. Its documented links come from the case studies; selecting services and filtering by area are local interactions.
 
 ## Professional summary
 
@@ -81,13 +81,13 @@ npm ci
 npm run dev
 ```
 
-Open the local address printed by Vite, normally `http://localhost:5173`.
+Open the local address printed by Next.js, normally `http://localhost:3000`.
 
 To inspect the static build, run these commands after stopping the development server:
 
 ```sh
 npm run build
-npm run preview -- --host 127.0.0.1 --port 4321
+node scripts/serve-dist.mjs 4321 out
 ```
 
 ## Verify changes
@@ -104,8 +104,8 @@ npm run audit:public
 npm run test:e2e
 ```
 
-Install Chromium once before the browser suite with `npx playwright install chromium`. Build before `npm run test:e2e`; Playwright serves the generated `dist/` site on `127.0.0.1:4327`.
-The published site is static; the Homelab Explorer is rendered from the same HTML and inline SVG in the prerendered page and makes no requests to the homelab. The upstream `deepmerge` advisory has no patched release, so build configuration uses a local key-filtering override with a regression test. `npm audit --audit-level=low` must remain clean.
+Install Chromium once before the browser suite with `npx playwright install chromium`. Build before `npm run test:e2e`; Playwright serves the generated `out/` export on `127.0.0.1:4327`.
+The published site is a static Next.js export. The service map never connects to the homelab or reports live health. `npm audit --audit-level=low` must remain clean.
 
 Private GitHub Actions verifies pushes and pull requests. A push to `main` deploys only after verification; Pages and OIDC write permissions are isolated to that job. The Pages build uses `SITE_BASE_PATH=/homelab-portfolio` and sets `PUBLIC_SITE_URL` at deployment time.
 

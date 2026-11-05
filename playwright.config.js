@@ -16,9 +16,9 @@ export default defineConfig({
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } }
   ],
   webServer: {
-    command: 'node scripts/serve-dist.mjs 4327',
-    url: 'http://127.0.0.1:4327',
-    reuseExistingServer: !process.env.CI,
+    command: 'node scripts/serve-dist.mjs 4327 out',
+    url: `http://127.0.0.1:4327${process.env.SITE_BASE_PATH ?? ''}/`,
+    reuseExistingServer: !process.env.CI && !process.env.SITE_BASE_PATH,
     timeout: 30_000
   }
 });

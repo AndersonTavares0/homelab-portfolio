@@ -4,9 +4,9 @@ import { createServer } from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
 import { extname, join, normalize, resolve } from 'node:path';
 
-const root = resolve('dist');
 const port = Number(process.argv[2] ?? 4327);
-const configuredBasePath = process.argv[3] ?? process.env.SITE_BASE_PATH ?? '';
+const root = resolve(process.argv[3] ?? 'out');
+const configuredBasePath = process.argv[4] ?? process.env.SITE_BASE_PATH ?? '';
 const basePathSegment = configuredBasePath.replace(/^\/+|\/+$/g, '');
 const basePath = basePathSegment ? `/${basePathSegment}` : '';
 const types = {
