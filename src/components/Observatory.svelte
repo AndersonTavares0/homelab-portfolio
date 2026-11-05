@@ -11,7 +11,9 @@
   let hoveredId = $state(null);
   let canvas;
   let scene = null;
+  let pageTheme = $state<'light' | 'dark'>('light');
   let sceneMode = $state('topology');
+
   let sceneError = $state(false);
   let sceneLoading = $state(false);
   let copyStatus = $state('');
@@ -180,6 +182,12 @@
   onMount(() => {
     let destroyed = false;
     let observer;
+    const themeObserver = new MutationObserver(() => {
+      pageTheme = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
+    });
+    pageTheme = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
+    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
     const media = window.matchMedia('(min-width: 800px)');
     const host = canvas?.closest('.observatory');
     const initial = stateFromUrl(window.location.search);
@@ -258,6 +266,8 @@
     return () => {
       destroyed = true;
       observer?.disconnect();
+      themeObserver.disconnect();
+
       media.removeEventListener('change', updateMode);
       window.removeEventListener('popstate', restoreFromHistory);
       canvas?.removeEventListener('webglcontextlost', contextLost);
@@ -268,7 +278,7 @@
   });
 </script>
 
-<section class="observatory" id="observatory" data-scene-mode={sceneMode} aria-labelledby="observatory-title" tabindex="-1">
+<section class="observatory" id="observatory" data-theme={pageTheme} data-scene-mode={sceneMode} aria-labelledby="observatory-title" tabindex="-1">
   <header class="observatory__header">
     <div>
       <h2 id="observatory-title">The Observatory</h2>
@@ -626,6 +636,79 @@
   .phase-option { border-width: 0 0 1px; border-radius: 0; border-color: var(--obs-line); background: transparent; }
   .phase-option:hover, .phase-option--active { border-color: #9bcfe4; background: rgba(130, 185, 210, .1); }
   .phase-option--active strong { color: #f0f7f9; }
+  .observatory[data-theme='light'] {
+    --obs-bg: #e7eef0;
+    --obs-surface: #f7faf9;
+    --obs-raised: #edf3f4;
+    --obs-line: #b8c9ce;
+    --obs-text: #15252d;
+    --obs-muted: #46616b;
+    --obs-blue: #1c5e9e;
+    --obs-teal: #126e69;
+    color: var(--obs-text);
+    border-color: #b7c8ce;
+    background-color: #e7eef0;
+    background-image: linear-gradient(rgba(28, 94, 158, .055) 1px, transparent 1px), linear-gradient(90deg, rgba(28, 94, 158, .055) 1px, transparent 1px);
+  }
+  .observatory[data-theme='light']::before { border-color: rgba(28, 94, 158, .16); }
+  .observatory[data-theme='light'] .observatory__header { border-color: #b8c9ce; }
+  .observatory[data-theme='light'] .observatory__header h2,
+  .observatory[data-theme='light'] h3,
+  .observatory[data-theme='light'] h4 { color: var(--obs-text); }
+  .observatory[data-theme='light'] .observatory__intro,
+  .observatory[data-theme='light'] .detail__description,
+  .observatory[data-theme='light'] .phase-panel__context,
+  .observatory[data-theme='light'] .phase-option__text small,
+  .observatory[data-theme='light'] .detail__quiet { color: var(--obs-muted); }
+  .observatory[data-theme='light'] .btn {
+    border-color: #9db5bc;
+    color: #17323e;
+    background: #f7faf9;
+  }
+  .observatory[data-theme='light'] .btn:hover { border-color: var(--obs-blue); background: #e2edf0; }
+  .observatory[data-theme='light'] .btn-primary { color: #f7faf9; background: var(--obs-blue); border-color: var(--obs-blue); }
+  .observatory[data-theme='light'] .observatory__stage,
+  .observatory[data-theme='light'] .observatory__detail,
+  .observatory[data-theme='light'] .phase-panel,
+  .observatory[data-theme='light'] .phase-work {
+    border-color: #b5c7cc;
+    background: #f7faf9;
+    box-shadow: 0 18px 34px rgba(30, 65, 76, .1);
+  }
+  .observatory[data-theme='light'] .observatory__stage-title { color: #edf7f8; background: #243c49; border-color: #4c6d78; }
+  .observatory[data-theme='light'] .observatory__stage-title > span,
+  .observatory[data-theme='light'] .observatory__stage-hint,
+  .observatory[data-theme='light'] .observatory__stage-code { color: #edf7f8 !important; }
+  .observatory[data-theme='light'] .observatory__stage-readout { color: #b8d0d6 !important; }
+  .observatory[data-theme='light'] .observatory__visual {
+    background-color: #dce8eb;
+    background-image: radial-gradient(circle at 50% 50%, rgba(28, 94, 158, .14), transparent 45%), linear-gradient(rgba(28, 94, 158, .07) 1px, transparent 1px), linear-gradient(90deg, rgba(28, 94, 158, .07) 1px, transparent 1px);
+  }
+  .observatory[data-theme='light'] .observatory__wires line { stroke: #557b89; }
+  .observatory[data-theme='light'] .observatory__wires .wire-active { stroke: #155a91; }
+  .observatory[data-theme='light'] .topology-node { color: #17323e; border-color: #7998a3; background: #f3f8f8; box-shadow: 0 14px 24px rgba(30, 65, 76, .16); }
+  .observatory[data-theme='light'] .topology-node__name { color: #17323e; }
+  .observatory[data-theme='light'] .topology-node.is-selected { border-color: #155a91; background: #d6e8ed; box-shadow: 0 0 0 2px rgba(28, 94, 158, .16), 0 16px 28px rgba(30, 65, 76, .18); }
+  .observatory[data-theme='light'] .observatory__map-caption { color: #234654; border-color: rgba(28, 94, 158, .22); background: rgba(247, 250, 249, .88); }
+  .observatory[data-theme='light'] .observatory__legend { color: #46616b; }
+  .observatory[data-theme='light'] .detail__topline,
+  .observatory[data-theme='light'] .detail__id,
+  .observatory[data-theme='light'] .phase-panel__count { color: #126e69; }
+  .observatory[data-theme='light'] .detail__id { color: #55717a; }
+  .observatory[data-theme='light'] .detail__tags li,
+  .observatory[data-theme='light'] .phase-work__skills span { color: #234654; border-color: #b5c7cc; background: #edf4f4; }
+  .observatory[data-theme='light'] .phase-facts div,
+  .observatory[data-theme='light'] .detail__section,
+  .observatory[data-theme='light'] .phase-list,
+  .observatory[data-theme='light'] .phase-option { border-color: #c5d3d7; }
+  .observatory[data-theme='light'] .phase-option { color: #17323e; }
+  .observatory[data-theme='light'] .phase-option:hover,
+  .observatory[data-theme='light'] .phase-option--active { border-color: #155a91; background: rgba(28, 94, 158, .08); }
+  .observatory[data-theme='light'] .phase-option--active strong { color: #17323e; }
+  .observatory[data-theme='light'] .phase-work__cases a,
+  .observatory[data-theme='light'] .detail__relations button { color: #155a91; }
+  .observatory[data-theme='light'] .phase-facts dt { color: #126e69; }
+  .observatory[data-theme='light'] .phase-facts dd { color: #31505b; }
   @media (max-width: 520px) {
     .observatory__header { padding-bottom: .9rem; }
     .observatory__header h2 { max-width: 100%; }

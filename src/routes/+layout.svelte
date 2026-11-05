@@ -10,7 +10,32 @@
   const themeKey = 'homelab-portfolio-theme';
   let theme = $state('light');
   let mounted = $state(false);
+  let scrolled = $state(false);
+  let scrollProgress = $state(0);
   const siteOrigin = (import.meta.env.PUBLIC_SITE_URL ?? '').replace(/\/+$/, '');
+
+  onMount(() => {
+    const stored = localStorage.getItem(themeKey);
+    const media = matchMedia('(prefers-color-scheme: dark)');
+    applyTheme(stored === 'light' || stored === 'dark' ? stored : media.matches ? 'dark' : 'light');
+    mounted = true;
+    const sync = () => { if (!localStorage.getItem(themeKey)) applyTheme(media.matches ? 'dark' : 'light'); };
+    const syncScroll = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      scrolled = window.scrollY > 12;
+      scrollProgress = max > 0 ? Math.min(1, window.scrollY / max) : 0;
+    };
+    syncScroll();
+    media.addEventListener('change', sync);
+    window.addEventListener('scroll', syncScroll, { passive: true });
+    window.addEventListener('resize', syncScroll);
+    return () => {
+      media.removeEventListener('change', sync);
+      window.removeEventListener('scroll', syncScroll);
+      window.removeEventListener('resize', syncScroll);
+    };
+  });
+
   const canonicalUrl = `${siteOrigin}${page.url.pathname}`;
   const homePath = resolve('/');
   const casesPath = resolve('/cases/');
@@ -25,15 +50,6 @@
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', next === 'dark' ? '#101922' : '#f4f6f5');
   }
 
-  onMount(() => {
-    const stored = localStorage.getItem(themeKey);
-    const media = matchMedia('(prefers-color-scheme: dark)');
-    applyTheme(stored === 'light' || stored === 'dark' ? stored : media.matches ? 'dark' : 'light');
-    mounted = true;
-    const sync = () => { if (!localStorage.getItem(themeKey)) applyTheme(media.matches ? 'dark' : 'light'); };
-    media.addEventListener('change', sync);
-    return () => media.removeEventListener('change', sync);
-  });
 
   function toggleTheme() {
     const next = theme === 'dark' ? 'light' : 'dark';
@@ -78,7 +94,7 @@
 </svelte:head>
 
 <a class="skip" href="#main">Skip to content</a>
-<header class="site-header">
+<header class="site-header" class:site-header--scrolled={scrolled}>
   <div class="site-header__inner">
     <a class="wordmark" href={homePath} aria-label="A Atlas.">
       <span class="wordmark__mark" aria-hidden="true">A</span>
@@ -106,6 +122,7 @@
       </button>
     </div>
   </div>
+  <div class="site-header__progress" aria-hidden="true"><span style={`transform: scaleX(${scrollProgress})`}></span></div>
 </header>
 <main id="main" tabindex="-1">{@render children()}</main>
 <footer class="site-footer">
