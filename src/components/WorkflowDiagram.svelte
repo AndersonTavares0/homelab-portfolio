@@ -245,7 +245,7 @@
   const overviewModel: Workflow = {
     layout: 'overview',
     kind: 'Communication and ownership model',
-    intro: 'Request, management, ownership and signal paths in one compact model.',
+    intro: 'Follow request and delivery paths, then see how changes are reviewed, resources are leased and evidence is collected.',
     note: 'Consolidated from documented architecture. This figure is a communication model, not a complete topology, and it does not prove every path is active.',
     overview: {
       lanes: [
@@ -294,21 +294,21 @@
         {
           id: 'management',
           title: 'Management path',
-          tag: 'Not a user request',
+          tag: 'Change review · not user traffic',
           steps: [
             {
-              name: 'Management plane',
-              role: 'Hypervisor API / UI plus Semaphore, versioned Ansible and inventory.'
+              name: 'Read facts',
+              role: 'Semaphore launches versioned Ansible; Proxmox discovery is read-only.'
             },
             {
-              name: 'Documented path',
-              role: 'Administrative access, separate from user requests.',
-              arrival: 'admin'
+              name: 'Simulate updates',
+              role: 'Package changes are previewed without installing anything.',
+              arrival: 'review'
             },
             {
-              name: 'Guests',
-              role: 'Administrative targets, not user traffic.',
-              arrival: 'control'
+              name: 'Manual apply',
+              role: 'A guarded template exists; no apply is recorded.',
+              arrival: 'manual'
             }
           ]
         },
@@ -503,7 +503,7 @@
       {#if workflow.overview}
         <div class="overview">
           {#each workflow.overview.lanes as lane (lane.id)}
-            <section class="lane lane--overview" aria-labelledby={`${headingId}-${lane.id}`}>
+            <section class={`lane lane--overview lane--${lane.id}`} aria-labelledby={`${headingId}-${lane.id}`}>
               <div class="lane__head">
                 <h4 id={`${headingId}-${lane.id}`}>{lane.title}</h4>
                 <span>{lane.tag}</span>
@@ -519,7 +519,7 @@
               {/if}
             </section>
           {/each}
-          <section class="lane lane--overview" aria-labelledby={`${headingId}-signals`}>
+          <section class="lane lane--overview lane--signals" aria-labelledby={`${headingId}-signals`}>
             <div class="lane__head">
               <h4 id={`${headingId}-signals`}>{workflow.overview.signals.title}</h4>
               <span>{workflow.overview.signals.tag}</span>
@@ -624,6 +624,20 @@
     border-radius: 0.2rem;
     background: color-mix(in srgb, var(--wf-panel) 18%, var(--wf-bg));
     color: var(--wf-text);
+  }
+
+  .workflow[data-workflow='overview'] {
+    --wf-bg: #0b181d;
+    --wf-panel: #122329;
+    --wf-line: #31514f;
+    --wf-line-strong: #3b5f5a;
+    --wf-text: #eef1e8;
+    --wf-muted: #bdd0c9;
+    --wf-accent: #8fd6b8;
+    --wf-stage: #0e1d22;
+    --wf-node: #162c32;
+    border-color: var(--wf-line);
+    background: var(--wf-bg);
   }
 
   .workflow__head {
@@ -1105,44 +1119,93 @@
 
   .overview {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0 1.4rem;
   }
 
   .lane--overview {
-    align-items: start;
-    padding: 0.32rem 0;
+    display: block;
+    min-width: 0;
+    padding: 0.7rem 0;
+  }
+
+  .lane--overview .lane__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    margin-bottom: 0.55rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--wf-line);
   }
 
   .lane--overview .lane__head h4 {
-    font-size: 0.74rem;
+    font-size: 0.98rem;
+    letter-spacing: -0.015em;
+  }
+
+  .lane--overview .lane__head span {
+    font-size: 0.68rem;
+    text-align: right;
+  }
+
+  .lane--overview .flow {
+    --flow-gap: clamp(2.8rem, 4vw, 3.6rem);
   }
 
   .overview .node {
-    min-height: 3.1rem;
-    gap: 0.18rem;
-    padding: 0.38rem 0.48rem;
-  }
-
-  .overview .flow {
-    --flow-gap: clamp(3.2rem, 5vw, 4.25rem);
+    min-height: 4.6rem;
+    gap: 0.22rem;
+    padding: 0.6rem 0.68rem;
   }
 
   .overview .node__name {
-    font-size: 0.82rem;
+    font-size: 0.95rem;
   }
 
   .overview .node__role {
-    font-size: 0.64rem;
-    line-height: 1.34;
+    font-size: 0.72rem;
+    line-height: 1.4;
   }
 
   .overview .link__label {
-    font-size: 0.6rem;
+    font-size: 0.68rem;
+  }
+
+  .lane--request,
+  .lane--management {
+    border-bottom: 1px solid var(--wf-line);
+  }
+
+  .lane--delivery,
+  .lane--ownership {
+    border-bottom: 1px solid var(--wf-line);
+  }
+
+  @container wf (min-width: 1000px) {
+    .overview {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .lane--request,
+    .lane--delivery {
+      border-bottom: 1px solid var(--wf-line);
+    }
+
+    .lane--management,
+    .lane--ownership {
+      border-bottom: 1px solid var(--wf-line);
+    }
+
+    .lane--signals {
+      grid-column: 1 / -1;
+    }
   }
 
   .pairs {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.5rem;
+    grid-template-columns: 1fr;
+    gap: 0;
     margin: 0;
     padding: 0;
     list-style: none;
@@ -1150,18 +1213,19 @@
 
   .pair {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 1.35rem minmax(0, 1fr);
-    grid-template-rows: auto auto;
-    gap: 0.1rem 0.22rem;
+    grid-template-columns: minmax(0, 1fr) 2rem minmax(0, 1fr) auto;
+    grid-template-rows: auto;
+    gap: 0.4rem 0.6rem;
     align-items: center;
-    padding: 0.34rem 0.4rem;
-    border: 1px solid var(--wf-line);
-    background: color-mix(in srgb, var(--wf-bg) 45%, transparent);
+    padding: 0.38rem 0;
+    border: 0;
+    border-top: 1px solid var(--wf-line);
+    background: transparent;
   }
 
   .pair__from,
   .pair__to {
-    font-size: 0.64rem;
+    font-size: 0.78rem;
     font-weight: 650;
     line-height: 1.22;
   }
@@ -1180,9 +1244,9 @@
   }
 
   .pair__label {
-    grid-column: 1 / -1;
+    grid-column: 4;
     color: var(--wf-accent);
-    font-size: 0.58rem;
+    font-size: 0.68rem;
     font-weight: 650;
     line-height: 1.25;
   }
@@ -1190,20 +1254,20 @@
   .signals {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.45rem 0.8rem;
+    gap: 0.65rem 1rem;
     align-items: start;
   }
 
   .track__label {
     margin: 0 0 0.22rem;
     color: var(--wf-accent);
-    font-size: 0.61rem;
+    font-size: 0.72rem;
     font-weight: 650;
     line-height: 1.3;
   }
 
   .mini-flow {
-    --flow-gap: 2.4rem;
+    --flow-gap: clamp(1.2rem, 2vw, 2rem);
     display: grid;
     grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr));
     gap: var(--flow-gap);
@@ -1219,13 +1283,13 @@
 
   .mini-node {
     display: grid;
-    min-height: 2.15rem;
+    min-height: 2.55rem;
     place-items: center;
-    padding: 0.24rem 0.3rem;
+    padding: 0.2rem 0.25rem;
     border: 1px solid var(--wf-line-strong);
     border-radius: 0.12rem;
     background: var(--wf-node);
-    font-size: 0.63rem;
+    font-size: 0.72rem;
     font-weight: 650;
     line-height: 1.2;
     text-align: center;
@@ -1240,7 +1304,7 @@
     padding-top: 0.32rem;
     border-top: 1px solid var(--wf-line);
     color: var(--wf-muted);
-    font-size: 0.64rem;
+    font-size: 0.74rem;
     line-height: 1.35;
   }
 
@@ -1418,13 +1482,57 @@
       grid-template-columns: 1fr;
     }
 
+    .overview .flow {
+      gap: 1.15rem;
+    }
+
+    .overview .flow__item {
+      min-height: 0;
+    }
+
+    .overview .node {
+      min-height: 0;
+      padding: 0.48rem 0.6rem;
+    }
+
     .mini-flow {
-      grid-template-columns: 1fr;
-      gap: 2.2rem;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1rem;
     }
 
     .mini-flow .link {
-      height: calc(2.2rem - 0.05rem);
+      top: 0;
+      right: calc(100% + 0.2rem);
+      bottom: 0;
+      left: auto;
+      width: 1.1rem;
+      height: auto;
+      flex-direction: column;
+      justify-content: center;
+      gap: 0;
+    }
+
+    .mini-flow .link__draw {
+      width: 100%;
+      height: auto;
+    }
+
+    .mini-flow .link__h {
+      display: block;
+    }
+
+    .mini-flow .link__v,
+    .mini-flow .link__label {
+      display: none;
+    }
+
+    .pair {
+      grid-template-columns: minmax(0, 1fr) 1.25rem minmax(0, 1fr);
+      grid-template-rows: auto auto;
+    }
+
+    .pair__label {
+      grid-column: 1 / -1;
     }
   }
 </style>

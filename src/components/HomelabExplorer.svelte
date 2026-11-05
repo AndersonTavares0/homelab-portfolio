@@ -285,7 +285,7 @@
     <header class="explorer-heading">
       <div>
         <h2 id="explorer-title">Homelab Explorer</h2>
-        <p>Services, responsibilities and the decisions that connect them. Follow a documented path or read one service at a time.</p>
+        <p>Browse the documented services and their supported links. Select a node for its role and evidence; this is a historical service map, not an operational view.</p>
       </div>
       <div class="explorer-evidence">
         <span class="evidence-mark" aria-hidden="true"></span>

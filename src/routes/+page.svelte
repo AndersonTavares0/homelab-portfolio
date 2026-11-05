@@ -65,7 +65,7 @@
 <section id="how-it-works" class="section-wrap section-reveal" use:reveal aria-labelledby="how-heading">
   <div class="section-heading">
     <div><h2 id="how-heading">How the parts talk</h2></div>
-    <p>Request, delivery, automation, evidence and shared-device ownership are different kinds of connection. Each lane labels what actually crosses it.</p>
+    <p>Follow what moves, what is reviewed before a change, who holds an exclusive resource, and which signals are collected. The service map below answers a different question: what exists and which links are documented.</p>
   </div>
   <WorkflowDiagram caseId="overview" />
 </section>
