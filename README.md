@@ -53,9 +53,9 @@ flowchart TB
   Ansible --> Proxmox["Proxmox<br/>read-only facts"]
 ```
 
-The Homelab Explorer presents the same work as a 2.5D service map drawn with HTML and inline SVG. Its 15 services sit in 4 editorial areas (automation, delivery, observability, compute), positioned for reading rather than mapped to physical machines. Selecting a service shows its purpose, the decision behind it, the evidence available, its technologies and the case that documents it. Proxmox is shown at its documented role in the automation study; it does not expose a guest inventory here.
+The Homelab Explorer presents the same work as five documented flow lanes drawn with HTML and inline SVG: automation, alert delivery, feed delivery, observability and compute. Its 15 services are positioned for reading rather than mapped to physical machines. Selecting a service shows its purpose, the decision behind it, the evidence available, its technologies and the case that documents it. Visitors can also trace a documented study through its services. Proxmox is shown at its documented role in the automation study; it does not expose a guest inventory here.
 
-The map explains relationships and decisions. It never reports health, uptime, current deployment state or an inventory of the real environment, and it makes no requests to the homelab. Because the map is ordinary HTML and SVG, it needs no WebGL: keyboard, touch, browser history, reduced-motion preferences and URLs such as `?service=alert-relay&category=delivery#homelab-explorer` reach the same content.
+The map explains relationships and decisions. It never reports health, uptime, current deployment state or an inventory of the real environment, and it makes no requests to the homelab. Because the map is ordinary HTML and SVG, it needs no WebGL: keyboard, touch, browser history, reduced-motion preferences and URLs such as `?service=alert-relay&category=delivery#homelab-explorer` or `?trace=alert-relay#homelab-explorer` reach the same content.
 
 ## Professional summary
 

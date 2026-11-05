@@ -2,49 +2,46 @@
 
 ## Mode
 
-Experience: the work leads, the interface recedes. A visitor can read everything without interacting with the map; exploration is optional.
+Experience: the work leads and the interface recedes. A visitor can read every case without interacting with the Homelab Explorer; exploration adds context rather than gating the story.
 
-## Palette
+## Direction
 
-| Role | Atlas (light) | Homelab Explorer (dark field) | daisyUI token |
+Atlas is a mineral-green survey atlas: an editorial field record of infrastructure decisions, not a live operations console. Pale mineral pages carry the case studies; the dark instrument surface marks the boundary between narrative and the documented service map. The visual language should make evidence, responsibility and limits easier to scan.
+
+The first viewport pairs the thesis with a credential-boundary example. It uses the actual documented CrowdSec → alert relay → Telegram roles and explicitly says the illustration is not live status. The work then moves through a shared workflow overview, selected case studies, lessons, the Explorer and a concise professional summary.
+
+## Palette and type
+
+| Role | Light Atlas | Dark Atlas | Explorer plate |
 |---|---|---|---|
-| Ground | `#f3f1ea` | `#0b181d` field | `base-100` (Atlas) / `--ex-bg` |
-| Raised surface | `#e4e9e5` | `#122329` panels | `base-200` (Atlas) / `--ex-panel` |
-| Hairline | `#c7d0cd` | `#345058` | `base-300` / `--ex-line` |
-| Body ink | `#172428` | `#edf5f0` | `base-content` / `--ex-text` |
-| Secondary ink | `#3e555b` | `#b6cbc9` | `base-content/70` / `--ex-muted` |
-| Accent, selection, connections | `#165bd7` | `#8bd6c7` | `primary` / `--ex-accent` |
+| Ground | `#eceee7` | `#0b1513` | `#0b181d` |
+| Raised surface | `#e2e6dc` | `#12211e` | `#102025` / `#162c32` |
+| Rule | `#c5cdc3` | `#2a423b` | `#3b5f5a` |
+| Main text | `#14211f` | `#edf1e8` | `#eef1e8` |
+| Secondary text | `#3f5450` | `#b8c7bf` | `#bdd0c9` |
+| Accent | `#1f5d45` | `#8fd6b8` | `#8fd6b8` |
+| Signal | `#b24c2a` | `#e6a278` | `#e6a278` |
 
-The Atlas surface is a cartographic field journal rather than a SaaS dashboard: warm paper, quiet grid lines, ink-blue emphasis and an authored map that explains the reading path. The header is a navigation instrument, not a centered pill; the first viewport pairs the thesis with a map readout and a short “choose → trace → read” instruction.
+Fraunces Variable carries display headings and selected editorial statements. Public Sans Variable carries body copy and controls. JetBrains Mono Variable is reserved for actual data and measurements. All fonts are self-hosted. The light/dark theme applies to the document; the Explorer and boundary figure retain their instrument-surface palette in either theme.
 
-The Homelab Explorer is a deliberately dark teaching instrument inside both document themes: its field, node plates and detail panel use scoped local variables, so the Atlas page stays light while the map reads as a distinct working surface. The contrast boundary keeps the service map legible without pretending that the figure is a live dashboard. Its job is explanation: each service carries a documented purpose, decision and evidence, and the map never shows health, uptime or deployment state.
+Text contrast must meet WCAG AA (4.5:1 for normal text, 3:1 for large text). Focus is visible and distinct from selected state; selection is conveyed by `aria-pressed` and a border/inset accent, not color alone. Links in prose remain underlined.
 
-Controls use daisyUI semantic names (`primary`, `base-*`) where they sit on the Atlas surface. The map keeps its own scoped variables because its field stays dark in both themes.
+## Layout and diagrams
 
-Contrast floor: body and secondary text at least 4.5:1, large text at least 3:1. Selection is never signalled by colour alone: `aria-pressed`, a border change and a glow all move together.
+The home page uses an asymmetric hero, editorial two-column section introductions, a project register and a field-rule list. Reading pages keep a restrained measure; narrow viewports and 200% zoom must not create horizontal page overflow. Navigation and content order remain understandable without motion or JavaScript.
 
-## Type
+The service field uses ordinary HTML and inline SVG. Five functional lanes organize documented services: automation, two delivery paths, observability and compute. The layout is not a physical floor plan, exhaustive inventory, or live health view. Relationship lines appear only when supported by a case study; shared membership or technology never implies a connection. The side panel explains each selected service’s purpose, decision, evidence limits, technologies and source case. A separate study-trace state follows documented service/relationship sequences and is serialized as `?trace=<case-id>`; category, query and selected service use `category`, `q` and `service` URL parameters.
 
-One family, Public Sans Variable, self-hosted through `@fontsource-variable/public-sans`, with the system sans as fallback. Weights 400 for reading copy, 650–700 for headings and labels. Display sizes are fluid clamps and stop at 5.8rem; body text stays under 75 characters per line.
+On narrow screens, the map becomes a readable single-column lane list with relationship labels in the service rows. Desktop zoom and pan controls are hidden where they would not help. Selection, filters, trace chips and search use native HTML controls; keyboard navigation follows visible service order. Search and selection are enhancements, not prerequisites for reading the page.
 
-## Layout
+The “How the parts talk” diagrams use shared, labelled lanes and solid arrows whose labels state what crosses them. The home page renders the overview model; case studies render their relevant workflow. Diagrams communicate documented roles, not topology or operational state. They avoid hostnames, addresses, ports, guest identifiers, schedules and credentials, and state that they are historical documentation rather than live traffic.
 
-Atlas reads as a technical editorial page: a two-column first viewport pairs the thesis with an authored relationship map, scope line and a plain-language reading instruction. The following sections keep one reading path through practice, selected projects and lessons. The Homelab Explorer is a working surface: a short exploration guide, category filters and search, a 2.5D service map stage, and a service panel with its purpose, decision, evidence, technologies and case.
+## Interaction and motion
 
-The service map is ordinary HTML and inline SVG: nodes, labels, connections and controls live in the document, so the same information survives without graphics acceleration. Restrained CSS depth — offset shadows and layered plates — carries the 2.5D reading. Positions group services by editorial area; they are not a floor plan, an inventory or live status.
+Theme choice follows system preference until the visitor explicitly chooses a theme; that choice is stored locally. URL state makes Explorer views shareable and browser history navigable. The map works without WebGL and supports keyboard, touch, visible focus, empty states, reduced-motion preference and forced-colors mode.
 
-### Workflow diagrams
+Motion is brief and informational: a page arrival and a restrained flow cue on the boundary figure. It must never hide content, signal operational health, or be required to understand a connection. `prefers-reduced-motion` removes travel and entrance motion while preserving navigation and state changes.
 
-"How the parts talk" uses one diagram grammar: labelled lanes (request, delivery, management, ownership and signals), square nodes with a role line, and solid arrow connectors whose labels state what crosses them. The home page renders the shared `overview` model; each case study substitutes its own (`alert-relay`, `rss-relay`, `automation`, `observability`, `gpu-lab`). A diagram is a communication model, not a topology or a health view; every figure ends with `Historical documentation · not live traffic`, and no address, port, hostname, guest identifier, schedule or credential appears in it. The same component stacks vertically in narrow containers.
+## Voice and evidence
 
-### Reading and naming
-
-Body copy is capped at 36em, roughly 72 characters on desktop and tablet. Headings carry their own meaning: there are no uppercase labels above them on the catalogue, category panel or service panel.
-
-## States
-
-Selected, pressed, hover and focus-visible are explicit. The map needs no WebGL and works at every width; `?service`, `?category` and `?q` restore the same readable state. Motion responds to category and service selection and to URL changes; scroll reveal uses position rather than hiding content, and `prefers-reduced-motion` removes travel and entrance motion while keeping navigation intact.
-
-## Voice
-
-Plain English, active voice, first person only for work actually done. No invented metrics, job titles or dates; each case separates the documented state from the next step.
+Use plain English and active voice. First person is reserved for work actually performed. Do not invent services, relationships, metrics, job titles or dates. Distinguish observed historical state from proposed next steps, and do not imply that a documented service is currently running. The portfolio is static and makes no requests to the homelab.
