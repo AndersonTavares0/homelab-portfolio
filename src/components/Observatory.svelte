@@ -181,6 +181,7 @@
 
   onMount(() => {
     let destroyed = false;
+    let lowerObserver;
     let observer;
     const themeObserver = new MutationObserver(() => {
       pageTheme = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
@@ -197,6 +198,15 @@
     const stage = host?.querySelector('.observatory__stage');
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (stage && media.matches && !reduced) gsap.fromTo(stage, { opacity: 1, y: 16 }, { opacity: 1, y: 0, duration: .7, ease: 'power3.out', clearProps: 'all' });
+    const lower = host?.querySelector('.observatory__lower');
+    if (lower && !reduced && 'IntersectionObserver' in window) {
+      lowerObserver = new IntersectionObserver((entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return;
+        lowerObserver.disconnect();
+        gsap.fromTo(lower, { opacity: .72, y: 22 }, { opacity: 1, y: 0, duration: .68, ease: 'power3.out', clearProps: 'all' });
+      }, { threshold: .12 });
+      lowerObserver.observe(lower);
+    }
 
     function restoreFromHistory() {
       const next = stateFromUrl(window.location.search);
@@ -266,6 +276,7 @@
     return () => {
       destroyed = true;
       observer?.disconnect();
+      lowerObserver?.disconnect();
       themeObserver.disconnect();
 
       media.removeEventListener('change', updateMode);
@@ -322,7 +333,7 @@
         <span class="observatory__stage-readout" data-scene-readout>{sceneMode === '3d' ? `${activeComponents.length} stations · ${topologyLinks.length} links` : `DOM topology · ${activeComponents.length} stations`}</span>
       </div>
       {#snippet nodeButton(component)}
-        <button type="button" class="topology-node topology-node--{component.id}" class:is-selected={selectedId === component.id} class:is-related={selectedId === component.id || relatedComponents.some((relation) => relation.id === component.id)} class:is-dimmed={selectedId && selectedId !== component.id && !relatedComponents.some((relation) => relation.id === component.id)} data-component-id={component.id} style={`left: ${observatoryLayout[component.id].topology[0]}%; top: ${observatoryLayout[component.id].topology[1]}%;`} aria-label={`Select ${component.name}`} aria-pressed={selectedId === component.id} onclick={() => chooseComponent(component.id)} onkeydown={(event) => moveComponentFocus(event, component.id)}>
+        <button type="button" class="topology-node topology-node--{component.id}" class:is-selected={selectedId === component.id} class:is-related={selectedId === component.id || relatedComponents.some((relation) => relation.id === component.id)} class:is-dimmed={selectedId && selectedId !== component.id && !relatedComponents.some((relation) => relation.id === component.id)} data-component-id={component.id} style={`left: ${observatoryLayout[component.id].topology[0]}%; top: ${observatoryLayout[component.id].topology[1]}%; --node-depth: ${component.type === 'gpu' ? 18 : component.type === 'server' ? 12 : 6}px;`} aria-label={`Select ${component.name}`} aria-pressed={selectedId === component.id} onclick={() => chooseComponent(component.id)} onkeydown={(event) => moveComponentFocus(event, component.id)}>
           <svg class="topology-node__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             {#if component.type === 'gpu'}
               <rect x="3" y="6" width="18" height="12" rx="2" /><circle cx="10" cy="12" r="3" /><path d="M10 9v6m-3-3h6M21 10h1m-1 4h1" />
@@ -411,6 +422,10 @@
             <div><dt>Documented state</dt><dd>{activePhase.status}</dd></div>
             <div><dt>Next</dt><dd>{activePhase.next}</dd></div>
           </dl>
+          <div class="phase-stack">
+            <h4>Technologies in this view</h4>
+            <div class="phase-stack__list">{#each activePhase.skills as skill}<span>{skill}</span>{/each}</div>
+          </div>
         {/if}
       {/if}
     </aside>
@@ -490,6 +505,20 @@
   .observatory__nodes { display: flex; flex-wrap: wrap; gap: .5rem; padding: .8rem 1rem; border-top: 1px solid var(--obs-line); }
   .observatory__nodes .topology-node { position: static; left: auto; top: auto; width: auto; min-height: 2.8rem; padding: .45rem .7rem; transform: none; font-size: .72rem; }
   .observatory__nodes .topology-node:hover { transform: none; }
+  .observatory__nodes { align-items: stretch; }
+  .observatory__nodes .topology-node {
+    flex: 1 1 8rem;
+    min-width: 7rem;
+    border-radius: .22rem;
+    background: color-mix(in srgb, var(--obs-raised) 84%, transparent);
+    transition: border-color .2s ease, background-color .2s ease, transform .2s ease, box-shadow .2s ease;
+  }
+  .observatory__nodes .topology-node:hover,
+  .observatory__nodes .topology-node:focus-visible { transform: translateY(-2px); }
+  .observatory__nodes .topology-node__icon { display: block; color: var(--obs-blue); }
+  .observatory__nodes .topology-node.is-selected { transform: translateY(-2px); box-shadow: 0 0 0 2px color-mix(in srgb, var(--obs-blue) 22%, transparent); }
+  .observatory__nodes .topology-node.is-selected::after { width: .35rem; height: .35rem; margin-left: auto; border-radius: 50%; background: var(--obs-teal); box-shadow: 0 0 0 .2rem color-mix(in srgb, var(--obs-teal) 18%, transparent); content: ''; }
+
   .observatory__wires { position: absolute; inset: 0; width: 100%; height: 100%; }
   .observatory__wires line { fill: none; stroke: #638397; stroke-width: .9; stroke-dasharray: 2 2; opacity: .68; vector-effect: non-scaling-stroke; transition: stroke .2s ease, opacity .2s ease; }
   .observatory__wires .wire-active { stroke: #9bcfe4; opacity: 1; stroke-width: 1.5; }
@@ -531,6 +560,10 @@
   .phase-facts div { padding: .7rem 0; border-top: 1px solid var(--obs-line); }
   .phase-facts dt { margin-bottom: .28rem; color: var(--obs-teal); font-size: .68rem; font-weight: 700; }
   .phase-facts dd { margin: 0; color: #ced8dc; font-size: .78rem; line-height: 1.5; }
+  .phase-stack { margin-top: 1.1rem; padding-top: 1rem; border-top: 1px solid var(--obs-line); }
+  .phase-stack h4 { margin-bottom: .55rem; }
+  .phase-stack__list { display: flex; flex-wrap: wrap; gap: .35rem; }
+  .phase-stack__list span { padding: .25rem .45rem; border: 1px solid #435663; border-radius: .18rem; color: #d5e0e4; background: #1b2a34; font-size: .67rem; }
   .observatory__lower { display: grid; grid-template-columns: minmax(0, 1.12fr) minmax(16rem, .88fr); gap: 1rem; margin-top: 1rem; }
   .phase-panel, .phase-work { padding: 1.2rem; }
   .lower-heading { align-items: flex-start; min-height: 3.4rem; margin-bottom: .95rem; }
@@ -624,7 +657,11 @@
   .topology-node::before { width: .35rem; height: .35rem; align-self: flex-start; border-top: 1px solid var(--obs-blue); border-left: 1px solid var(--obs-blue); content: ''; }
   .topology-node.is-dimmed { opacity: 1; }
   .topology-node.is-selected { border-color: #b1e0f0; background: #254252; box-shadow: 0 0 0 2px rgba(155, 207, 228, .18), 0 16px 28px rgba(3, 9, 14, .38); }
-  .topology-node__icon { display: none; }
+  .observatory__map .topology-node__icon { display: none; }
+  .observatory__map--overlay { perspective: 900px; transform-style: preserve-3d; }
+  .observatory__map--overlay .topology-node { transform: translate3d(-50%, -50%, var(--node-depth, 0px)); transform-style: preserve-3d; }
+  .observatory__map--overlay .topology-node:hover,
+  .observatory__map--overlay .topology-node:focus-visible { transform: translate3d(-50%, calc(-50% - 3px), var(--node-depth, 0px)); }
   .observatory__map-caption { left: 50%; right: auto; width: max-content; max-width: calc(100% - 2rem); transform: translateX(-50%); padding: .25rem .55rem; border: 1px solid rgba(130, 185, 210, .22); background: rgba(15, 25, 34, .82); font: .62rem/1.35 ui-monospace, SFMono-Regular, Consolas, monospace; letter-spacing: .025em; }
   .observatory__detail { background: #13212b; }
   .detail__topline, .detail__id, .phase-panel__count { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; letter-spacing: .04em; }
@@ -709,6 +746,8 @@
   .observatory[data-theme='light'] .detail__relations button { color: #155a91; }
   .observatory[data-theme='light'] .phase-facts dt { color: #126e69; }
   .observatory[data-theme='light'] .phase-facts dd { color: #31505b; }
+  .observatory[data-theme='light'] .phase-stack { border-color: #c5d3d7; }
+  .observatory[data-theme='light'] .phase-stack__list span { color: #234654; border-color: #b5c7cc; background: #edf4f4; }
   @media (max-width: 520px) {
     .observatory__header { padding-bottom: .9rem; }
     .observatory__header h2 { max-width: 100%; }

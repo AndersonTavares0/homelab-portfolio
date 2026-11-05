@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { observatoryLayout } from '../model.js';
 
 const systemCount = Object.keys(observatoryLayout).length;
-const colors = { server: 0x708ba4, storage: 0x4f9ea1, switch: 0x698db4, gpu: 0x9c8465 };
+const colors = { server: 0x708ba4, storage: 0x4f9ea1, switch: 0x698db4, gpu: 0xb08d4c };
 
 function makeEquipment(type, material) {
   const group = new THREE.Group();
@@ -29,24 +29,35 @@ function makeEquipment(type, material) {
     led.position.set(0.29, 0.28, 0.39);
     group.add(led);
   } else if (type === 'gpu') {
-    shell(1.28, 0.42, 0.72, 0, body);
+    shell(1.62, 0.48, 0.86, 0, body);
     const face = new THREE.Mesh(
-      new THREE.BoxGeometry(1.18, .28, .025),
-      new THREE.MeshStandardMaterial({ color: 0x34434a, emissive: 0x5e4a2d, emissiveIntensity: .28, metalness: .3, roughness: .48 })
+      new THREE.BoxGeometry(1.52, .34, .025),
+      new THREE.MeshStandardMaterial({ color: 0x2b3940, emissive: 0x6c4d20, emissiveIntensity: .34, metalness: .42, roughness: .42 })
     );
-    face.position.set(0, 0, .38);
+    face.position.set(0, 0, .45);
     group.add(face);
-    for (let i = 0; i < 2; i++) {
-      const x = -.3 + i * .6;
-      const ring = new THREE.Mesh(new THREE.TorusGeometry(.145, .025, 8, 20), new THREE.MeshBasicMaterial({ color: 0xd4b77c, transparent: true, opacity: .9 }));
-      ring.rotation.x = Math.PI / 2;
-      ring.position.set(x, 0, .405);
-      const hub = new THREE.Mesh(new THREE.SphereGeometry(.045, 10, 6), new THREE.MeshBasicMaterial({ color: 0xf0d59a }));
-      hub.position.set(x, 0, .42);
+    for (let i = 0; i < 3; i++) {
+      const x = -.46 + i * .46;
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(.155, .026, 8, 20), new THREE.MeshBasicMaterial({ color: 0xf0c875, transparent: true, opacity: .95 }));
+      ring.position.set(x, 0, .475);
+      const hub = new THREE.Mesh(new THREE.SphereGeometry(.045, 10, 6), new THREE.MeshBasicMaterial({ color: 0xffdfa1 }));
+      hub.position.set(x, 0, .49);
+      const bladeMaterial = new THREE.MeshBasicMaterial({ color: 0xc5a45f, transparent: true, opacity: .88 });
+      for (const angle of [0, Math.PI / 2]) {
+        const blade = new THREE.Mesh(new THREE.BoxGeometry(.22, .028, .018), bladeMaterial);
+        blade.position.set(x, 0, .494);
+        blade.rotation.z = angle;
+        group.add(blade);
+      }
       group.add(ring, hub);
     }
-    const edge = new THREE.Mesh(new THREE.BoxGeometry(.9, .025, .02), new THREE.MeshBasicMaterial({ color: 0xb9a06b }));
-    edge.position.set(0, .19, .405);
+    for (let i = 0; i < 7; i++) {
+      const fin = new THREE.Mesh(new THREE.BoxGeometry(.045, .28, .06), new THREE.MeshStandardMaterial({ color: 0x8f7445, metalness: .5, roughness: .42 }));
+      fin.position.set(-.56 + i * .19, .22, .18);
+      group.add(fin);
+    }
+    const edge = new THREE.Mesh(new THREE.BoxGeometry(1.28, .025, .02), new THREE.MeshBasicMaterial({ color: 0xd1b16e }));
+    edge.position.set(0, .22, .48);
     group.add(edge);
   } else {
     shell(0.82, 1.18, 0.78, 0, body);
@@ -173,7 +184,6 @@ export function createObservatory(canvas, onSelect, onHover, edges, components) 
   const beacons = new Map();
   const hitTargets = [];
   const baseMaterials = new Map();
-  const glowMaterial = new THREE.MeshStandardMaterial({ color: 0x33566e, emissive: 0x244963, emissiveIntensity: 0.65, metalness: 0.25, roughness: 0.45 });
   for (const [id, layout] of Object.entries(observatoryLayout)) {
     const component = componentById.get(id);
     const type = component?.type ?? 'server';
@@ -390,7 +400,7 @@ export function createObservatory(canvas, onSelect, onHover, edges, components) 
       model.scale.setScalar(baseScales.get(id) * (selected ? 1.1 : hovered ? 1.045 : 1));
       for (const child of model.children) {
         const material = baseMaterials.get(child);
-        if (material) child.material = selected || hovered ? glowMaterial : material;
+        if (material) child.material = material;
       }
       const label = labels.get(id);
       if (label) {
@@ -501,7 +511,7 @@ export function createObservatory(canvas, onSelect, onHover, edges, components) 
       if (!id) resetCamera();
       applySelection();
       pulseSelection();
-      if (id && phaseIds.size < systemCount) focus(id);
+      if (id) focus(id);
     },
     resetCamera,
     zoom,
@@ -527,7 +537,6 @@ export function createObservatory(canvas, onSelect, onHover, edges, components) 
           }
         }
       });
-      glowMaterial.dispose();
       renderer.dispose();
     }
   };
