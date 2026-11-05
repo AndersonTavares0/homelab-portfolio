@@ -47,7 +47,7 @@
     theme = next;
     document.documentElement.dataset.theme = next;
     document.documentElement.style.colorScheme = next;
-    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', next === 'dark' ? '#101922' : '#f4f6f5');
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', next === 'dark' ? '#0b1513' : '#eceee7');
   }
 
 
@@ -90,7 +90,7 @@
 
 <svelte:head>
   <meta name="description" content={pageDescription} />
-  <meta name="theme-color" content={theme === 'dark' ? '#101922' : '#f4f6f5'} />
+  <meta name="theme-color" content={theme === 'dark' ? '#0b1513' : '#eceee7'} />
   <meta name="color-scheme" content="light dark" />
   <meta property="og:type" content={shareType} />
   <meta property="og:title" content={pageTitle} />
@@ -108,26 +108,21 @@
 <a class="skip" href="#main">Skip to content</a>
 <header class="site-header" class:site-header--scrolled={scrolled}>
   <div class="site-header__inner">
-    <a class="wordmark" href={homePath} aria-label="A Atlas.">
-      <span class="wordmark__mark" aria-hidden="true">A</span>
+    <a class="wordmark" href={homePath} aria-label="Atlas home">
+      <span class="wordmark__mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M12 2.8 3.8 20.5h16.4L12 2.8Z" /><path d="M7.6 14.2h8.8" /><circle cx="12" cy="2.8" r="1.3" /></svg>
+      </span>
       <span class="wordmark__label">Atlas<span>.</span></span>
     </a>
     <nav class="site-nav" aria-label="Main navigation">
-      <a class="site-nav__link" href={casesPath} aria-current={section === 'cases' ? 'page' : undefined}>
-        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3.5 4.5h13v11h-13zM3.5 8h13M7 4.5v3.4M13 4.5v3.4" /></svg>
-        <span>Case studies</span>
-      </a>
-      <a class="site-nav__link" href={explorerPath}>
-        <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="5" cy="6" r="2" /><circle cx="15" cy="5" r="2" /><circle cx="10" cy="15" r="2" /><path d="m6.7 6.4 6.6-.8M6.4 7.8l2.6 5.4M13.4 6.9l-2.5 5.9" /></svg>
-        <span>Homelab Explorer</span>
-      </a>
+      <a class="site-nav__link" href={casesPath} aria-current={section === 'cases' ? 'page' : undefined}>Case studies</a>
+      <a class="site-nav__link" href={explorerPath}>Homelab Explorer</a>
       <a class="site-nav__link" href={profilePath} aria-current={section === 'profile' ? 'page' : undefined}>
-        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 3.5h12v13H4zM7 7h6M7 10h6M7 13h3" /></svg>
         <span aria-label="Professional summary">Summary</span>
       </a>
     </nav>
     <div class="site-header__actions">
-      <span class="site-header__status"><i></i> documented / open</span>
+      <span class="site-header__status"><i aria-hidden="true"></i> Documented record</span>
       <button type="button" class:theme-toggle--pending={!mounted} class="theme-toggle" aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`} onclick={toggleTheme}>
         <svg viewBox="0 0 20 20" aria-hidden="true">{#if theme === 'dark'}<circle cx="10" cy="10" r="3.2" /><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.3 4.3l1.4 1.4M14.3 14.3l1.4 1.4M15.7 4.3l-1.4 1.4M5.7 14.3l-1.4 1.4" />{:else}<path d="M15.5 12.6A5.8 5.8 0 0 1 7.4 4.5 6.2 6.2 0 1 0 15.5 12.6Z" />{/if}</svg>
         <span>{theme === 'dark' ? 'Light' : 'Dark'}</span>
@@ -139,7 +134,7 @@
 <main id="main" tabindex="-1">{@render children()}</main>
 <footer class="site-footer">
   <div class="site-footer__lead">
-    <a class="site-footer__wordmark" href={homePath} aria-label="Atlas.">Atlas<span>.</span></a>
+    <a class="site-footer__wordmark" href={homePath} aria-label="Atlas home">Atlas<span>.</span></a>
     <p>Documented infrastructure, made legible.</p>
   </div>
   <nav class="site-footer__nav" aria-label="Footer navigation">
@@ -157,4 +152,8 @@
       <span>Top</span>
     </a>
   </div>
+  <p class="site-footer__colophon">
+    <span>Set in Fraunces and Public Sans. Built with SvelteKit.</span>
+    <span>Documented record, not live infrastructure.</span>
+  </p>
 </footer>
