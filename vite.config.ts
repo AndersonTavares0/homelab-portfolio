@@ -10,6 +10,7 @@ export default defineConfig({
     tailwindcss(),
     sveltekit({
       adapter: adapter({ pages: 'dist', assets: 'dist', fallback: '404.html' }),
+      paths: { base },
       files: { assets: 'public' },
     })
   ]

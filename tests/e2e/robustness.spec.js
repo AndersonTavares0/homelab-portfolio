@@ -61,11 +61,12 @@ test('share metadata points at a real image on every route', async ({ page, requ
       large: document.querySelector('meta[name="twitter:card"]')?.getAttribute('content'),
       type: document.querySelector('meta[property="og:type"]')?.getAttribute('content')
     }));
-    expect(meta.image, route).toBe('/og.png');
+    const imageUrl = new URL(meta.image ?? '', page.url());
+    expect(imageUrl.pathname, route).toBe('/og.png');
     expect(meta.url, route).toBe(route);
     expect(meta.large, route).toBe('summary_large_image');
     expect(meta.type, route).toBe(route.startsWith('/cases/') && route !== '/cases/' ? 'article' : 'website');
-    expect((await request.get(meta.image)).status(), route).toBe(200);
+    expect((await request.get(imageUrl.href)).status(), route).toBe(200);
   }
 });
 
@@ -80,7 +81,8 @@ test.describe('without JavaScript', () => {
     await page.goto('/#observatory');
     await expect(page.locator('.observatory__noscript')).toBeVisible();
     await expect(page.locator('.observatory__noscript')).toContainText('needs JavaScript');
-    await expect(page.getByRole('link', { name: 'the case studies catalogue' })).toHaveAttribute('href', '/cases/');
+    const catalogueHref = await page.getByRole('link', { name: 'the case studies catalogue' }).getAttribute('href');
+    expect(new URL(catalogueHref ?? '', page.url()).pathname).toBe('/cases/');
     expect(await page.evaluate(() => document.querySelectorAll('.observatory__wires line').length)).toBeGreaterThanOrEqual(0);
   });
 });

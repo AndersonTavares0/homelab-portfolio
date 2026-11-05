@@ -1,22 +1,21 @@
 <script lang="ts">
   import { resolve } from '$app/paths';
+  const homePath = resolve('/');
   let { data } = $props();
-  const resolvedBase = resolve('/');
-  const base = resolvedBase === '.' || resolvedBase === './' ? '' : resolvedBase.replace(/\/+$/, '');
 </script>
 
 <svelte:head><meta property="og:type" content="website" /></svelte:head>
 
 <article class="reading section-wrap case-index">
-  <a class="back-link" href={`${base}/`}>← Home</a>
+  <a class="back-link" href={homePath}>← Home</a>
   <h1>Case studies</h1>
   <p class="lead">Five studies from one environment. Each records the problem, the decision, the observed result and the limit of what the evidence establishes. They follow the same thematic order as the Observatory, from foundation to accelerated computing.</p>
   <ol class="case-list">
     {#each data.items as item, index}
-      <li><a href={`${base}/cases/${item.id}/`}><span class="case-list__index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span><span class="case-list__body"><strong>{item.title}</strong><span class="case-list__summary">{item.summary}</span><span class="case-list__meta">{item.technologies.join(' / ')}{item.phase ? ` · ${item.phase}` : ''} · About {item.minutes} min read</span></span></a></li>
+      <li><a href={resolve(`/cases/${item.id}/`)}><span class="case-list__index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span><span class="case-list__body"><strong>{item.title}</strong><span class="case-list__summary">{item.summary}</span><span class="case-list__meta">{item.technologies.join(' / ')}{item.phase ? ` · ${item.phase}` : ''} · About {item.minutes} min read</span></span></a></li>
     {/each}
   </ol>
-  <p><a href={`${base}/#observatory`}>Explore the same work in the Observatory</a></p>
+  <p><a href={`${homePath}#observatory`}>Explore the same work in the Observatory</a></p>
 </article>
 
 <style>

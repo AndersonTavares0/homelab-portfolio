@@ -29,13 +29,25 @@ function makeEquipment(type, material) {
     led.position.set(0.29, 0.28, 0.39);
     group.add(led);
   } else if (type === 'gpu') {
-    shell(0.98, 0.3, 0.66, 0, body);
+    shell(1.28, 0.42, 0.72, 0, body);
+    const face = new THREE.Mesh(
+      new THREE.BoxGeometry(1.18, .28, .025),
+      new THREE.MeshStandardMaterial({ color: 0x34434a, emissive: 0x5e4a2d, emissiveIntensity: .28, metalness: .3, roughness: .48 })
+    );
+    face.position.set(0, 0, .38);
+    group.add(face);
     for (let i = 0; i < 2; i++) {
-      const fan = new THREE.Mesh(new THREE.CylinderGeometry(0.105, 0.105, 0.045, 20), new THREE.MeshStandardMaterial({ color: 0x25333d, metalness: 0.3, roughness: 0.7 }));
-      fan.rotation.x = Math.PI / 2;
-      fan.position.set(-0.21 + i * 0.42, 0, 0.36);
-      group.add(fan);
+      const x = -.3 + i * .6;
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(.145, .025, 8, 20), new THREE.MeshBasicMaterial({ color: 0xd4b77c, transparent: true, opacity: .9 }));
+      ring.rotation.x = Math.PI / 2;
+      ring.position.set(x, 0, .405);
+      const hub = new THREE.Mesh(new THREE.SphereGeometry(.045, 10, 6), new THREE.MeshBasicMaterial({ color: 0xf0d59a }));
+      hub.position.set(x, 0, .42);
+      group.add(ring, hub);
     }
+    const edge = new THREE.Mesh(new THREE.BoxGeometry(.9, .025, .02), new THREE.MeshBasicMaterial({ color: 0xb9a06b }));
+    edge.position.set(0, .19, .405);
+    group.add(edge);
   } else {
     shell(0.82, 1.18, 0.78, 0, body);
     for (let i = 0; i < 3; i++) {
@@ -76,29 +88,24 @@ function makeLabel(text) {
   return label;
 }
 
-function makeDeck() {
-  const deck = new THREE.Group();
-  const base = new THREE.Mesh(
-    new THREE.BoxGeometry(11.6, 0.14, 7.2),
-    new THREE.MeshStandardMaterial({ color: 0x13232d, metalness: 0.62, roughness: 0.48 })
+function makeRelationshipField() {
+  const field = new THREE.Group();
+  for (const [radius, opacity, tilt] of [[3.4, .22, .18], [5.1, .34, -.12], [6.3, .14, .4]]) {
+    const ring = new THREE.Mesh(
+      new THREE.TorusGeometry(radius, .012, 6, 96),
+      new THREE.MeshBasicMaterial({ color: 0x78a9bb, transparent: true, opacity })
+    );
+    ring.rotation.x = Math.PI / 2 + tilt;
+    ring.rotation.z = tilt * .7;
+    field.add(ring);
+  }
+  const core = new THREE.Mesh(
+    new THREE.SphereGeometry(.1, 12, 8),
+    new THREE.MeshBasicMaterial({ color: 0xb1e0f0, transparent: true, opacity: .75 })
   );
-  base.position.y = -0.79;
-  base.receiveShadow = true;
-  deck.add(base);
-  const inset = new THREE.Mesh(
-    new THREE.BoxGeometry(10.7, 0.035, 6.3),
-    new THREE.MeshStandardMaterial({ color: 0x1d3441, metalness: 0.45, roughness: 0.62 })
-  );
-  inset.position.y = -0.7;
-  inset.receiveShadow = true;
-  deck.add(inset);
-  const frame = new THREE.LineSegments(
-    new THREE.EdgesGeometry(new THREE.BoxGeometry(11.75, 0.16, 7.35)),
-    new THREE.LineBasicMaterial({ color: 0x4d7182, transparent: true, opacity: 0.65 })
-  );
-  frame.position.y = -0.78;
-  deck.add(frame);
-  return deck;
+  core.position.y = -.08;
+  field.add(core);
+  return field;
 }
 
 function makeField() {
@@ -148,37 +155,15 @@ export function createObservatory(canvas, onSelect, onHover, edges, components) 
   teal.position.set(-4, 2, -2);
   scene.add(teal);
 
-  const floor = new THREE.Mesh(new THREE.PlaneGeometry(20, 20), new THREE.MeshStandardMaterial({ color: 0x17222b, roughness: 0.85, metalness: 0.1 }));
-  floor.rotation.x = -Math.PI / 2;
-  floor.position.y = -0.73;
-  floor.receiveShadow = true;
-  scene.add(floor);
-  const grid = new THREE.GridHelper(14, 14, 0x345268, 0x263946);
-  grid.position.y = -0.715;
-  for (const material of Array.isArray(grid.material) ? grid.material : [grid.material]) {
-    material.transparent = true;
-    material.opacity = 0.38;
-    material.depthWrite = false;
-  }
-  scene.add(grid);
-  scene.add(makeDeck());
-  scene.add(makeField());
+  scene.add(makeField(), makeRelationshipField());
   const orbit = new THREE.Mesh(
-    new THREE.RingGeometry(5.1, 5.12, 96),
-    new THREE.MeshBasicMaterial({ color: 0x54768a, transparent: true, opacity: 0.5, side: THREE.DoubleSide })
+    new THREE.TorusGeometry(5.1, .018, 6, 96),
+    new THREE.MeshBasicMaterial({ color: 0x8bb9c8, transparent: true, opacity: 0.42 })
   );
-  orbit.rotation.x = -Math.PI / 2;
-  orbit.position.y = -0.704;
+  orbit.rotation.x = Math.PI / 2;
+  orbit.rotation.z = .16;
+  orbit.position.y = -0.2;
   scene.add(orbit);
-  for (const [radius, opacity] of [[3.4, .26], [5.1, .5], [6.3, .16]]) {
-    const ring = new THREE.Mesh(
-      new THREE.RingGeometry(radius, radius + .012, 96),
-      new THREE.MeshBasicMaterial({ color: 0x6f9caf, transparent: true, opacity, side: THREE.DoubleSide })
-    );
-    ring.rotation.x = -Math.PI / 2;
-    ring.position.y = -0.702;
-    scene.add(ring);
-  }
 
   const nodes = new Map();
   const labels = new Map();
@@ -198,16 +183,9 @@ export function createObservatory(canvas, onSelect, onHover, edges, components) 
     model.position.set(...layout.scene);
     basePositions.set(id, model.position.clone());
     model.userData.componentId = id;
-    const plateRadius = id === 'host' ? 1.15 : 0.82;
-    const plate = new THREE.Mesh(
-      new THREE.CylinderGeometry(plateRadius * 0.94, plateRadius, 0.12, 8),
-      new THREE.MeshStandardMaterial({ color: 0x263743, metalness: 0.38, roughness: 0.56 })
-    );
-    plate.position.y = -0.65;
-    plate.receiveShadow = true;
-    model.add(plate);
+    const haloRadius = id === 'host' ? 1.15 : id === 'gpu' ? 1.08 : 0.82;
     const halo = new THREE.Mesh(
-      new THREE.TorusGeometry(plateRadius * 1.04, 0.014, 6, 48),
+      new THREE.TorusGeometry(haloRadius * 1.04, 0.014, 6, 48),
       new THREE.MeshBasicMaterial({ color: 0x82b9d2, transparent: true, opacity: 0.28 })
     );
     halo.rotation.x = Math.PI / 2;
@@ -334,6 +312,10 @@ export function createObservatory(canvas, onSelect, onHover, edges, components) 
     yaw = 0;
     pitch = 0;
     distance = Math.max(10.8, minimumDistance());
+    updateCamera();
+  }
+  function zoom(direction) {
+    distance = Math.max(minimumDistance(), Math.min(18, distance + direction * -0.75));
     updateCamera();
   }
 
@@ -494,8 +476,9 @@ export function createObservatory(canvas, onSelect, onHover, edges, components) 
     applySelection();
   }
   function onWheel(event) {
+    if (!event.ctrlKey && !event.metaKey) return;
     event.preventDefault();
-    distance = Math.max(minimumDistance(), Math.min(20, distance + Math.sign(event.deltaY) * 0.5));
+    distance = Math.max(minimumDistance(), Math.min(18, distance + Math.sign(event.deltaY) * 0.5));
     updateCamera();
   }
   function onContextMenu(event) { event.preventDefault(); }
@@ -521,6 +504,7 @@ export function createObservatory(canvas, onSelect, onHover, edges, components) 
       if (id && phaseIds.size < systemCount) focus(id);
     },
     resetCamera,
+    zoom,
     destroy() {
       destroyed = true;
       cancelAnimationFrame(focusFrame);
