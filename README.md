@@ -1,121 +1,30 @@
-<div align="center">
+# Homelab
 
-<h1>Homelab portfolio</h1>
+A personal environment for learning and experimenting with Linux, virtualization, containers, automation, observability, and local AI.
 
-<p><a href="https://andersontavares0.github.io/homelab-portfolio/"><img alt="Live portfolio website" src="https://img.shields.io/badge/site-live-2A9D8F?logo=githubpages&logoColor=white"></a> <img alt="SvelteKit" src="https://img.shields.io/badge/SvelteKit-app-FF3E00?logo=svelte&logoColor=white"> <img alt="Svelte 5" src="https://img.shields.io/badge/Svelte-5-FF3E00?logo=svelte&logoColor=white"> <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white"> <img alt="Tailwind CSS 4" src="https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss&logoColor=white"> <img alt="Accessible HTML" src="https://img.shields.io/badge/accessible-HTML-0f766e"> <img alt="Inline SVG service map" src="https://img.shields.io/badge/service_map-SVG-2459b7"></p>
+## Stack at a glance
 
-<p><strong>Infrastructure, understood by building.</strong></p>
-
-<p>Infrastructure projects documented through hands-on work with Linux, virtualization, container operations, observability and shared GPU computing. Each case records a problem, a technical decision and the evidence available.</p>
-
-<p><a href="https://andersontavares0.github.io/homelab-portfolio/">Live site</a> · <a href="#case-studies">Case studies</a> · <a href="#development-themes">Development themes</a> · <a href="#homelab-explorer">Homelab Explorer</a> · <a href="#professional-summary">Professional summary</a> · <a href="#run-locally">Run locally</a></p>
-
-</div>
-
-## Skills
-
-Linux · Proxmox · Podman · systemd · Ansible · Semaphore · Grafana · Loki · Python
-
-## Case studies
-
-Each study records its context, decision, observed result, learning and documented state. Results remain tied to the evidence and date of their source.
-
-| Study | Focus | Technologies |
-|---|---|---|
-| [Automation with a review boundary](content/cases/automation.md) | Ansible and Semaphore separate read-only discovery, simulation and guarded changes. | Ansible, Semaphore, Proxmox, Linux |
-| [Decoupling an RSS relay from inference](content/cases/rss-relay.md) | Removing an unnecessary GPU dependency while retaining reliable feed delivery. | Python, Miniflux, Discord, HMAC |
-| [Making telemetry failures visible](content/cases/observability.md) | Freshness and delivery status matter as much as collected metrics. | Python, systemd, Uptime Kuma, Grafana, Loki |
-| [Safer alert delivery](content/cases/alert-relay.md) | A local relay keeps alert credentials out of a plugin's error messages. | CrowdSec, Telegram, Python, systemd |
-| [Sharing a GPU safely](content/cases/gpu-lab.md) | A single lifecycle controller coordinates an interactive lab and production inference. | Linux, systemd, Podman, GPU, Python |
-
-## Development themes
-
-Each phase pairs a challenge with a lesson. They group related work as editorial themes, not a measured chronology.
-
-| Theme | Challenge and learning | Related studies |
-|---|---|---|
-| Foundation | Keep management and workload boundaries clear.<br>Treat documented configuration and live state as distinct. | Automation with a review boundary |
-| Services | Keep service delivery independent of scarce compute.<br>Remove unnecessary dependencies from a critical path. | Decoupling an RSS relay from inference |
-| Automation & observability | Distinguish missing, old and failed observations.<br>Keep safe inspection separate from changes. | Automation with a review boundary, Safer alert delivery, Making telemetry failures visible |
-| Accelerated computing | Prevent stale sessions from claiming a shared resource.<br>Prove ownership and cleanup together. | Sharing a GPU safely |
-
-## Homelab Explorer
-
-The explorer is a teaching map of the documented work, not a dashboard. Each line below is a relationship described by one of the case studies:
+The lab brings together Proxmox VE, Linux workloads, VMs and containers, Docker/Podman, Ansible/Semaphore, and an LGTM observability stack (Grafana, Loki, Tempo, Mimir). Experiments include a GPU Lab with a GTX 1050 Ti and Linux sandboxes. Runbooks, CI/CD, and a firewall support day-to-day learning and operation.
 
 ```mermaid
-flowchart TB
-  CrowdSec["CrowdSec<br/>detection payload"] --> AlertRelay["Local alert relay<br/>credential boundary"]
-  AlertRelay --> Telegram["Telegram<br/>alert destination"]
-  Miniflux["Miniflux<br/>feed webhooks"] --> RSSRelay["RSS relay<br/>deduplication and queue"]
-  RSSRelay --> Discord["Discord<br/>feed destination"]
-  Semaphore["Semaphore<br/>execution console"] --> Ansible["Ansible<br/>versioned playbooks"]
-  Ansible --> Proxmox["Proxmox<br/>read-only facts"]
+flowchart LR
+    lab["Homelab<br/>learning and experiments"]
+    lab --- platform["Platform<br/>Proxmox VE · Linux"]
+    lab --- runtime["Runtime<br/>VMs · containers<br/>Docker · Podman"]
+    lab --- automation["Automation<br/>Ansible · Semaphore<br/>CI/CD · runbooks"]
+    lab --- observability["Observability<br/>LGTM<br/>Grafana · Loki · Tempo · Mimir"]
+    lab --- experiments["Experiments<br/>GPU Lab · GTX 1050 Ti<br/>Linux sandboxes · local AI"]
+    lab --- security["Network boundary<br/>Firewall"]
 ```
 
-The Homelab Explorer presents the same work as a 2.5D service map drawn with HTML and inline SVG. Its 15 services sit in 4 editorial areas (automation, delivery, observability, compute), positioned for reading rather than mapped to physical machines. Selecting a service shows its purpose, the decision behind it, the evidence available, its technologies and the case that documents it. Proxmox is shown at its documented role in the automation study; it does not expose a guest inventory here.
+The branches group technologies by area; they do not describe traffic, host placement, configuration, or live status. This repository is a high-level introduction and learning record, not an operational guide or deployment blueprint.
 
-The map explains relationships and decisions. It never reports health, uptime, current deployment state or an inventory of the real environment, and it makes no requests to the homelab. Because the map is ordinary HTML and SVG, it needs no WebGL: keyboard, touch, browser history, reduced-motion preferences and URLs such as `?service=alert-relay&category=delivery#homelab-explorer` reach the same content.
+## Documentation
 
-## Professional summary
+- [Infrastructure](docs/infrastructure.md)
+- [Services](docs/services.md)
+- [Automation and operations](docs/automation.md)
+- [GPU Lab](docs/experiments/gpu-lab.md)
+- [Project notes](docs/projects/)
 
-The `/profile/` route presents a concise, project-based summary that readers can print.
-
-## Site routes
-
-| Route | Purpose |
-|---|---|
-| `/` | Atlas home, skills, project index, lessons and the Homelab Explorer |
-| `/cases/` | Catalogue of all five studies |
-| `/cases/<id>/` | Full study with context, decisions and documented state |
-| `/profile/` | Printable, project-based professional summary |
-| Unknown path | Editorial 404 page |
-
-
-## Run locally
-
-Requires Node.js 22.23.4 or newer.
-
-```sh
-npm ci
-npm run dev
-```
-
-Open the local address printed by Vite, normally `http://localhost:5173`.
-
-To inspect the static build, run these commands after stopping the development server:
-
-```sh
-npm run build
-npm run preview -- --host 127.0.0.1 --port 4321
-```
-
-## Verify changes
-
-Run the content, unit, dependency, build, public-content and browser checks:
-
-```sh
-npm run content:check
-npm run content:build
-npm test
-npm audit --audit-level=low
-npm run build
-npm run audit:public
-npm run test:e2e
-```
-
-Install Chromium once before the browser suite with `npx playwright install chromium`. Build before `npm run test:e2e`; Playwright serves the generated `dist/` site on `127.0.0.1:4327`.
-The published site is static; the Homelab Explorer is rendered from the same HTML and inline SVG in the prerendered page and makes no requests to the homelab. The upstream `deepmerge` advisory has no patched release, so build configuration uses a local key-filtering override with a regression test. `npm audit --audit-level=low` must remain clean.
-
-Private GitHub Actions verifies pushes and pull requests. A push to `main` deploys only after verification; Pages and OIDC write permissions are isolated to that job. The Pages build uses `SITE_BASE_PATH=/homelab-portfolio` and sets `PUBLIC_SITE_URL` at deployment time.
-
-`npm run audit:public` checks configured patterns in authored and generated files. It is a heuristic, not proof that every possible exposure has been removed.
-
-## Privacy and publication
-
-The source repository remains private. The live site is available at [homelab portfolio](https://andersontavares0.github.io/homelab-portfolio/); GitHub Actions deploys the static site from `main` after verification. Case studies distinguish historical records from current live state, and the service map is illustrative rather than a physical inventory or a status monitor.
-
-
-## License
-
-Original code is [MIT licensed](LICENSE). Original writing and diagrams are [CC BY 4.0](CONTENT-LICENSE.md). Third-party dependencies and fonts retain their own licenses.
+Original writing and diagrams are [CC BY 4.0](CONTENT-LICENSE.md).
